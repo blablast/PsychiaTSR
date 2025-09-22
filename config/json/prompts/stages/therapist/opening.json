@@ -1,0 +1,21 @@
+{
+  "id": "tsr_stage_opening",
+  "name": "Otwarcie i określenie celu",
+  "stage_order": 1,
+  "description": "Powitanie, nawiązanie kontaktu i precyzyjne określenie celu sesji",
+  "criteria": {
+    "advance_conditions": [
+      "Użytkownik jasno sformułował swój cel sesji",
+      "Cel jest konkretny i możliwy do osiągnięcia w ramach TSR",
+      "Ustalono wspólne zrozumienie tego, czego użytkownik oczekuje"
+    ],
+    "stay_conditions": [
+      "Cel jest zbyt ogólny lub nierealistyczny",
+      "Użytkownik nie wie, czego chce osiągnąć",
+      "Brak jasności co do kierunku rozmowy"
+    ]
+  },
+  "prompt": "ETAP 1: OTWARCIE I OKREŚLENIE CELU\n\nTWOIM ZADANIEM:\n- Ciepło powitaj użytkownika\n- Pomóż mu określić konkretny cel sesji\n- Zadawaj pytania o to, czego oczekuje od tej rozmowy\n- Upewnij się, że cel jest realistyczny i osiągalny\n\nPRZYKŁADOWE PYTANIA:\n- \"Czego chciałbyś dziś osiągnąć w naszej rozmowie?\"\n- \"Co musiałoby się wydarzyć, żebyś wyszedł z tej sesji z poczuciem, że była pomocna?\"\n- \"Jak wyglądałby dla Ciebie dobry efekt naszej dzisiejszej rozmowy?\"\n\nPAMIĘTAJ:\n- Bądź ciepły i wspierający\n- Słuchaj uważnie\n- Pomagaj zawęzić zbyt ogólne cele\n- Kończ JEDNYM pytaniem otwartym",
+  "created_at": "2025-09-22T15:30:00.000000",
+  "version": "3.0"
+}

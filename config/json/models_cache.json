@@ -1,0 +1,786 @@
+{
+  "cache_version": "1.0",
+  "last_updated": "2025-09-22T23:08:47.529356Z",
+  "expires_at": "2025-09-29T23:08:48.031684Z",
+  "cache_duration_days": 7,
+  "providers": {
+    "openai": {
+      "models": [
+        {
+          "id": "gpt-4-0613",
+          "name": "Gpt 4 0613",
+          "provider": "openai",
+          "context_length": 8192,
+          "description": "OpenAI gpt-4-0613 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4",
+          "name": "Gpt 4",
+          "provider": "openai",
+          "context_length": 8192,
+          "description": "OpenAI gpt-4 model",
+          "available": true
+        },
+        {
+          "id": "gpt-3.5-turbo",
+          "name": "Gpt 3.5 Turbo",
+          "provider": "openai",
+          "context_length": 16385,
+          "description": "OpenAI gpt-3.5-turbo model",
+          "available": true
+        },
+        {
+          "id": "gpt-audio",
+          "name": "Gpt Audio",
+          "provider": "openai",
+          "context_length": 4096,
+          "description": "OpenAI gpt-audio model",
+          "available": true
+        },
+        {
+          "id": "gpt-5-nano",
+          "name": "Gpt 5 Nano",
+          "provider": "openai",
+          "context_length": 4096,
+          "description": "OpenAI gpt-5-nano model",
+          "available": true
+        },
+        {
+          "id": "gpt-audio-2025-08-28",
+          "name": "Gpt Audio 2025 08 28",
+          "provider": "openai",
+          "context_length": 4096,
+          "description": "OpenAI gpt-audio-2025-08-28 model",
+          "available": true
+        },
+        {
+          "id": "gpt-realtime",
+          "name": "Gpt Realtime",
+          "provider": "openai",
+          "context_length": 4096,
+          "description": "OpenAI gpt-realtime model",
+          "available": true
+        },
+        {
+          "id": "gpt-realtime-2025-08-28",
+          "name": "Gpt Realtime 2025 08 28",
+          "provider": "openai",
+          "context_length": 4096,
+          "description": "OpenAI gpt-realtime-2025-08-28 model",
+          "available": true
+        },
+        {
+          "id": "gpt-3.5-turbo-instruct",
+          "name": "Gpt 3.5 Turbo Instruct",
+          "provider": "openai",
+          "context_length": 16385,
+          "description": "OpenAI gpt-3.5-turbo-instruct model",
+          "available": true
+        },
+        {
+          "id": "gpt-3.5-turbo-instruct-0914",
+          "name": "Gpt 3.5 Turbo Instruct 0914",
+          "provider": "openai",
+          "context_length": 16385,
+          "description": "OpenAI gpt-3.5-turbo-instruct-0914 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4-1106-preview",
+          "name": "Gpt 4 1106 Preview",
+          "provider": "openai",
+          "context_length": 8192,
+          "description": "OpenAI gpt-4-1106-preview model",
+          "available": true
+        },
+        {
+          "id": "gpt-3.5-turbo-1106",
+          "name": "Gpt 3.5 Turbo 1106",
+          "provider": "openai",
+          "context_length": 16385,
+          "description": "OpenAI gpt-3.5-turbo-1106 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4-0125-preview",
+          "name": "Gpt 4 0125 Preview",
+          "provider": "openai",
+          "context_length": 8192,
+          "description": "OpenAI gpt-4-0125-preview model",
+          "available": true
+        },
+        {
+          "id": "gpt-4-turbo-preview",
+          "name": "Gpt 4 Turbo Preview",
+          "provider": "openai",
+          "context_length": 8192,
+          "description": "OpenAI gpt-4-turbo-preview model",
+          "available": true
+        },
+        {
+          "id": "gpt-3.5-turbo-0125",
+          "name": "Gpt 3.5 Turbo 0125",
+          "provider": "openai",
+          "context_length": 16385,
+          "description": "OpenAI gpt-3.5-turbo-0125 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4-turbo",
+          "name": "Gpt 4 Turbo",
+          "provider": "openai",
+          "context_length": 8192,
+          "description": "OpenAI gpt-4-turbo model",
+          "available": true
+        },
+        {
+          "id": "gpt-4-turbo-2024-04-09",
+          "name": "Gpt 4 Turbo 2024 04 09",
+          "provider": "openai",
+          "context_length": 8192,
+          "description": "OpenAI gpt-4-turbo-2024-04-09 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o",
+          "name": "Gpt 4O",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-2024-05-13",
+          "name": "Gpt 4O 2024 05 13",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-2024-05-13 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-mini-2024-07-18",
+          "name": "Gpt 4O Mini 2024 07 18",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-mini-2024-07-18 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-mini",
+          "name": "Gpt 4O Mini",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-mini model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-2024-08-06",
+          "name": "Gpt 4O 2024 08 06",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-2024-08-06 model",
+          "available": true
+        },
+        {
+          "id": "chatgpt-4o-latest",
+          "name": "Chatgpt 4O Latest",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI chatgpt-4o-latest model",
+          "available": true
+        },
+        {
+          "id": "o1-mini-2024-09-12",
+          "name": "O1 Mini 2024 09 12",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI o1-mini-2024-09-12 model",
+          "available": true
+        },
+        {
+          "id": "o1-mini",
+          "name": "O1 Mini",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI o1-mini model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-realtime-preview-2024-10-01",
+          "name": "Gpt 4O Realtime Preview 2024 10 01",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-realtime-preview-2024-10-01 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-audio-preview-2024-10-01",
+          "name": "Gpt 4O Audio Preview 2024 10 01",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-audio-preview-2024-10-01 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-audio-preview",
+          "name": "Gpt 4O Audio Preview",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-audio-preview model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-realtime-preview",
+          "name": "Gpt 4O Realtime Preview",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-realtime-preview model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-realtime-preview-2024-12-17",
+          "name": "Gpt 4O Realtime Preview 2024 12 17",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-realtime-preview-2024-12-17 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-audio-preview-2024-12-17",
+          "name": "Gpt 4O Audio Preview 2024 12 17",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-audio-preview-2024-12-17 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-mini-realtime-preview-2024-12-17",
+          "name": "Gpt 4O Mini Realtime Preview 2024 12 17",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-mini-realtime-preview-2024-12-17 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-mini-audio-preview-2024-12-17",
+          "name": "Gpt 4O Mini Audio Preview 2024 12 17",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-mini-audio-preview-2024-12-17 model",
+          "available": true
+        },
+        {
+          "id": "o1-2024-12-17",
+          "name": "O1 2024 12 17",
+          "provider": "openai",
+          "context_length": 4096,
+          "description": "OpenAI o1-2024-12-17 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-mini-realtime-preview",
+          "name": "Gpt 4O Mini Realtime Preview",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-mini-realtime-preview model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-mini-audio-preview",
+          "name": "Gpt 4O Mini Audio Preview",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-mini-audio-preview model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-2024-11-20",
+          "name": "Gpt 4O 2024 11 20",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-2024-11-20 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-search-preview-2025-03-11",
+          "name": "Gpt 4O Search Preview 2025 03 11",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-search-preview-2025-03-11 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-search-preview",
+          "name": "Gpt 4O Search Preview",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-search-preview model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-mini-search-preview-2025-03-11",
+          "name": "Gpt 4O Mini Search Preview 2025 03 11",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-mini-search-preview-2025-03-11 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-mini-search-preview",
+          "name": "Gpt 4O Mini Search Preview",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-mini-search-preview model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-transcribe",
+          "name": "Gpt 4O Transcribe",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-transcribe model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-mini-transcribe",
+          "name": "Gpt 4O Mini Transcribe",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-mini-transcribe model",
+          "available": true
+        },
+        {
+          "id": "o1-pro-2025-03-19",
+          "name": "O1 Pro 2025 03 19",
+          "provider": "openai",
+          "context_length": 4096,
+          "description": "OpenAI o1-pro-2025-03-19 model",
+          "available": true
+        },
+        {
+          "id": "o1-pro",
+          "name": "O1 Pro",
+          "provider": "openai",
+          "context_length": 4096,
+          "description": "OpenAI o1-pro model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-mini-tts",
+          "name": "Gpt 4O Mini Tts",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-mini-tts model",
+          "available": true
+        },
+        {
+          "id": "gpt-4.1-2025-04-14",
+          "name": "Gpt 4.1 2025 04 14",
+          "provider": "openai",
+          "context_length": 8192,
+          "description": "OpenAI gpt-4.1-2025-04-14 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4.1",
+          "name": "Gpt 4.1",
+          "provider": "openai",
+          "context_length": 8192,
+          "description": "OpenAI gpt-4.1 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4.1-mini-2025-04-14",
+          "name": "Gpt 4.1 Mini 2025 04 14",
+          "provider": "openai",
+          "context_length": 8192,
+          "description": "OpenAI gpt-4.1-mini-2025-04-14 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4.1-mini",
+          "name": "Gpt 4.1 Mini",
+          "provider": "openai",
+          "context_length": 8192,
+          "description": "OpenAI gpt-4.1-mini model",
+          "available": true
+        },
+        {
+          "id": "gpt-4.1-nano-2025-04-14",
+          "name": "Gpt 4.1 Nano 2025 04 14",
+          "provider": "openai",
+          "context_length": 8192,
+          "description": "OpenAI gpt-4.1-nano-2025-04-14 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4.1-nano",
+          "name": "Gpt 4.1 Nano",
+          "provider": "openai",
+          "context_length": 8192,
+          "description": "OpenAI gpt-4.1-nano model",
+          "available": true
+        },
+        {
+          "id": "gpt-image-1",
+          "name": "Gpt Image 1",
+          "provider": "openai",
+          "context_length": 4096,
+          "description": "OpenAI gpt-image-1 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-realtime-preview-2025-06-03",
+          "name": "Gpt 4O Realtime Preview 2025 06 03",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-realtime-preview-2025-06-03 model",
+          "available": true
+        },
+        {
+          "id": "gpt-4o-audio-preview-2025-06-03",
+          "name": "Gpt 4O Audio Preview 2025 06 03",
+          "provider": "openai",
+          "context_length": 128000,
+          "description": "OpenAI gpt-4o-audio-preview-2025-06-03 model",
+          "available": true
+        },
+        {
+          "id": "gpt-5-chat-latest",
+          "name": "Gpt 5 Chat Latest",
+          "provider": "openai",
+          "context_length": 4096,
+          "description": "OpenAI gpt-5-chat-latest model",
+          "available": true
+        },
+        {
+          "id": "gpt-5-2025-08-07",
+          "name": "Gpt 5 2025 08 07",
+          "provider": "openai",
+          "context_length": 4096,
+          "description": "OpenAI gpt-5-2025-08-07 model",
+          "available": true
+        },
+        {
+          "id": "gpt-5",
+          "name": "Gpt 5",
+          "provider": "openai",
+          "context_length": 4096,
+          "description": "OpenAI gpt-5 model",
+          "available": true
+        },
+        {
+          "id": "gpt-5-mini-2025-08-07",
+          "name": "Gpt 5 Mini 2025 08 07",
+          "provider": "openai",
+          "context_length": 4096,
+          "description": "OpenAI gpt-5-mini-2025-08-07 model",
+          "available": true
+        },
+        {
+          "id": "gpt-5-mini",
+          "name": "Gpt 5 Mini",
+          "provider": "openai",
+          "context_length": 4096,
+          "description": "OpenAI gpt-5-mini model",
+          "available": true
+        },
+        {
+          "id": "gpt-5-nano-2025-08-07",
+          "name": "Gpt 5 Nano 2025 08 07",
+          "provider": "openai",
+          "context_length": 4096,
+          "description": "OpenAI gpt-5-nano-2025-08-07 model",
+          "available": true
+        },
+        {
+          "id": "gpt-3.5-turbo-16k",
+          "name": "Gpt 3.5 Turbo 16K",
+          "provider": "openai",
+          "context_length": 16385,
+          "description": "OpenAI gpt-3.5-turbo-16k model",
+          "available": true
+        }
+      ],
+      "last_fetched": "2025-09-22T23:08:47.529356Z",
+      "status": "success",
+      "error": null
+    },
+    "gemini": {
+      "models": [
+        {
+          "id": "gemini-1.5-pro-latest",
+          "name": "Gemini 1.5 Pro Latest",
+          "provider": "gemini",
+          "context_length": 2000000,
+          "description": "Alias that points to the most recent production (non-experimental) release of Gemini 1.5 Pro, our mid-size multimodal model that supports up to 2 million tokens.",
+          "available": true
+        },
+        {
+          "id": "gemini-1.5-pro-002",
+          "name": "Gemini 1.5 Pro 002",
+          "provider": "gemini",
+          "context_length": 2000000,
+          "description": "Stable version of Gemini 1.5 Pro, our mid-size multimodal model that supports up to 2 million tokens, released in September of 2024.",
+          "available": true
+        },
+        {
+          "id": "gemini-1.5-pro",
+          "name": "Gemini 1.5 Pro",
+          "provider": "gemini",
+          "context_length": 2000000,
+          "description": "Stable version of Gemini 1.5 Pro, our mid-size multimodal model that supports up to 2 million tokens, released in May of 2024.",
+          "available": true
+        },
+        {
+          "id": "gemini-1.5-flash-latest",
+          "name": "Gemini 1.5 Flash Latest",
+          "provider": "gemini",
+          "context_length": 1000000,
+          "description": "Alias that points to the most recent production (non-experimental) release of Gemini 1.5 Flash, our fast and versatile multimodal model for scaling across diverse tasks.",
+          "available": true
+        },
+        {
+          "id": "gemini-1.5-flash",
+          "name": "Gemini 1.5 Flash",
+          "provider": "gemini",
+          "context_length": 1000000,
+          "description": "Alias that points to the most recent stable version of Gemini 1.5 Flash, our fast and versatile multimodal model for scaling across diverse tasks.",
+          "available": true
+        },
+        {
+          "id": "gemini-1.5-flash-002",
+          "name": "Gemini 1.5 Flash 002",
+          "provider": "gemini",
+          "context_length": 1000000,
+          "description": "Stable version of Gemini 1.5 Flash, our fast and versatile multimodal model for scaling across diverse tasks, released in September of 2024.",
+          "available": true
+        },
+        {
+          "id": "gemini-1.5-flash-8b",
+          "name": "Gemini 1.5 Flash-8B",
+          "provider": "gemini",
+          "context_length": 1000000,
+          "description": "Stable version of Gemini 1.5 Flash-8B, our smallest and most cost effective Flash model, released in October of 2024.",
+          "available": true
+        },
+        {
+          "id": "gemini-1.5-flash-8b-001",
+          "name": "Gemini 1.5 Flash-8B 001",
+          "provider": "gemini",
+          "context_length": 1000000,
+          "description": "Stable version of Gemini 1.5 Flash-8B, our smallest and most cost effective Flash model, released in October of 2024.",
+          "available": true
+        },
+        {
+          "id": "gemini-1.5-flash-8b-latest",
+          "name": "Gemini 1.5 Flash-8B Latest",
+          "provider": "gemini",
+          "context_length": 1000000,
+          "description": "Alias that points to the most recent production (non-experimental) release of Gemini 1.5 Flash-8B, our smallest and most cost effective Flash model, released in October of 2024.",
+          "available": true
+        },
+        {
+          "id": "gemini-2.5-pro-preview-03-25",
+          "name": "Gemini 2.5 Pro Preview 03-25",
+          "provider": "gemini",
+          "context_length": 32768,
+          "description": "Gemini 2.5 Pro Preview 03-25",
+          "available": true
+        },
+        {
+          "id": "gemini-2.5-flash-preview-05-20",
+          "name": "Gemini 2.5 Flash Preview 05-20",
+          "provider": "gemini",
+          "context_length": 32768,
+          "description": "Preview release (April 17th, 2025) of Gemini 2.5 Flash",
+          "available": true
+        },
+        {
+          "id": "gemini-2.5-flash",
+          "name": "Gemini 2.5 Flash",
+          "provider": "gemini",
+          "context_length": 32768,
+          "description": "Stable version of Gemini 2.5 Flash, our mid-size multimodal model that supports up to 1 million tokens, released in June of 2025.",
+          "available": true
+        },
+        {
+          "id": "gemini-2.5-flash-lite-preview-06-17",
+          "name": "Gemini 2.5 Flash-Lite Preview 06-17",
+          "provider": "gemini",
+          "context_length": 32768,
+          "description": "Preview release (June 11th, 2025) of Gemini 2.5 Flash-Lite",
+          "available": true
+        },
+        {
+          "id": "gemini-2.5-pro-preview-05-06",
+          "name": "Gemini 2.5 Pro Preview 05-06",
+          "provider": "gemini",
+          "context_length": 32768,
+          "description": "Preview release (May 6th, 2025) of Gemini 2.5 Pro",
+          "available": true
+        },
+        {
+          "id": "gemini-2.5-pro-preview-06-05",
+          "name": "Gemini 2.5 Pro Preview",
+          "provider": "gemini",
+          "context_length": 32768,
+          "description": "Preview release (June 5th, 2025) of Gemini 2.5 Pro",
+          "available": true
+        },
+        {
+          "id": "gemini-2.5-pro",
+          "name": "Gemini 2.5 Pro",
+          "provider": "gemini",
+          "context_length": 32768,
+          "description": "Stable release (June 17th, 2025) of Gemini 2.5 Pro",
+          "available": true
+        },
+        {
+          "id": "gemini-2.0-flash-exp",
+          "name": "Gemini 2.0 Flash Experimental",
+          "provider": "gemini",
+          "context_length": 2000000,
+          "description": "Gemini 2.0 Flash Experimental",
+          "available": true
+        },
+        {
+          "id": "gemini-2.0-flash",
+          "name": "Gemini 2.0 Flash",
+          "provider": "gemini",
+          "context_length": 2000000,
+          "description": "Gemini 2.0 Flash",
+          "available": true
+        },
+        {
+          "id": "gemini-2.0-flash-001",
+          "name": "Gemini 2.0 Flash 001",
+          "provider": "gemini",
+          "context_length": 2000000,
+          "description": "Stable version of Gemini 2.0 Flash, our fast and versatile multimodal model for scaling across diverse tasks, released in January of 2025.",
+          "available": true
+        },
+        {
+          "id": "gemini-2.0-flash-lite-001",
+          "name": "Gemini 2.0 Flash-Lite 001",
+          "provider": "gemini",
+          "context_length": 2000000,
+          "description": "Stable version of Gemini 2.0 Flash-Lite",
+          "available": true
+        },
+        {
+          "id": "gemini-2.0-flash-lite",
+          "name": "Gemini 2.0 Flash-Lite",
+          "provider": "gemini",
+          "context_length": 2000000,
+          "description": "Gemini 2.0 Flash-Lite",
+          "available": true
+        },
+        {
+          "id": "gemini-2.0-flash-lite-preview-02-05",
+          "name": "Gemini 2.0 Flash-Lite Preview 02-05",
+          "provider": "gemini",
+          "context_length": 2000000,
+          "description": "Preview release (February 5th, 2025) of Gemini 2.0 Flash-Lite",
+          "available": true
+        },
+        {
+          "id": "gemini-2.0-flash-lite-preview",
+          "name": "Gemini 2.0 Flash-Lite Preview",
+          "provider": "gemini",
+          "context_length": 2000000,
+          "description": "Preview release (February 5th, 2025) of Gemini 2.0 Flash-Lite",
+          "available": true
+        },
+        {
+          "id": "gemini-2.0-pro-exp",
+          "name": "Gemini 2.0 Pro Experimental",
+          "provider": "gemini",
+          "context_length": 2000000,
+          "description": "Experimental release (March 25th, 2025) of Gemini 2.5 Pro",
+          "available": true
+        },
+        {
+          "id": "gemini-2.0-pro-exp-02-05",
+          "name": "Gemini 2.0 Pro Experimental 02-05",
+          "provider": "gemini",
+          "context_length": 2000000,
+          "description": "Experimental release (March 25th, 2025) of Gemini 2.5 Pro",
+          "available": true
+        },
+        {
+          "id": "gemini-exp-1206",
+          "name": "Gemini Experimental 1206",
+          "provider": "gemini",
+          "context_length": 32768,
+          "description": "Experimental release (March 25th, 2025) of Gemini 2.5 Pro",
+          "available": true
+        },
+        {
+          "id": "gemini-2.0-flash-thinking-exp-01-21",
+          "name": "Gemini 2.5 Flash Preview 05-20",
+          "provider": "gemini",
+          "context_length": 2000000,
+          "description": "Preview release (April 17th, 2025) of Gemini 2.5 Flash",
+          "available": true
+        },
+        {
+          "id": "gemini-2.0-flash-thinking-exp",
+          "name": "Gemini 2.5 Flash Preview 05-20",
+          "provider": "gemini",
+          "context_length": 2000000,
+          "description": "Preview release (April 17th, 2025) of Gemini 2.5 Flash",
+          "available": true
+        },
+        {
+          "id": "gemini-2.0-flash-thinking-exp-1219",
+          "name": "Gemini 2.5 Flash Preview 05-20",
+          "provider": "gemini",
+          "context_length": 2000000,
+          "description": "Preview release (April 17th, 2025) of Gemini 2.5 Flash",
+          "available": true
+        },
+        {
+          "id": "gemini-2.5-flash-preview-tts",
+          "name": "Gemini 2.5 Flash Preview TTS",
+          "provider": "gemini",
+          "context_length": 32768,
+          "description": "Gemini 2.5 Flash Preview TTS",
+          "available": true
+        },
+        {
+          "id": "gemini-2.5-pro-preview-tts",
+          "name": "Gemini 2.5 Pro Preview TTS",
+          "provider": "gemini",
+          "context_length": 32768,
+          "description": "Gemini 2.5 Pro Preview TTS",
+          "available": true
+        },
+        {
+          "id": "gemini-2.5-flash-lite",
+          "name": "Gemini 2.5 Flash-Lite",
+          "provider": "gemini",
+          "context_length": 32768,
+          "description": "Stable version of Gemini 2.5 Flash-Lite, released in July of 2025",
+          "available": true
+        },
+        {
+          "id": "gemini-2.5-flash-image-preview",
+          "name": "Nano Banana",
+          "provider": "gemini",
+          "context_length": 32768,
+          "description": "Gemini 2.5 Flash Preview Image",
+          "available": true
+        }
+      ],
+      "last_fetched": "2025-09-22T23:08:47.529356Z",
+      "status": "success",
+      "error": null
+    }
+  },
+  "fallback_models": {
+    "openai": [],
+    "gemini": []
+  }
+}

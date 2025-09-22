@@ -1,0 +1,15 @@
+{
+  "id": "supervisor_summary",
+  "name": "Supervisor - Podsumowanie i wzmocnienie",
+  "stage_order": 5,
+  "description": "Ocena spełnienia kryteriów etapu podsumowania",
+  "criteria": {
+    "summary_acknowledged": "Użytkownik przyjął i potwierdził podsumowanie sesji",
+    "key_takeaway": "Użytkownik potrafi wskazać najważniejszy wniosek z rozmowy",
+    "closure": "Rozmowa została zakończona pozytywnym wzmocnieniem"
+  },
+  "evaluation_instructions": "Oceń każde kryterium osobno. Decyzja 'advance' oznacza zakończenie sesji. Dodaj stage_summary podsumowujące całą sesję.",
+  "prompt": "ETAP 5: PODSUMOWANIE I WZMOCNIENIE - OCENA SUPERVISORA\n\nTwoim zadaniem jest ocenić czy spełnione zostały kryteria tego etapu:\n\n1. SUMMARY_ACKNOWLEDGED: Czy użytkownik przyjął podsumowanie?\n   - Potwierdził główne ustalenia sesji\n   - Zgodził się z przedstawionym podsumowaniem\n   - Czuje się dobrze z tym co zostało omówione\n\n2. KEY_TAKEAWAY: Czy wskazał najważniejszy wniosek?\n   - Potrafi określić co było dla niego najważniejsze\n   - Ma jasność co do głównej nauki z sesji\n   - Rozumie znaczenie tego co zostało ustalone\n\n3. CLOSURE: Czy rozmowa została właściwie zakończona?\n   - Sesja zakończona pozytywną nutą\n   - Użytkownik czuje się wzmocniony\n   - Ma poczucie dobrze wykonanej pracy\n\nOceniaj WYŁĄCZNIE na podstawie obecnej rozmowy. Jeśli wszystkie kryteria spełnione, decision='advance' oznacza zakończenie sesji. W stage_summary umieść krótkie podsumowanie całej sesji.",
+  "created_at": "2025-09-22T16:00:00.000000",
+  "version": "3.0"
+}

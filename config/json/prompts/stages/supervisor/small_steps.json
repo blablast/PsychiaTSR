@@ -1,0 +1,15 @@
+{
+  "id": "supervisor_small_steps",
+  "name": "Supervisor - Małe kroki i działania",
+  "stage_order": 4,
+  "description": "Ocena spełnienia kryteriów etapu małych kroków",
+  "criteria": {
+    "step_defined": "Użytkownik podał pierwszy, konkretny krok do podjęcia",
+    "step_realistic": "Krok jest realistyczny, mały i w zasięgu użytkownika",
+    "commitment": "Użytkownik deklaruje chęć spróbowania tego kroku"
+  },
+  "evaluation_instructions": "Oceń każde kryterium osobno. Decyzja 'advance' tylko jeśli WSZYSTKIE 3 kryteria są spełnione. Dodaj stage_summary z informacją o zaplanowanym kroku.",
+  "prompt": "ETAP 4: MAŁE KROKI I DZIAŁANIA - OCENA SUPERVISORA\n\nTwoim zadaniem jest ocenić czy spełnione zostały kryteria tego etapu:\n\n1. STEP_DEFINED: Czy użytkownik określił konkretny krok?\n   - Podał pierwszą konkretną akcję do wykonania\n   - Krok jest precyzyjny, nie ogólny\n   - Ma jasne wyobrażenie co ma robić\n\n2. STEP_REALISTIC: Czy krok jest realistyczny?\n   - Krok jest mały i wykonalny\n   - W zasięgu możliwości użytkownika\n   - Nie wymaga wielkich zmian od razu\n\n3. COMMITMENT: Czy użytkownik wyraża gotowość?\n   - Deklaruje chęć spróbowania kroku\n   - Wyraża motywację do działania\n   - Nie stawia warunków czy wymówek\n\nOceniaj WYŁĄCZNIE na podstawie obecnej rozmowy. Odpowiedz w formacie JSON z polem stage_summary zawierającym zaplanowany krok.",
+  "created_at": "2025-09-22T16:00:00.000000",
+  "version": "3.0"
+}

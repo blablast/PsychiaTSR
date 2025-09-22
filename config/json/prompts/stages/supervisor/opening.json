@@ -1,0 +1,15 @@
+{
+  "id": "supervisor_opening",
+  "name": "Supervisor - Otwarcie i określenie celu",
+  "stage_order": 1,
+  "description": "Ocena spełnienia kryteriów etapu otwarcia i określenia celu",
+  "criteria": {
+    "rapport_established": "Użytkownik i terapeuta weszli w pozytywny dialog, użytkownik wyraża zaufanie",
+    "user_understanding": "Użytkownik rozumie i akceptuje podejście TSR (skupienie na rozwiązaniach)",
+    "goal_identified": "Użytkownik jasno określił konkretny cel sesji - czego chce więcej w życiu"
+  },
+  "evaluation_instructions": "Oceń każde kryterium osobno. Decyzja 'advance' tylko jeśli WSZYSTKIE 3 kryteria są spełnione. Pamiętaj o dodaniu stage_summary dla następnego etapu.",
+  "prompt": "ETAP 1: OTWARCIE I OKREŚLENIE CELU - OCENA SUPERVISORA\n\nTwoim zadaniem jest ocenić czy spełnione zostały kryteria tego etapu:\n\n1. RAPPORT_ESTABLISHED: Czy użytkownik i terapeuta nawiązali pozytywny kontakt?\n   - Użytkownik odpowiada pozytywnie na powitanie\n   - Wyraża gotowość do rozmowy\n   - Nie wykazuje oporu lub zamknięcia się\n\n2. USER_UNDERSTANDING: Czy użytkownik rozumie podejście TSR?\n   - Akceptuje skupienie na rozwiązaniach zamiast problemach\n   - Rozumie, że będziemy szukać tego co działa\n   - Nie oczekuje tylko diagnozy lub analizy przyczyn\n\n3. GOAL_IDENTIFIED: Czy użytkownik określił konkretny cel?\n   - Jasno sformułował czego chce więcej w życiu\n   - Cel jest pozytywny (nie tylko \"chcę się pozbyć problemu\")\n   - Cel jest realistyczny i możliwy do osiągnięcia\n\nOceniaj WYŁĄCZNIE na podstawie obecnej rozmowy. Odpowiedz w formacie JSON z polem stage_summary.",
+  "created_at": "2025-09-22T16:00:00.000000",
+  "version": "3.0"
+}

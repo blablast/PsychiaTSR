@@ -1,0 +1,103 @@
+"""
+System prompt management following Single Responsibility Principle.
+Handles loading and formatting of system-level prompts for AI agents.
+"""
+
+import json
+from pathlib import Path
+from typing import Dict, Optional
+
+
+class SystemPromptManager:
+    """
+    Manages system-level prompts for therapy agents.
+
+    Responsibility: Load and format base system prompts that define
+    the core role and principles for therapist and supervisor agents.
+    """
+
+    def __init__(self, system_prompts_dir: str):
+        """
+        Initialize with system prompts directory.
+
+        Args:
+            system_prompts_dir: Path to directory containing system prompt files
+        """
+        self._system_dir = Path(system_prompts_dir)
+
+    def get_prompt(self, agent_type: str) -> Optional[str]:
+        """
+        Get formatted system prompt for specified agent type.
+
+        Args:
+            agent_type: "therapist" or "supervisor"
+
+        Returns:
+            Formatted system prompt string or None if not found
+        """
+        try:
+            prompt_file = self._system_dir / f"{agent_type}_base.json"
+
+            if not prompt_file.exists():
+                return None
+
+            with open(prompt_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+
+            return self._format_system_prompt(data)
+
+        except Exception:
+            return None
+
+    @staticmethod
+    def _format_system_prompt(data: Dict) -> str:
+        """
+        Format system prompt data into a coherent prompt string.
+
+        Args:
+            data: System prompt data from JSON file
+
+        Returns:
+            Formatted prompt string
+        """
+        sections = []
+
+        # Role
+        if "role" in data:
+            sections.append(data["role"])
+
+        # Core principles
+        if "core_principles" in data:
+            sections.append(f"PODSTAWOWE ZASADY:\n{data['core_principles']}")
+
+        # General guidelines
+        if "general_guidelines" in data:
+            guidelines = "\n".join(f"- {guideline}" for guideline in data["general_guidelines"])
+            sections.append(f"OGÓLNE WYTYCZNE:\n{guidelines}")
+
+        # Common phrases (for therapist)
+        if "common_phrases" in data:
+            phrases = "\n".join(f"- \"{phrase}\"" for phrase in data["common_phrases"])
+            sections.append(f"PRZYDATNE FRAZY:\n{phrases}")
+
+        # Response format (for supervisor)
+        if "response_format" in data:
+            sections.append(f"FORMAT ODPOWIEDZI:\n{json.dumps(data['response_format'], ensure_ascii=False, indent=2)}")
+
+        return "\n\n".join(sections)
+
+    def is_available(self, agent_type: str) -> bool:
+        """
+        Check if system prompt is available for agent type.
+
+        Args:
+            agent_type: "therapist" or "supervisor"
+
+        Returns:
+            True if system prompt file exists and is readable
+        """
+        try:
+            prompt_file = self._system_dir / f"{agent_type}_base.json"
+            return prompt_file.exists() and prompt_file.is_file()
+        except Exception:
+            return False
