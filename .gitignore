@@ -1,3 +1,5 @@
+.env
+
 # Python
 __pycache__/
 *.py[cod]
@@ -48,3 +50,12 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.bak
+# Secrets
+.env
+.env.*
+*.env
+
+# Secrets
+.env
+.env.*
+*.env
