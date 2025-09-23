@@ -20,69 +20,85 @@ def display_chat_interface():
     messages_container = st.container(height=750)
 
     with messages_container:
-        # Get conversation from ConversationManager if available
-        if 'conversation_manager' in st.session_state:
-            conversation = st.session_state.conversation_manager.get_full_conversation_for_display()
+        conversation_container = st.container()
+        streaming_container = st.container()
 
-            for message in conversation:
-                # Check if this is a pending message
-                is_pending = getattr(message, 'is_pending', False)
+        # Show streaming response before fetching conversation history
+        if (
+            hasattr(st.session_state, 'processing_message')
+            and st.session_state.processing_message
+            and 'stream_generator' in st.session_state
+        ):
+            with streaming_container:
+                with st.chat_message("assistant"):
+                    # Collect streamed content
+                    full_response = ""
+                    response_placeholder = st.empty()
 
-                with st.chat_message(message.role):
-                    content = message.text
-                    if is_pending:
-                        content += " ⏳"  # Add pending indicator
-                    st.write(content)
+                    for chunk in st.session_state.stream_generator:
+                        full_response += chunk
+                        response_placeholder.write(full_response)
 
-                    # Show timestamp and response times for therapist messages
-                    if hasattr(message, 'timestamp'):
-                        caption_parts = [f"🕒 {format_timestamp(message.timestamp)}"]
+                    # Store the final response in session state for persistence
+                    st.session_state.last_streamed_response = full_response
 
-                        # Add response times for therapist messages
-                        if message.role == "therapist":
-                            response_times = _get_latest_response_times()
-                            if response_times:
-                                sup_time = response_times.get('supervisor_time_ms', 0)
-                                ther_time = response_times.get('therapist_time_ms', 0)
-                                if sup_time > 0 or ther_time > 0:
-                                    time_str = f"(SUP: {sup_time/1000:.2f}s, THE: {ther_time/1000:.2f}s)"
-                                    caption_parts.append(time_str)
-
-                        st.caption(" ".join(caption_parts))
-        else:
-            # Fallback to old session_state.messages
-            for message in st.session_state.messages:
-                # Special rendering for stage transition messages
-                if message.get("is_stage_transition", False):
-                    st.info(message["content"])
-                else:
-                    with st.chat_message(message["role"]):
-                        st.write(message["content"])
-
-                        # Show timestamp if available
-                        if "timestamp" in message:
-                            st.caption(f"🕒 {format_timestamp(message['timestamp'])}")
-
-        # Show streaming response if there's a pending message
-        if hasattr(st.session_state, 'processing_message') and st.session_state.processing_message:
-            with st.chat_message("assistant"):
-                # Collect streamed content
-                full_response = ""
-                response_placeholder = st.empty()
-
-                for chunk in st.session_state.stream_generator:
-                    full_response += chunk
-                    response_placeholder.write(full_response)
-
-                # Store the final response in session state for persistence
-                st.session_state.last_streamed_response = full_response
+                    # Mark that we should rerun after streaming completes
+                    st.session_state.stream_refresh_pending = True
 
                 # Clear the processing state after streaming
-                del st.session_state.processing_message
-                del st.session_state.stream_generator
+                st.session_state.pop('processing_message', None)
+                st.session_state.pop('stream_generator', None)
+
+        with conversation_container:
+            # Get conversation from ConversationManager if available
+            if 'conversation_manager' in st.session_state:
+                conversation = st.session_state.conversation_manager.get_full_conversation_for_display()
+
+                for message in conversation:
+                    # Check if this is a pending message
+                    is_pending = getattr(message, 'is_pending', False)
+
+                    with st.chat_message(message.role):
+                        content = message.text
+                        if is_pending:
+                            content += " ⏳"  # Add pending indicator
+                        st.write(content)
+
+                        # Show timestamp and response times for therapist messages
+                        if hasattr(message, 'timestamp'):
+                            caption_parts = [f"🕒 {format_timestamp(message.timestamp)}"]
+
+                            # Add response times for therapist messages
+                            if message.role == "therapist":
+                                response_times = _get_latest_response_times()
+                                if response_times:
+                                    sup_time = response_times.get('supervisor_time_ms', 0)
+                                    ther_time = response_times.get('therapist_time_ms', 0)
+                                    if sup_time > 0 or ther_time > 0:
+                                        time_str = f"(SUP: {sup_time/1000:.2f}s, THE: {ther_time/1000:.2f}s)"
+                                        caption_parts.append(time_str)
+
+                            st.caption(" ".join(caption_parts))
+            else:
+                # Fallback to old session_state.messages
+                for message in st.session_state.messages:
+                    # Special rendering for stage transition messages
+                    if message.get("is_stage_transition", False):
+                        st.info(message["content"])
+                    else:
+                        with st.chat_message(message["role"]):
+                            st.write(message["content"])
+
+                            # Show timestamp if available
+                            if "timestamp" in message:
+                                st.caption(f"🕒 {format_timestamp(message['timestamp'])}")
 
         # Auto-scroll to bottom by adding empty space at the end
         st.empty()
+
+    # Trigger a rerun once after streaming completes to refresh the conversation
+    if st.session_state.pop('stream_refresh_pending', False):
+        st.rerun()
 
     # Check if we need to process a pending message
     if hasattr(st.session_state, 'pending_user_message') and st.session_state.pending_user_message:
