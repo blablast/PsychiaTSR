@@ -151,3 +151,56 @@ class TechnicalLogger(ITechnicalLogger):
     def clear_logs(self) -> None:
         """Clear all logged entries."""
         self._storage.clear_all_logs()
+
+    def add_log_entry(self, entry_type: str, message: str, data: Optional[Dict[str, Any]] = None) -> None:
+        """Add generic log entry (for compatibility with BaseAgent)."""
+        entry = LogEntry(
+            timestamp=datetime.now().isoformat(),
+            event_type=entry_type,
+            message=message,
+            data=data
+        )
+        self._storage.store_log(entry)
+
+    def log_system_prompt(self, agent_type: str, prompt_content: str, description: str) -> None:
+        """Log system prompt setting."""
+        message = f"📝 SYSTEM PROMPT - {agent_type.upper()}"
+
+        data = {
+            "description": description,
+            "content_preview": prompt_content[:200] + "..." if len(prompt_content) > 200 else prompt_content,
+            "full_length": len(prompt_content),
+            "agent_type": agent_type
+        }
+
+        entry = LogEntry(
+            timestamp=datetime.now().isoformat(),
+            event_type="system_prompt_set",
+            message=message,
+            data=data,
+            agent_type=agent_type
+        )
+
+        self._storage.store_log(entry)
+
+    def log_stage_prompt(self, agent_type: str, stage_id: str, prompt_content: str, description: str) -> None:
+        """Log stage prompt setting."""
+        message = f"📝 STAGE PROMPT - {agent_type.upper()} - {stage_id}"
+
+        data = {
+            "stage_id": stage_id,
+            "description": description,
+            "content_preview": prompt_content[:200] + "..." if len(prompt_content) > 200 else prompt_content,
+            "full_length": len(prompt_content),
+            "agent_type": agent_type
+        }
+
+        entry = LogEntry(
+            timestamp=datetime.now().isoformat(),
+            event_type="stage_prompt_set",
+            message=message,
+            data=data,
+            agent_type=agent_type
+        )
+
+        self._storage.store_log(entry)

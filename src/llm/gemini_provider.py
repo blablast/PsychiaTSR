@@ -105,6 +105,12 @@ class GeminiProvider(LLMProvider):
             }
         }
 
+        # Add structured output support
+        response_schema = kwargs.get("response_schema")
+        if response_schema:
+            request_data["generationConfig"]["responseMimeType"] = "application/json"
+            request_data["generationConfig"]["responseSchema"] = response_schema
+
         if system_instruction:
             request_data["systemInstruction"] = {
                 "parts": [{"text": system_instruction}]
@@ -201,6 +207,40 @@ class GeminiProvider(LLMProvider):
 
     # HTTP session management now inherited from base class
 
+    def _extract_response_text(self, response) -> str:
+        """Safely extract text from Gemini response, handling different finish reasons."""
+        try:
+            # Check if response has candidates
+            if not hasattr(response, 'candidates') or not response.candidates:
+                return '{"decision": "stay", "reason": "Gemini API nie zwrócił żadnych kandydatów odpowiedzi", "handoff": {"error": "No candidates in response"}}'
+
+            candidate = response.candidates[0]
+
+            # Check finish reason
+            finish_reason = getattr(candidate, 'finish_reason', None)
+
+            if finish_reason == 2:  # SAFETY
+                return '{"decision": "stay", "reason": "Odpowiedź została zablokowana przez filtry bezpieczeństwa Gemini", "handoff": {"error": "Safety filters triggered", "finish_reason": "SAFETY"}}'
+            elif finish_reason == 3:  # RECITATION
+                return '{"decision": "stay", "reason": "Odpowiedź została zablokowana z powodu potencjalnego naruszenia praw autorskich", "handoff": {"error": "Recitation detected", "finish_reason": "RECITATION"}}'
+            elif finish_reason == 4:  # OTHER
+                return '{"decision": "stay", "reason": "Odpowiedź została zablokowana z innego powodu", "handoff": {"error": "Blocked for other reason", "finish_reason": "OTHER"}}'
+
+            # Try to get text normally
+            if hasattr(response, 'text') and response.text:
+                return response.text
+
+            # Fallback: try to extract from parts
+            if hasattr(candidate, 'content') and hasattr(candidate.content, 'parts'):
+                if candidate.content.parts and hasattr(candidate.content.parts[0], 'text'):
+                    return candidate.content.parts[0].text
+
+            # If no text found, return a valid JSON error response
+            return '{"decision": "stay", "reason": "Gemini API nie zwrócił tekstu odpowiedzi", "handoff": {"error": "No text in response", "finish_reason": str(finish_reason)}}'
+
+        except Exception as e:
+            return f'{{"decision": "stay", "reason": "Błąd przy wyciąganiu tekstu z odpowiedzi Gemini: {str(e)}", "handoff": {{"error": "Response extraction failed", "exception": "{str(e)}"}}}}'
+
     def generate_sync(self, prompt: str, system_prompt: str = None, **kwargs) -> str:
         """Generate text using Gemini API with conversation memory."""
         try:
@@ -213,25 +253,34 @@ class GeminiProvider(LLMProvider):
             # Prepare common parameters
             common_params = self._prepare_common_params(**kwargs)
 
-            # Send only the current prompt (model remembers context)
-            response = self.chat_session.send_message(
-                prompt,
-                generation_config=genai.types.GenerationConfig(
-                    temperature=common_params["temperature"],
-                    max_output_tokens=common_params["max_tokens"],
-                    top_p=common_params["top_p"]
-                )
+            # Prepare generation config
+            generation_config = genai.types.GenerationConfig(
+                temperature=common_params["temperature"],
+                max_output_tokens=common_params["max_tokens"],
+                top_p=common_params["top_p"]
             )
+
+            # Add structured output support for sync API
+            response_schema = kwargs.get("response_schema")
+            if response_schema:
+                generation_config.response_mime_type = "application/json"
+                generation_config.response_schema = response_schema
+
+            # Send only the current prompt (model remembers context)
+            response = self.chat_session.send_message(prompt, generation_config=generation_config)
+
+            # Handle different finish reasons
+            response_text = self._extract_response_text(response)
 
             # Store in our history for debugging
             self.conversation_history.append(("user", prompt))
-            self.conversation_history.append(("assistant", response.text))
+            self.conversation_history.append(("assistant", response_text))
 
             # Also update base class conversation for consistency
             self.add_user_message(prompt)
-            self.add_assistant_message(response.text)
+            self.add_assistant_message(response_text)
 
-            return response.text
+            return response_text
 
         except Exception as e:
             raise Exception(f"Gemini API error: {str(e)}")

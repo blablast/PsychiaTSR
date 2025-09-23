@@ -100,7 +100,15 @@ class TherapistResponder:
             # Log full prompt that was actually sent to therapist
             prompt_info = therapist_agent.get_last_used_prompt_info()
             if prompt_info and prompt_info.get("full_prompt"):
-                self._logger.log_info(f"📝 Complete therapist prompt with context:\n{prompt_info['full_prompt']}")
+                try:
+                    from src.ui.technical_log_display import add_technical_log
+                    add_technical_log(
+                        "therapist_full_prompt",
+                        f"📝 Complete therapist prompt with context:\n{prompt_info['full_prompt']}"
+                    )
+                except ImportError:
+                    # Fallback to standard logger if import fails
+                    self._logger.log_info(f"📝 Complete therapist prompt with context:\n{prompt_info['full_prompt']}")
 
             if response["success"]:
                 # Clean response without supervisor context for user

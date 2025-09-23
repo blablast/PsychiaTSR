@@ -52,6 +52,11 @@ class OpenAIProvider(LLMProvider):
                 "top_p": common_params["top_p"]
             })
 
+        # Add structured output support
+        response_format = kwargs.get("response_format")
+        if response_format:
+            api_params["response_format"] = response_format
+
         return api_params
 
     def generate_sync(self, prompt: str, system_prompt: Optional[str] = None, **kwargs) -> str:

@@ -2,14 +2,12 @@
   "id": "supervisor_resources",
   "name": "Supervisor - Zasoby i wyjątki",
   "stage_order": 2,
-  "description": "Ocena spełnienia kryteriów etapu zasobów i wyjątków",
+  "description": "Ocena, czy wydobyto zasoby i wyjątki wspierające cel.",
   "criteria": {
-    "resource_recognition": "Użytkownik rozpoznał i nazwał swoje mocne strony, umiejętności lub zasoby",
-    "exception_found": "Użytkownik podał konkretny przykład gdy problem był mniejszy lub nie występował",
-    "engagement": "Użytkownik aktywnie uczestniczy w poszukiwaniu pozytywnych aspektów"
+    "at_least_one_resource": "Wskazano min. jeden zasób (umiejętność/osoba/strategia).",
+    "at_least_one_exception": "Wskazano min. jeden wyjątek (sytuacja lżej/lepiej).",
+    "link_to_goal": "Zasób/wyjątek powiązano z celem z etapu 1."
   },
-  "evaluation_instructions": "Oceń każde kryterium osobno. Decyzja 'advance' tylko jeśli WSZYSTKIE 3 kryteria są spełnione. Dodaj stage_summary podsumowujące odkryte zasoby.",
-  "prompt": "ETAP 2: ZASOBY I WYJĄTKI - OCENA SUPERVISORA\n\nTwoim zadaniem jest ocenić czy spełnione zostały kryteria tego etapu:\n\n1. RESOURCE_RECOGNITION: Czy użytkownik rozpoznał swoje zasoby?\n   - Nazwał konkretne mocne strony\n   - Wskazał umiejętności które posiada\n   - Dostrzegł swoje pozytywne cechy\n\n2. EXCEPTION_FOUND: Czy znaleziono wyjątki?\n   - Użytkownik podał przykład gdy problem był mniejszy\n   - Opisał sytuację gdy raził sobie lepiej\n   - Zidentyfikował co wtedy robiął inaczej\n\n3. ENGAGEMENT: Czy użytkownik angażuje się?\n   - Aktywnie myśli o pozytywnych aspektach\n   - Nie skupia się tylko na problemach\n   - Współpracuje w poszukiwaniu wyjątków\n\nOceniaj WYŁĄCZNIE na podstawie obecnej rozmowy. Odpowiedz w formacie JSON z polem stage_summary zawierającym odkryte zasoby.",
-  "created_at": "2025-09-22T16:00:00.000000",
-  "version": "3.0"
+  "evaluation_instructions": "Advance tylko jeśli 3/3. Dodaj 'stage_summary' jako krótkie info dla skali.",
+  "prompt": "Odpowiadasz WYŁĄCZNIE jednym obiektem JSON zgodnym z 'response_format_schema' z systemowego promptu. ŻADNYCH dodatkowych pól ani tekstu. Jeśli czegoś nie da się ustalić, wstaw wartość pustą. ETAP 2 — Oceń trzy kryteria i przygotuj zwięzły 'stage_summary' (co działa i co warto skalować). JSON-only."
 }

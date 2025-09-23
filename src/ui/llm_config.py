@@ -136,6 +136,11 @@ class LLMConfigUI:
         if supervisor_selected and supervisor_selected in all_options:
             self._display_model_info(all_options[supervisor_selected])
 
+        st.divider()
+
+        # Agent Parameters Configuration
+        self._display_agent_parameters()
+
         return {
             'therapist_model': all_options.get(therapist_selected),
             'supervisor_model': all_options.get(supervisor_selected)
@@ -247,6 +252,152 @@ class LLMConfigUI:
 
         if details:
             st.caption(" | ".join(details))
+
+    @staticmethod
+    def _display_agent_parameters():
+        """Display individual agent parameter controls."""
+        st.markdown("### ⚙️ Parametry Agentów")
+
+        with st.expander("🔧 Konfiguracja parametrów per agent", expanded=False):
+            from config import Config
+
+            # Create two columns for therapist and supervisor
+            col1, col2 = st.columns(2)
+
+            # Get current parameters from config
+            therapist_params = Config.get_agent_parameters('therapist')
+            supervisor_params = Config.get_agent_parameters('supervisor')
+
+            with col1:
+                st.markdown("**🩺 Terapeuta**")
+
+                therapist_temp = st.slider(
+                    "Temperatura",
+                    min_value=0.0,
+                    max_value=2.0,
+                    value=float(therapist_params['temperature']),
+                    step=0.1,
+                    key="therapist_temperature",
+                    help="Kontroluje kreatywność odpowiedzi (0.0 = deterministyczny, 2.0 = bardzo kreatywny)"
+                )
+
+                therapist_max_tokens = st.slider(
+                    "Max tokeny",
+                    min_value=50,
+                    max_value=1000,
+                    value=int(therapist_params['max_tokens']),
+                    step=25,
+                    key="therapist_max_tokens",
+                    help="Maksymalna długość odpowiedzi"
+                )
+
+                therapist_top_p = st.slider(
+                    "Top P",
+                    min_value=0.1,
+                    max_value=1.0,
+                    value=float(therapist_params['top_p']),
+                    step=0.05,
+                    key="therapist_top_p",
+                    help="Kontroluje różnorodność odpowiedzi poprzez nucleus sampling"
+                )
+
+            with col2:
+                st.markdown("**👥 Nadzorca**")
+
+                supervisor_temp = st.slider(
+                    "Temperatura",
+                    min_value=0.0,
+                    max_value=2.0,
+                    value=float(supervisor_params['temperature']),
+                    step=0.1,
+                    key="supervisor_temperature",
+                    help="Kontroluje kreatywność decyzji nadzorcy"
+                )
+
+                supervisor_max_tokens = st.slider(
+                    "Max tokeny",
+                    min_value=50,
+                    max_value=500,
+                    value=int(supervisor_params['max_tokens']),
+                    step=25,
+                    key="supervisor_max_tokens",
+                    help="Maksymalna długość odpowiedzi nadzorcy"
+                )
+
+                supervisor_top_p = st.slider(
+                    "Top P",
+                    min_value=0.1,
+                    max_value=1.0,
+                    value=float(supervisor_params['top_p']),
+                    step=0.05,
+                    key="supervisor_top_p",
+                    help="Kontroluje różnorodność decyzji nadzorcy"
+                )
+
+            # Save parameters button
+            if st.button("💾 Zapisz parametry agentów", use_container_width=True):
+                # Update session state
+                st.session_state.therapist_parameters = {
+                    'temperature': therapist_temp,
+                    'max_tokens': therapist_max_tokens,
+                    'top_p': therapist_top_p
+                }
+
+                st.session_state.supervisor_parameters = {
+                    'temperature': supervisor_temp,
+                    'max_tokens': supervisor_max_tokens,
+                    'top_p': supervisor_top_p
+                }
+
+                # Save to config file
+                if LLMConfigUI._save_agent_parameters(
+                    therapist_params={'temperature': therapist_temp, 'max_tokens': therapist_max_tokens, 'top_p': therapist_top_p},
+                    supervisor_params={'temperature': supervisor_temp, 'max_tokens': supervisor_max_tokens, 'top_p': supervisor_top_p}
+                ):
+                    st.success("✅ Parametry agentów zostały zapisane!")
+                    st.rerun()
+                else:
+                    st.error("❌ Błąd podczas zapisywania parametrów")
+
+    @staticmethod
+    def _save_agent_parameters(therapist_params: dict, supervisor_params: dict) -> bool:
+        """Save agent parameters to config file."""
+        try:
+            import json
+            from pathlib import Path
+            from config import Config
+
+            # Load current config
+            config_file = Config.CONFIG_FILE
+            if config_file.exists():
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    config_data = json.load(f)
+            else:
+                config_data = {}
+
+            # Ensure agents structure exists
+            if 'agents' not in config_data:
+                config_data['agents'] = {}
+
+            # Update therapist parameters
+            if 'therapist' not in config_data['agents']:
+                config_data['agents']['therapist'] = {'provider': 'openai', 'model': 'gpt-4o-mini'}
+            config_data['agents']['therapist']['parameters'] = therapist_params
+
+            # Update supervisor parameters
+            if 'supervisor' not in config_data['agents']:
+                config_data['agents']['supervisor'] = {'provider': 'gemini', 'model': 'gemini-1.5-flash'}
+            config_data['agents']['supervisor']['parameters'] = supervisor_params
+
+            # Save updated config
+            with open(config_file, 'w', encoding='utf-8') as f:
+                json.dump(config_data, f, indent=2, ensure_ascii=False)
+
+            return True
+
+        except Exception as e:
+            st.error(f"Błąd zapisywania parametrów: {str(e)}")
+            return False
 
     @staticmethod
     def _ensure_session_state():

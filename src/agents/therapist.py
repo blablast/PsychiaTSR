@@ -28,8 +28,12 @@ Odpowiedz zgodnie z zasadami TSR."""
         if self._current_stage != stage_id:
             self._current_stage = stage_id
             self._stage_prompt_set = False
+            self._log_prompt_setting("STAGE", f"Stage changed to: {stage_id}", f"Entering new stage: {stage_id}")
 
         if not self._stage_prompt_set:
+            # Log stage prompt setting attempt with dedicated method
+            self._log_stage_prompt(stage_id, stage_prompt, f"Setting stage prompt for therapist")
+
             # Send stage prompt only once per stage
             if hasattr(self.llm_provider, 'conversation_messages') or hasattr(self.llm_provider, 'chat_session'):
                 # For memory-optimized providers, send stage prompt as system message
@@ -39,8 +43,11 @@ Odpowiedz zgodnie z zasadami TSR."""
                 if hasattr(self.llm_provider, 'add_user_message') and hasattr(self.llm_provider, 'add_assistant_message'):
                     self.llm_provider.add_user_message(stage_instruction)
                     self.llm_provider.add_assistant_message("Rozumiem. Prowadzę rozmowę zgodnie z wytycznymi tego etapu.")
+                    self._log_prompt_setting("STAGE", "Memory optimized", f"Stage prompt added to conversation memory for: {stage_id}")
 
                 self._stage_prompt_set = True
+            else:
+                self._log_prompt_setting("STAGE", "Fallback mode", f"Provider doesn't support memory - stage prompt will be included per message for: {stage_id}")
 
     def generate_response(
         self,
@@ -91,11 +98,9 @@ Odpowiedz zgodnie z zasadami TSR."""
                     review=f"Using {prompt_type} approach - stage prompt {'included' if stage_prompt else 'not provided'}"
                 )
 
-            # Generate response using base class method
+            # Generate response using base class method (parameters from config)
             response = self._generate_with_memory_optimization(
-                prompt=final_prompt,
-                temperature=0.7,
-                max_tokens=150
+                prompt=final_prompt
             )
 
             validation = self.safety_checker.validate_therapist_response(response)

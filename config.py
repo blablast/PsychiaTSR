@@ -21,13 +21,28 @@ class Config:
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 
-    # Providers and models from config.json
-    DEFAULT_THERAPIST_PROVIDER = _config_data.get("providers", {}).get("therapist", {}).get("provider", "openai")
-    DEFAULT_THERAPIST_MODEL = _config_data.get("providers", {}).get("therapist", {}).get("model", "gpt-5-nano")
-    DEFAULT_SUPERVISOR_PROVIDER = _config_data.get("providers", {}).get("supervisor", {}).get("provider", "gemini")
-    DEFAULT_SUPERVISOR_MODEL = _config_data.get("providers", {}).get("supervisor", {}).get("model", "gemini-2.5-flash-lite")
+    # Agent configurations from new structure
+    _agents_config = _config_data.get("agents", {})
 
-    # Model Parameters from config.json
+    # Therapist configuration
+    _therapist_config = _agents_config.get("therapist", {})
+    DEFAULT_THERAPIST_PROVIDER = _therapist_config.get("provider", "openai")
+    DEFAULT_THERAPIST_MODEL = _therapist_config.get("model", "gpt-4o-mini")
+
+    # Supervisor configuration
+    _supervisor_config = _agents_config.get("supervisor", {})
+    DEFAULT_SUPERVISOR_PROVIDER = _supervisor_config.get("provider", "gemini")
+    DEFAULT_SUPERVISOR_MODEL = _supervisor_config.get("model", "gemini-1.5-flash")
+
+    # Backward compatibility with old structure
+    if not _agents_config and "providers" in _config_data:
+        # Old structure fallback
+        DEFAULT_THERAPIST_PROVIDER = _config_data.get("providers", {}).get("therapist", {}).get("provider", "openai")
+        DEFAULT_THERAPIST_MODEL = _config_data.get("providers", {}).get("therapist", {}).get("model", "gpt-4o-mini")
+        DEFAULT_SUPERVISOR_PROVIDER = _config_data.get("providers", {}).get("supervisor", {}).get("provider", "gemini")
+        DEFAULT_SUPERVISOR_MODEL = _config_data.get("providers", {}).get("supervisor", {}).get("model", "gemini-1.5-flash")
+
+    # Global fallback parameters (for backward compatibility)
     DEFAULT_TEMPERATURE = _config_data.get("parameters", {}).get("temperature", 0.7)
     DEFAULT_MAX_TOKENS = _config_data.get("parameters", {}).get("max_tokens", 150)
     DEFAULT_TOP_P = _config_data.get("parameters", {}).get("top_p", 0.9)
@@ -55,24 +70,54 @@ class Config:
     ENABLE_DETAILED_LOGGING = _config_data.get("logging", {}).get("detailed", True)
     
     @classmethod
-    def get_llm_config(cls, provider: str) -> dict:
-        """Get LLM configuration for specified provider"""
+    def get_llm_config(cls, provider: str, agent_type: str = None) -> dict:
+        """Get LLM configuration for specified provider and optionally specific agent"""
+        base_config = {}
+
         if provider.lower() == "openai":
-            return {
-                "api_key": cls.OPENAI_API_KEY,
-                "temperature": cls.DEFAULT_TEMPERATURE,
-                "max_tokens": cls.DEFAULT_MAX_TOKENS,
-                "top_p": cls.DEFAULT_TOP_P
-            }
+            base_config["api_key"] = cls.OPENAI_API_KEY
         elif provider.lower() == "gemini":
-            return {
-                "api_key": cls.GOOGLE_API_KEY,
-                "temperature": cls.DEFAULT_TEMPERATURE,
-                "max_tokens": cls.DEFAULT_MAX_TOKENS,
-                "top_p": cls.DEFAULT_TOP_P
-            }
+            base_config["api_key"] = cls.GOOGLE_API_KEY
         else:
             raise ValueError(f"Unknown provider: {provider}")
+
+        # Add agent-specific parameters if agent_type provided
+        if agent_type:
+            agent_params = cls.get_agent_parameters(agent_type)
+            base_config.update(agent_params)
+        else:
+            # Fallback to global parameters
+            base_config.update({
+                "temperature": cls.DEFAULT_TEMPERATURE,
+                "max_tokens": cls.DEFAULT_MAX_TOKENS,
+                "top_p": cls.DEFAULT_TOP_P
+            })
+
+        return base_config
+
+    @classmethod
+    def get_agent_parameters(cls, agent_type: str) -> dict:
+        """Get parameters for specified agent (therapist/supervisor)"""
+        agent_config = cls._agents_config.get(agent_type, {})
+        agent_params = agent_config.get("parameters", {})
+
+        # Return agent-specific parameters with fallbacks
+        return {
+            "temperature": agent_params.get("temperature", cls.DEFAULT_TEMPERATURE),
+            "max_tokens": agent_params.get("max_tokens", cls.DEFAULT_MAX_TOKENS),
+            "top_p": agent_params.get("top_p", cls.DEFAULT_TOP_P)
+        }
+
+    @classmethod
+    def get_agent_config(cls, agent_type: str) -> dict:
+        """Get complete configuration for specified agent"""
+        agent_config = cls._agents_config.get(agent_type, {})
+
+        return {
+            "provider": agent_config.get("provider", "openai"),
+            "model": agent_config.get("model", "gpt-4o-mini"),
+            "parameters": cls.get_agent_parameters(agent_type)
+        }
 
     @classmethod
     def get_agent_defaults(cls) -> dict:

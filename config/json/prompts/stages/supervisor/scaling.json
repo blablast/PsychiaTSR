@@ -2,14 +2,12 @@
   "id": "supervisor_scaling",
   "name": "Supervisor - Skale",
   "stage_order": 3,
-  "description": "Ocena spełnienia kryteriów etapu skal",
+  "description": "Ocena poprawnego użycia skali 0–10 i zdefiniowania +1.",
   "criteria": {
-    "scale_used": "Użytkownik podał konkretną liczbę w skali 0-10 dla swojej sytuacji",
-    "scale_reason": "Użytkownik wyjaśnił dlaczego nie jest na niższym poziomie skali",
-    "next_step_on_scale": "Użytkownik określił co pozwoliłoby mu przejść o 1 punkt wyżej"
+    "scale_defined": "Jasno zdefiniowano 0 i 10; podano aktualną wartość.",
+    "why_not_lower": "Zebrano powody/oznaki, że nie jest niżej.",
+    "plus_one": "Określono, jak wygląda +1 (obserwowalne wskaźniki)."
   },
-  "evaluation_instructions": "Oceń każde kryterium osobno. Decyzja 'advance' tylko jeśli WSZYSTKIE 3 kryteria są spełnione. Dodaj stage_summary z informacją o skali.",
-  "prompt": "ETAP 3: SKALE - OCENA SUPERVISORA\n\nTwoim zadaniem jest ocenić czy spełnione zostały kryteria tego etapu:\n\n1. SCALE_USED: Czy użytkownik podał liczbę w skali?\n   - Określił gdzie jest na skali 0-10\n   - Liczba jest konkretna (nie \"gdzieś w środku\")\n   - Rozumie znaczenie skali\n\n2. SCALE_REASON: Czy wyjaśnił dlaczego nie niżej?\n   - Podał powody dlaczego nie jest na 0 lub 1\n   - Dostrzegł pozytywne aspekty obecnej sytuacji\n   - Rozumie co go \"trzyma\" na tym poziomie\n\n3. NEXT_STEP_ON_SCALE: Czy określił co pomoże iść wyżej?\n   - Wskazał konkretne działania dla +1 punktu\n   - Kroki są realistyczne i małe\n   - Ma pomysł na poprawę sytuacji\n\nOceniaj WYŁĄCZNIE na podstawie obecnej rozmowy. Odpowiedz w formacie JSON z polem stage_summary zawierającym informacje o skali.",
-  "created_at": "2025-09-22T16:00:00.000000",
-  "version": "3.0"
+  "evaluation_instructions": "Advance jeśli 3/3. 'stage_summary' powinien uwypuklić wskaźniki +1.",
+  "prompt": "Odpowiadasz WYŁĄCZNIE jednym obiektem JSON zgodnym z 'response_format_schema' z systemowego promptu. ŻADNYCH dodatkowych pól ani tekstu. Jeśli czegoś nie da się ustalić, wstaw wartość pustą. ETAP 3 — Oceń użycie skali i konkretność +1. Zwróć JSON z decyzją i krótkim podsumowaniem wskaźników postępu."
 }

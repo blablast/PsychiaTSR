@@ -97,7 +97,15 @@ class SupervisorEvaluator:
             # Log full prompt that was actually sent to supervisor
             prompt_info = supervisor_agent.get_last_used_prompt_info()
             if prompt_info and prompt_info.get("full_prompt"):
-                self._logger.log_info(f"📝 Complete supervisor prompt with context:\n{prompt_info['full_prompt']}")
+                try:
+                    from src.ui.technical_log_display import add_technical_log
+                    add_technical_log(
+                        "supervisor_full_prompt",
+                        f"📝 Complete supervisor prompt with context:\n{prompt_info['full_prompt']}"
+                    )
+                except ImportError:
+                    # Fallback to standard logger if import fails
+                    self._logger.log_info(f"📝 Complete supervisor prompt with context:\n{prompt_info['full_prompt']}")
 
             # Log response
             self._logger.log_supervisor_response(decision, response_time)

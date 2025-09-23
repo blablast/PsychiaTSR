@@ -27,11 +27,16 @@ class BaseAgent(ABC):
         """
         self._system_prompt = system_prompt
 
+        # Log system prompt setting with dedicated method
+        self._log_system_prompt(system_prompt, "Set once per session")
+
         # Initialize LLM provider conversation if it supports memory optimization
         if hasattr(self.llm_provider, 'start_conversation'):
             self.llm_provider.start_conversation(system_prompt)
+            self._log_prompt_setting("SYSTEM", "Conversation started", "Provider conversation started with system prompt")
         elif hasattr(self.llm_provider, 'set_system_prompt'):
             self.llm_provider.set_system_prompt(system_prompt)
+            self._log_prompt_setting("SYSTEM", "Provider set", "System prompt set directly in provider")
 
     def get_last_used_prompt_info(self) -> Dict[str, str]:
         """Get information about the last used prompt for debugging."""
@@ -54,6 +59,15 @@ class BaseAgent(ABC):
             "full_prompt": prompt_content
         }
 
+    def _get_agent_parameters(self) -> dict:
+        """Get agent-specific parameters from config"""
+        try:
+            from config import Config
+            return Config.get_agent_parameters(self._agent_type)
+        except ImportError:
+            # Fallback if config not available
+            return {"temperature": 0.7, "max_tokens": 150, "top_p": 0.9}
+
     def _generate_with_memory_optimization(self, prompt: str, system_prompt: str = None,
                                          **llm_kwargs) -> str:
         """Generate response using memory optimization if available.
@@ -71,15 +85,21 @@ class BaseAgent(ABC):
         if not effective_system_prompt:
             raise ValueError(f"System prompt not set for {self._agent_type}. Call set_system_prompt() first.")
 
+        # Get agent-specific parameters and merge with provided kwargs
+        agent_params = self._get_agent_parameters()
+        final_kwargs = {**agent_params, **llm_kwargs}  # llm_kwargs override agent defaults
+
         # Check if provider supports memory optimization
         supports_memory = (hasattr(self.llm_provider, 'conversation_messages') or
                           hasattr(self.llm_provider, 'chat_session'))
 
         if supports_memory:
             # Memory-optimized: system prompt already set, just send user prompt
+            self._log_prompt_setting("CONVERSATION", prompt, "Memory-optimized: sending user prompt only")
+
             response = self.llm_provider.generate_sync(
                 prompt=prompt,
-                **llm_kwargs
+                **final_kwargs
             )
 
             self._prepare_prompt_info(
@@ -90,13 +110,15 @@ class BaseAgent(ABC):
             )
         else:
             # Traditional: send complete prompt with system context
+            complete_prompt = f"SYSTEM: {effective_system_prompt}\n\nUSER: {prompt}"
+            self._log_prompt_setting("CONVERSATION", complete_prompt, "Traditional: sending complete prompt with system context")
+
             response = self.llm_provider.generate_sync(
                 prompt=prompt,
                 system_prompt=effective_system_prompt,
-                **llm_kwargs
+                **final_kwargs
             )
 
-            complete_prompt = f"SYSTEM: {effective_system_prompt}\n\nUSER: {prompt}"
             self._prepare_prompt_info(
                 prompt_id="traditional",
                 prompt_type="traditional",
@@ -105,6 +127,63 @@ class BaseAgent(ABC):
             )
 
         return response
+
+    def _log_prompt_setting(self, prompt_type: str, prompt_content: str, description: str) -> None:
+        """Log prompt setting for debugging and monitoring."""
+        try:
+            # Use add_technical_log function which writes to session_state technical_log
+            from src.ui.technical_log_display import add_technical_log
+
+            # Create detailed log entry
+            log_content = (
+                f"📝 {prompt_type} PROMPT - {self._agent_type.upper()}\n"
+                f"Description: {description}\n"
+                f"Content preview: {prompt_content[:100]}{'...' if len(prompt_content) > 100 else ''}\n"
+                f"Full length: {len(prompt_content)} characters"
+            )
+
+            add_technical_log(f"{self._agent_type}_prompt_setting", log_content)
+        except Exception:
+            # Silent fail - logging shouldn't break the application
+            pass
+
+    def _log_system_prompt(self, prompt_content: str, description: str) -> None:
+        """Log system prompt setting with dedicated method."""
+        try:
+            # Use add_technical_log function which writes to session_state technical_log
+            from src.ui.technical_log_display import add_technical_log
+
+            # Create detailed log entry for system prompt
+            log_content = (
+                f"📝 SYSTEM PROMPT - {self._agent_type.upper()}\n"
+                f"Description: {description}\n"
+                f"Content preview: {prompt_content[:200]}{'...' if len(prompt_content) > 200 else ''}\n"
+                f"Full length: {len(prompt_content)} characters"
+            )
+
+            add_technical_log(f"{self._agent_type}_system_prompt", log_content)
+        except Exception:
+            # Silent fail - logging shouldn't break the application
+            pass
+
+    def _log_stage_prompt(self, stage_id: str, prompt_content: str, description: str) -> None:
+        """Log stage prompt setting with dedicated method."""
+        try:
+            # Use add_technical_log function which writes to session_state technical_log
+            from src.ui.technical_log_display import add_technical_log
+
+            # Create detailed log entry for stage prompt
+            log_content = (
+                f"📝 STAGE PROMPT - {self._agent_type.upper()} - {stage_id}\n"
+                f"Description: {description}\n"
+                f"Content preview: {prompt_content[:200]}{'...' if len(prompt_content) > 200 else ''}\n"
+                f"Full length: {len(prompt_content)} characters"
+            )
+
+            add_technical_log(f"{self._agent_type}_stage_prompt", log_content)
+        except Exception:
+            # Silent fail - logging shouldn't break the application
+            pass
 
     def _handle_llm_error(self, error: Exception, context: str = "") -> Dict[str, Any]:
         """Standard error handling for LLM operations.

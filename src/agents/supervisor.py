@@ -13,14 +13,40 @@ class SupervisorAgent(BaseAgent):
         super().__init__(llm_provider, safety_checker)
         self._current_stage_id = None
         self._stage_prompt_set = False
+        self._supports_structured_output = self._check_structured_output_support()
+
+    def _check_structured_output_support(self) -> bool:
+        """Check if current provider supports structured output."""
+        provider_class = self.llm_provider.__class__.__name__
+        return provider_class in ['OpenAIProvider', 'GeminiProvider']
+
+    def _get_structured_output_params(self) -> dict:
+        """Get structured output parameters based on provider type."""
+        if not self._supports_structured_output:
+            return {}
+
+        from ..utils.schemas import SupervisorDecision
+
+        provider_class = self.llm_provider.__class__.__name__
+
+        if provider_class == 'OpenAIProvider':
+            return {"response_format": SupervisorDecision.get_openai_response_format()}
+        elif provider_class == 'GeminiProvider':
+            return {"response_schema": SupervisorDecision.get_gemini_response_schema()}
+        else:
+            return {}
 
     def set_stage_prompt(self, stage_id: str, stage_prompt: str):
         """Set stage prompt once when entering new stage"""
         if self._current_stage_id != stage_id:
             self._current_stage_id = stage_id
             self._stage_prompt_set = False
+            self._log_prompt_setting("STAGE", f"Stage changed to: {stage_id}", f"Supervisor entering new stage: {stage_id}")
 
         if not self._stage_prompt_set:
+            # Log stage prompt setting attempt with dedicated method
+            self._log_stage_prompt(stage_id, stage_prompt, f"Setting supervisor stage prompt")
+
             # Send stage prompt only once per stage for memory-optimized providers
             if hasattr(self.llm_provider, 'conversation_messages') or hasattr(self.llm_provider, 'chat_session'):
                 stage_instruction = f"NOWY ETAP OCENY SUPERVISORA:\n{stage_prompt}\n\nOd teraz oceniaj postęp zgodnie z wytycznymi tego etapu."
@@ -29,8 +55,11 @@ class SupervisorAgent(BaseAgent):
                 if hasattr(self.llm_provider, 'add_user_message') and hasattr(self.llm_provider, 'add_assistant_message'):
                     self.llm_provider.add_user_message(stage_instruction)
                     self.llm_provider.add_assistant_message("Rozumiem. Oceniam postęp zgodnie z wytycznymi tego etapu.")
+                    self._log_prompt_setting("STAGE", "Memory optimized", f"Supervisor stage prompt added to conversation memory for: {stage_id}")
 
                 self._stage_prompt_set = True
+            else:
+                self._log_prompt_setting("STAGE", "Fallback mode", f"Provider doesn't support memory - supervisor stage prompt will be included per message for: {stage_id}")
 
     def generate_response(self, stage: str, history: List[MessageData], stage_prompt: str) -> Dict[str, Any]:
         """Generate supervisor evaluation response (implements BaseAgent.generate_response)."""
@@ -81,11 +110,29 @@ class SupervisorAgent(BaseAgent):
                     review=f"Memory-optimized supervisor evaluation - stage prompt included for stage {stage}"
                 )
 
-            # Generate response using base class method
+            # Get structured output parameters
+            structured_params = self._get_structured_output_params()
+
+            # Generate response using base class method (parameters from config)
             response = self._generate_with_memory_optimization(
                 prompt=evaluation_prompt,
-                temperature=0.3,
-                max_tokens=300
+                **structured_params
+            )
+
+            # Log structured output usage
+            if structured_params:
+                provider_type = self.llm_provider.__class__.__name__
+                self._log_prompt_setting(
+                    "STRUCTURED_OUTPUT",
+                    f"Using {provider_type} structured output",
+                    f"Supervisor using structured JSON output for consistent parsing"
+                )
+
+            # Log raw response before parsing
+            self._log_prompt_setting(
+                "RAW_RESPONSE",
+                response,
+                f"Raw supervisor response before parsing (length: {len(response)} chars)"
             )
 
             decision_data = self._parse_supervisor_response(response)
@@ -97,6 +144,8 @@ class SupervisorAgent(BaseAgent):
             
             return SupervisorDecision(
                 decision=decision_data.get("decision", "stay"),
+                summary=decision_data.get("summary", "Podsumowanie etapu"),
+                addressing=decision_data.get("addressing", "formal"),
                 reason=decision_data.get("reason", ""),
                 handoff=decision_data.get("handoff", {}),
                 safety_risk=decision_data.get("safety_risk", False),
@@ -107,6 +156,8 @@ class SupervisorAgent(BaseAgent):
             # Return error decision with consistent structure
             return SupervisorDecision(
                 decision="stay",
+                summary=f"Błąd w ocenie nadzorcy: {str(e)}",
+                addressing="formal",
                 reason=f"Błąd w ocenie nadzorcy: {str(e)}",
                 handoff={"error": str(e), "error_type": type(e).__name__},
                 safety_risk=False,
@@ -118,13 +169,32 @@ class SupervisorAgent(BaseAgent):
         try:
             response = response.strip()
 
+            # Log parsing details
+            self._log_prompt_setting(
+                "PARSE_DEBUG",
+                f"Original response: '{response}'",
+                f"Starting JSON parsing - response length: {len(response)}"
+            )
+
             start_idx = response.find('{')
             end_idx = response.rfind('}') + 1
 
             if start_idx == -1 or end_idx == 0:
+                self._log_prompt_setting(
+                    "PARSE_ERROR",
+                    f"No JSON brackets found in: '{response}'",
+                    "No JSON structure detected in response"
+                )
                 raise ValueError("No JSON found in response")
 
             json_str = response[start_idx:end_idx]
+
+            self._log_prompt_setting(
+                "PARSE_DEBUG",
+                f"Extracted JSON: '{json_str}'",
+                f"Extracted JSON string for parsing"
+            )
+
             data = json.loads(json_str)
 
             # Convert string booleans to actual booleans
@@ -132,9 +202,22 @@ class SupervisorAgent(BaseAgent):
                 if isinstance(data["safety_risk"], str):
                     data["safety_risk"] = data["safety_risk"].lower() in ["true", "1", "yes"]
 
+            # Log successful parsing
+            self._log_prompt_setting(
+                "PARSE_SUCCESS",
+                f"Parsed data: {json.dumps(data, ensure_ascii=False)}",
+                f"Successfully parsed JSON with {len(data)} fields"
+            )
+
             return data
 
-        except (json.JSONDecodeError, ValueError):
+        except (json.JSONDecodeError, ValueError) as e:
+            # Log parsing error
+            self._log_prompt_setting(
+                "PARSE_ERROR",
+                f"JSON parsing failed: {str(e)}",
+                f"Falling back to regex parsing"
+            )
             return self._fallback_parse(response)
     
     @staticmethod

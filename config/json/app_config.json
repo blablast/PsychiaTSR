@@ -1,18 +1,23 @@
 {
-  "providers": {
+  "agents": {
     "therapist": {
       "provider": "openai",
-      "model": "gpt-4o"
+      "model": "gpt-4o",
+      "parameters": {
+        "temperature": 0.7,
+        "max_tokens": 200,
+        "top_p": 0.9
+      }
     },
     "supervisor": {
       "provider": "gemini",
-      "model": "gemini-2.5-flash-lite"
+      "model": "gemini-1.5-flash",
+      "parameters": {
+        "temperature": 0.2,
+        "max_tokens": 300,
+        "top_p": 0.8
+      }
     }
-  },
-  "parameters": {
-    "temperature": 0.7,
-    "max_tokens": 150,
-    "top_p": 0.9
   },
   "app": {
     "title": "Psychia - TSR Therapy Assistant",
@@ -35,5 +40,15 @@
   "logging": {
     "level": "INFO",
     "detailed": true
+  },
+  "providers": {
+    "therapist": {
+      "provider": "openai",
+      "model": "gpt-4o"
+    },
+    "supervisor": {
+      "provider": "gemini",
+      "model": "gemini-2.5-flash-lite"
+    }
   }
 }

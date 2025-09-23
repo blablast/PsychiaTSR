@@ -359,8 +359,22 @@ class TechnicalLogDisplay:
 # Legacy compatibility functions
 def add_technical_log(event_type: str, data: str, response_time_ms: Optional[int] = None) -> None:
     """Legacy function for backward compatibility."""
-    display = TechnicalLogDisplay()
-    display.add_log_entry(event_type, data, response_time_ms)
+    # Use session_state directly instead of creating new instance
+    import streamlit as st
+    session_key = "technical_log"
+
+    # Initialize if needed
+    if session_key not in st.session_state:
+        st.session_state[session_key] = []
+
+    log_entry = {
+        "timestamp": datetime.now().isoformat(),
+        "event_type": event_type,
+        "data": data,
+        "response_time_ms": response_time_ms
+    }
+
+    st.session_state[session_key].append(log_entry)
 
 
 def display_technical_log() -> None:
