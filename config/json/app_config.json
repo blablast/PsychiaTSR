@@ -44,7 +44,7 @@
   "providers": {
     "therapist": {
       "provider": "openai",
-      "model": "gpt-4o"
+      "model": "gpt-5"
     },
     "supervisor": {
       "provider": "gemini",

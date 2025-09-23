@@ -1,14 +1,38 @@
-"""Interface for technical logging operations."""
+"""Base logging interface for all logger implementations."""
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 from ..log_entry import LogEntry
 from ....utils.schemas import SupervisorDecision
 
 
-class ITechnicalLogger(ABC):
-    """Interface for technical logging operations."""
+class ILogger(ABC):
+    """
+    Universal logging interface for therapy session applications.
+
+    This interface defines all logging operations needed for therapy applications,
+    including specialized methods for supervisor/therapist interactions, stage
+    transitions, and model configurations. All loggers implement this interface
+    regardless of their storage mechanism (file, console, Streamlit, memory).
+
+    Common Usage Patterns:
+        >>> logger = LoggerFactory.create_default()
+
+        # Log user interactions
+        >>> logger.log_info("User started session")
+        >>> logger.log_error("Invalid input", {"input": "bad_data"})
+
+        # Log therapy-specific events
+        >>> logger.log_stage_transition("opening", "middle")
+        >>> logger.log_therapist_response("How are you feeling?", response_time_ms=150)
+        >>> logger.log_model_info("gpt-4", "gpt-3.5", "openai", "openai")
+
+        # Access logger state
+        >>> print(f"Entries: {logger.entry_count}")
+        >>> print(f"Empty: {logger.is_empty}")
+        >>> recent_logs = logger.get_logs(limit=10)
+    """
 
     @abstractmethod
     def log_supervisor_request(self, prompt_info: Dict[str, Any]) -> None:
@@ -46,6 +70,11 @@ class ITechnicalLogger(ABC):
         pass
 
     @abstractmethod
+    def log_warning(self, message: str, data: Optional[Dict[str, Any]] = None) -> None:
+        """Log warning message."""
+        pass
+
+    @abstractmethod
     def log_model_info(self, therapist_model: str, supervisor_model: str,
                       therapist_provider: str = "openai", supervisor_provider: str = "gemini") -> None:
         """Log information about currently used models."""
@@ -59,4 +88,16 @@ class ITechnicalLogger(ABC):
     @abstractmethod
     def clear_logs(self) -> None:
         """Clear all logged entries."""
+        pass
+
+    @property
+    @abstractmethod
+    def entry_count(self) -> int:
+        """Get the total number of logged entries."""
+        pass
+
+    @property
+    @abstractmethod
+    def is_empty(self) -> bool:
+        """Check if logger has no entries."""
         pass

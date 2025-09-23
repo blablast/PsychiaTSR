@@ -1,9 +1,11 @@
 """Logging interfaces package."""
 
-from .technical_logger_interface import ITechnicalLogger
-from .log_storage_interface import ILogStorage
+from .logger_interface import ILogger
+from .formatter_interface import IFormatter
+from .storage_interface import IStorage
 
 __all__ = [
-    'ITechnicalLogger',
-    'ILogStorage',
+    'ILogger',
+    'IFormatter',
+    'IStorage',
 ]

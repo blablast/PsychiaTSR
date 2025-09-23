@@ -35,6 +35,10 @@ class GeminiProvider(LLMProvider):
         # Structured output configuration (set once per session)
         self._default_response_schema = None
 
+        # Gemini-specific state (for sync API compatibility)
+        self.chat_session = None
+        self.conversation_history = []  # Separate from base conversation_messages
+
     def set_default_response_schema(self, response_schema: dict) -> None:
         """Set default response schema for all subsequent requests."""
         self._default_response_schema = response_schema
@@ -43,16 +47,12 @@ class GeminiProvider(LLMProvider):
         """Clear default response schema."""
         self._default_response_schema = None
 
-        # Gemini-specific state (for sync API compatibility)
-        self.chat_session = None
-        self.conversation_history = []  # Separate from base conversation_messages
-
     def start_conversation(self, system_prompt: Optional[str] = None) -> None:
         """Start a new conversation session with optional system prompt."""
         # Use base class for conversation state
         super().start_conversation(system_prompt)
 
-        # Initialize Gemini-specific session
+        # Initialize Gemini-specific session (reset if already exists)
         self.chat_session = self.model.start_chat(history=[])
         self.conversation_history = []
 
@@ -271,8 +271,8 @@ class GeminiProvider(LLMProvider):
                 top_p=common_params["top_p"]
             )
 
-            # Add structured output support for sync API
-            response_schema = kwargs.get("response_schema")
+            # Add structured output support for sync API (from per-request or default)
+            response_schema = kwargs.get("response_schema") or self._default_response_schema
             if response_schema:
                 generation_config.response_mime_type = "application/json"
                 generation_config.response_schema = response_schema
@@ -308,14 +308,23 @@ class GeminiProvider(LLMProvider):
             # Prepare common parameters
             common_params = self._prepare_common_params(**kwargs)
 
+            # Prepare generation config
+            generation_config = genai.types.GenerationConfig(
+                temperature=common_params["temperature"],
+                max_output_tokens=common_params["max_tokens"],
+                top_p=common_params["top_p"]
+            )
+
+            # Add structured output support for streaming (from per-request or default)
+            response_schema = kwargs.get("response_schema") or self._default_response_schema
+            if response_schema:
+                generation_config.response_mime_type = "application/json"
+                generation_config.response_schema = response_schema
+
             # Send streaming request
             response = self.chat_session.send_message(
                 prompt,
-                generation_config=genai.types.GenerationConfig(
-                    temperature=common_params["temperature"],
-                    max_output_tokens=common_params["max_tokens"],
-                    top_p=common_params["top_p"]
-                ),
+                generation_config=generation_config,
                 stream=True
             )
 

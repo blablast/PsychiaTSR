@@ -49,14 +49,16 @@ class OpenAIProvider(LLMProvider):
             "messages": messages,
         }
 
+        common_params = self._prepare_common_params(**kwargs)
         # Model-specific parameter handling
         if "gpt-5" in self.model_name:
-            # gpt-5-nano specific parameters
-            api_params["max_completion_tokens"] = kwargs.get("max_tokens", 150)
-            api_params["temperature"] = 1.0  # Only supported value
+            # gpt-5 specific parameters
+            api_params.update({
+                "max_completion_tokens": common_params["max_tokens"],
+                "temperature": "1",
+            })
         else:
             # Standard GPT models
-            common_params = self._prepare_common_params(**kwargs)
             api_params.update({
                 "max_tokens": common_params["max_tokens"],
                 "temperature": common_params["temperature"],

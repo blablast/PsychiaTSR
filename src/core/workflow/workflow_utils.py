@@ -3,48 +3,72 @@ import os
 import streamlit as st
 from .workflow_manager import TherapyWorkflowManager
 from ..agents.agent_provider import StreamlitAgentProvider
-from ..session.session_factory import create_streamlit_session_manager
-from ..logging.logger_factory import LoggerFactory
-from ...agents import TherapistAgent, SupervisorAgent
+from ..conversation.conversation_manager import ConversationManager
+from ..logging import LoggerFactory
+# Agents now created via ServiceFactory with dependency injection
 from ...llm import OpenAIProvider, GeminiProvider
 from ...utils.safety import SafetyChecker
 from config import Config
 
 
+def _get_or_create_session_logger():
+    """Get or create a single logger instance for the session to avoid duplicates."""
+    # Use a session state key to store the logger instance
+    logger_key = 'therapy_session_logger'
+
+    if logger_key not in st.session_state:
+        # Create logger only once per session
+        log_file = os.path.join(Config.DATA_DIR, "sessions", f"{st.session_state.get('session_id', 'unknown')}.json")
+        st.session_state[logger_key] = LoggerFactory.create_multi_logger(
+            file_path=log_file,
+            use_console=False,
+            use_streamlit=True,
+            max_entries=50
+        )
+
+    return st.session_state[logger_key]
+
+
 
 def send_supervisor_request(user_message: str):
-    """Send supervisor request and process user message through therapy workflow."""
-    from ..prompts.unified_prompt_manager import UnifiedPromptManager
+    """Accept user message into ConversationManager and process if ready."""
+    # Get or create ConversationManager from session state
+    if 'conversation_manager' not in st.session_state:
+        st.session_state.conversation_manager = ConversationManager()
 
-    agent_provider = StreamlitAgentProvider()
-    prompt_manager = UnifiedPromptManager(Config.PROMPT_DIR)
-    session_manager = create_streamlit_session_manager()
+    conversation_manager = st.session_state.conversation_manager
 
-    # Create dual logger that saves to both UI and file
-    log_file = os.path.join(Config.DATA_DIR, "therapy_logs", f"session_{st.session_state.get('session_id', 'unknown')}.json")
-    logger = LoggerFactory.create_dual_logger(log_file)
+    # Accept user input
+    if not conversation_manager.accept_user_input(user_message):
+        st.warning("Czekaj na odpowiedź terapeuty...")
+        return
 
-    workflow_manager = TherapyWorkflowManager(
-        agent_provider, prompt_manager, session_manager, logger
-    )
+    # If we have a complete question, process it
+    if conversation_manager.has_pending_question():
+        from ..prompts.unified_prompt_manager import UnifiedPromptManager
 
-    result = workflow_manager.process_user_message(user_message)
+        agent_provider = StreamlitAgentProvider()
+        prompt_manager = UnifiedPromptManager(Config.PROMPT_DIR)
 
-    if not result.success:
-        st.error(result.message)
-    elif result.data:
-        # Update UI state
-        if result.data.get("stage_changed"):
-            # Just show success message (stage transition message is added by workflow manager)
-            from ..session import load_stages
-            stages = load_stages()
-            current_stage_info = next((stage for stage in stages if stage["id"] == result.data['current_stage']), None)
+        # Reuse logger from session state if available, otherwise create new one
+        logger = _get_or_create_session_logger()
 
-            if current_stage_info:
-                stage_name = current_stage_info['name']
-                stage_order = current_stage_info['order']
-                st.success(f"🎯 **ZMIANA ETAPU → Etap {stage_order}: {stage_name}**")
-            else:
+        workflow_manager = TherapyWorkflowManager(
+            agent_provider, prompt_manager, conversation_manager, logger
+        )
+
+        # Initialize workflow orchestrator with session manager
+        from ..session import create_streamlit_session_manager
+        session_manager = create_streamlit_session_manager()
+        workflow_manager.set_session_manager(session_manager)
+
+        result = workflow_manager.process_pending_question()
+
+        if not result.success:
+            st.error(result.message)
+        elif result.data:
+            # Update UI state
+            if result.data.get("stage_changed"):
                 st.success(f"🎯 **ZMIANA ETAPU → {result.data['current_stage']}**")
 
 
@@ -79,24 +103,34 @@ def initialize_agents():
                                       agent_defaults['supervisor']['model'],
                                      api_keys)
 
-        # Initialize agents
+        # Reuse logger from session state if available, otherwise create new one
+        logger = _get_or_create_session_logger()
+
+        # Initialize agents using new ServiceFactory architecture
+        from ..prompts.unified_prompt_manager import UnifiedPromptManager
+        from ..services import ServiceFactory
+
         safety_checker = SafetyChecker()
-        st.session_state.therapist_agent = TherapistAgent(therapist_llm, safety_checker)
-        st.session_state.supervisor_agent = SupervisorAgent(supervisor_llm, safety_checker)
+        prompt_manager = UnifiedPromptManager(Config.PROMPT_DIR)
+
+        # Create agents with dependency injection
+        st.session_state.therapist_agent = ServiceFactory.create_therapist_agent(
+            llm_provider=therapist_llm,
+            prompt_manager=prompt_manager,
+            safety_checker=safety_checker,
+            logger=logger
+        )
+
+        st.session_state.supervisor_agent = ServiceFactory.create_supervisor_agent(
+            llm_provider=supervisor_llm,
+            prompt_manager=prompt_manager,
+            safety_checker=safety_checker,
+            logger=logger
+        )
 
         # Check availability in background (non-blocking)
         # If models are not available, errors will show when trying to use them
-
-        # Log model information
-        log_file = os.path.join(Config.DATA_DIR, "therapy_logs", f"session_{st.session_state.get('session_id', 'unknown')}.json")
-        logger = LoggerFactory.create_dual_logger(log_file)
-        agent_defaults = Config.get_agent_defaults()
-        logger.log_model_info(
-            therapist_model=agent_defaults['therapist']['model'],
-            supervisor_model=agent_defaults['supervisor']['model'],
-            therapist_provider=agent_defaults['therapist']['provider'],
-            supervisor_provider=agent_defaults['supervisor']['provider']
-        )
+        # Note: Model info already logged during session creation
 
         return True
 
@@ -105,7 +139,44 @@ def initialize_agents():
         return False
 
 
+def send_supervisor_request_stream(user_message: str):
+    """Accept user message into ConversationManager and process with streaming if ready."""
+    # Get or create ConversationManager from session state
+    if 'conversation_manager' not in st.session_state:
+        st.session_state.conversation_manager = ConversationManager()
+
+    conversation_manager = st.session_state.conversation_manager
+
+    # Accept user input for processing
+    if not conversation_manager.accept_user_input(user_message):
+        st.warning("Czekaj na odpowiedź terapeuty...")
+        return
+
+    # If we have a complete question, process it with streaming
+    if conversation_manager.has_pending_question():
+        from ..prompts.unified_prompt_manager import UnifiedPromptManager
+
+        agent_provider = StreamlitAgentProvider()
+        prompt_manager = UnifiedPromptManager(Config.PROMPT_DIR)
+
+        # Reuse logger from session state if available, otherwise create new one
+        logger = _get_or_create_session_logger()
+
+        workflow_manager = TherapyWorkflowManager(
+            agent_provider, prompt_manager, conversation_manager, logger
+        )
+
+        # Initialize workflow orchestrator with session manager
+        from ..session import create_streamlit_session_manager
+        session_manager = create_streamlit_session_manager()
+        workflow_manager.set_session_manager(session_manager)
+
+        # Process with streaming
+        yield from workflow_manager.process_pending_question_stream()
+
+
 __all__ = [
     'send_supervisor_request',
+    'send_supervisor_request_stream',
     'initialize_agents'
 ]

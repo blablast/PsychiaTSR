@@ -4,7 +4,7 @@ import streamlit as st
 from datetime import datetime
 from ..stages.stage_manager import StageManager
 from .session_factory import create_streamlit_session_manager
-from ..logging.logger_factory import LoggerFactory
+from ..logging import LoggerFactory
 from config import Config
 
 
@@ -35,8 +35,13 @@ def create_new_session():
 
         # Log current model configuration
         import os
-        log_file = os.path.join(Config.DATA_DIR, "therapy_logs", f"session_{session_id}.json")
-        logger = LoggerFactory.create_dual_logger(log_file)
+        log_file = os.path.join(Config.DATA_DIR, "sessions", f"{session_id}.json")
+        logger = LoggerFactory.create_multi_logger(
+            file_path=log_file,
+            use_console=False,
+            use_streamlit=True,
+            max_entries=50
+        )
 
         # Get current models from session state or defaults
         agent_defaults = Config.get_agent_defaults()

@@ -34,16 +34,41 @@ class TechnicalLogDisplay:
             st.info("Brak logów technicznych")
             return
 
+        # Convert new LogEntry format to old format for display
+        log_entries = st.session_state[self._session_key]
+        converted_entries = []
 
-        # Group logs by user interactions
-        log_blocks = self._group_logs_by_user_messages()
+        for entry in log_entries:
+            # Handle both old and new format
+            if isinstance(entry, dict):
+                # New format has both 'message' and 'data' fields
+                if 'message' in entry:
+                    # New LogEntry format - combine message with data if present
+                    display_data = entry.get('message', '')
+                    if entry.get('data') and isinstance(entry['data'], dict) and entry['data']:
+                        import json
+                        data_str = json.dumps(entry['data'], ensure_ascii=False, indent=2)
+                        display_data = f"{display_data}\n\nData: {data_str}"
 
-        if not log_blocks:
-            # Fallback to old display if no blocks
-            for log_entry in st.session_state[self._session_key]:
-                self._render_log_entry(log_entry)
-        else:
-            self._display_log_blocks(log_blocks)
+                    converted_entry = {
+                        "timestamp": entry.get('timestamp', ''),
+                        "event_type": entry.get('event_type', ''),
+                        "data": display_data,
+                        "response_time_ms": entry.get('response_time_ms'),
+                        "agent_type": entry.get('agent_type', 'system')
+                    }
+                    converted_entries.append(converted_entry)
+                else:
+                    # Old format - use as is
+                    converted_entries.append(entry)
+
+        if not converted_entries:
+            st.info("Brak logów technicznych")
+            return
+
+        # Display all log entries
+        for log_entry in converted_entries:
+            self._render_log_entry(log_entry)
 
     def clear(self) -> None:
         """Clear all log entries."""

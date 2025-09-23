@@ -63,8 +63,12 @@ def display_sidebar():
                 st.session_state.therapist_agent = None
                 st.session_state.supervisor_agent = None
 
+                # Create logger for agents and model info
+                from src.core.logging import LoggerFactory
+                logger = LoggerFactory.create_streamlit_logger()
+
                 # Try to initialize with new models
-                if _initialize_agents_with_selected_models():
+                if _initialize_agents_with_selected_models(logger):
                     # Save model configuration as new defaults
                     from src.core.config import ConfigManager
                     config_manager = ConfigManager()
@@ -75,9 +79,7 @@ def display_sidebar():
                         supervisor_provider=supervisor_info['provider']
                     )
 
-                    # Log model information to technical logs
-                    from src.core.logging import LoggerFactory
-                    logger = LoggerFactory.create_streamlit_logger()
+                    # Log model information
                     logger.log_model_info(
                         therapist_model=therapist_info['model_id'],
                         supervisor_model=supervisor_info['model_id'],
@@ -104,7 +106,7 @@ def display_sidebar():
                     st.error("❌ Błąd inicjalizacji wybranych modeli")
 
 
-def _initialize_agents_with_selected_models():
+def _initialize_agents_with_selected_models(logger=None):
     """Initialize agents with user-selected models and providers."""
     try:
         from src.llm import OpenAIProvider, GeminiProvider
@@ -163,10 +165,30 @@ def _initialize_agents_with_selected_models():
             st.error(f"Model nadzorcy {supervisor_model} nie jest dostępny")
             return False
 
-        # Initialize agents
+        # Create logger if not provided
+        if not logger:
+            from src.core.logging import LoggerFactory
+            logger = LoggerFactory.create_streamlit_logger()
+
+        # Initialize agents with logger using ServiceFactory
+        from src.core.prompts import UnifiedPromptManager
+        from src.core.services import ServiceFactory
+
         safety_checker = SafetyChecker()
-        st.session_state.therapist_agent = TherapistAgent(therapist_llm, safety_checker)
-        st.session_state.supervisor_agent = SupervisorAgent(supervisor_llm, safety_checker)
+        prompt_manager = UnifiedPromptManager(Config.PROMPT_DIR)
+
+        st.session_state.therapist_agent = ServiceFactory.create_therapist_agent(
+            llm_provider=therapist_llm,
+            prompt_manager=prompt_manager,
+            safety_checker=safety_checker,
+            logger=logger
+        )
+        st.session_state.supervisor_agent = ServiceFactory.create_supervisor_agent(
+            llm_provider=supervisor_llm,
+            prompt_manager=prompt_manager,
+            safety_checker=safety_checker,
+            logger=logger
+        )
 
         return True
 

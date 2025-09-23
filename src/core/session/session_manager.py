@@ -68,6 +68,10 @@ class SessionManager:
         """Get current therapy stage."""
         return self._session_state.get_current_stage()
 
+    def get_session_id(self) -> str:
+        """Get current session ID."""
+        return self._session_state.get_session_id()
+
     def get_current_stage_info(self):
         """Get detailed information about current stage."""
         current_stage = self.get_current_stage()
@@ -198,3 +202,14 @@ class SessionManager:
     def clear_conversation_history(self) -> None:
         """Clear only the conversation history, keeping session and stage."""
         self._session_state.clear_messages()
+
+    def add_stage_transition_message(self, content: str) -> None:
+        """Add stage transition message to conversation."""
+        message = {
+            "role": "system",
+            "content": content,
+            "timestamp": datetime.now().isoformat(),
+            "prompt_used": "",
+            "is_stage_transition": True
+        }
+        self._session_state.add_message(message)

@@ -229,3 +229,19 @@ class StorageProvider:
             json.dump(prompts, f, ensure_ascii=False, indent=2)
         
         return prompt_id
+
+    def add_technical_log(self, session_id: str, log_entry: Dict[str, Any]) -> bool:
+        """Add technical log entry to session data"""
+        session_data = self.load_session(session_id)
+        if not session_data:
+            return False
+
+        # Initialize technical_logs if not exists
+        if "technical_logs" not in session_data:
+            session_data["technical_logs"] = []
+
+        # Add the log entry
+        session_data["technical_logs"].append(log_entry)
+
+        # Save updated session
+        return self.save_session(session_data)

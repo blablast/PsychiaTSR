@@ -141,6 +141,8 @@ class MessageData:
     text: str
     timestamp: str
     prompt_used: str = ""
+    supervisor_response_time_ms: Optional[int] = None
+    therapist_response_time_ms: Optional[int] = None
 
 
 @dataclass
