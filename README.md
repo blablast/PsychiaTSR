@@ -1,168 +1,118 @@
 # 🧠 Psychia - Asystent Terapii TSR
 
-**Zaawansowany system terapii Solution-Focused Brief Therapy (TSR) z wykorzystaniem sztucznej inteligencji**
+**Inteligentny asystent do terapii Solution-Focused Brief Therapy (TSR) z wykorzystaniem sztucznej inteligencji**
 
 [![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://python.org)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.39+-red.svg)](https://streamlit.io)
-[![Architecture](https://img.shields.io/badge/Architecture-SOLID-green.svg)](#architektura-solid)
 
 ## 📋 Spis treści
 
-- [🎯 Cel projektu](#-cel-projektu)
+- [🎯 O aplikacji](#-o-aplikacji)
 - [✨ Funkcjonalności](#-funkcjonalności)
-- [🏗️ Architektura SOLID](#️-architektura-solid)
 - [🚀 Instalacja](#-instalacja)
 - [⚙️ Konfiguracja](#️-konfiguracja)
 - [💻 Użycie](#-użycie)
-- [🤖 Modele LLM](#-modele-llm)
+- [🤖 Modele AI](#-modele-ai)
 - [🧪 Testowanie modeli](#-testowanie-modeli)
-- [🔧 Rozwój](#-rozwój)
-- [📁 Struktura projektu](#-struktura-projektu)
-- [🤝 Współpraca](#-współpraca)
+- [🔧 Pliki konfiguracyjne](#-pliki-konfiguracyjne)
 
-## 🎯 Cel projektu
+## 🎯 O aplikacji
 
-Psychia to zaawansowany asystent terapeutyczny wykorzystujący **Solution-Focused Brief Therapy (TSR)** - metodę terapii skupioną na rozwiązaniach zamiast problemach. System oferuje:
+Psychia to zaawansowany asystent terapeutyczny wykorzystujący **Solution-Focused Brief Therapy (TSR)** - metodę terapii skupioną na rozwiązaniach. Aplikacja oferuje:
 
-- **Profesjonalną terapię TSR** z wykorzystaniem AI
-- **Dwuagentowy system** z supervisorem i terapeutą
+- **Profesjonalną terapię TSR** prowadzoną przez AI
+- **Dwuagentowy system** z terapeutą i supervisorem
 - **Protokoły bezpieczeństwa** dla sytuacji kryzysowych
-- **Elastyczną architekturę** obsługującą różne modele LLM
-- **Zaawansowaną strategię pamięci** prompt'ów systemowych i etapowych
+- **Obsługę różnych modeli AI** (OpenAI, Google Gemini)
+- **Zaawansowane testowanie** jakości modeli
 
 ## ✨ Funkcjonalności
 
 ### 🎭 **Dwuagentowy System AI**
-- **🩺 Terapeuta**: Prowadzi rozmowę terapeutyczną według zasad TSR
-- **👥 Supervisor**: Ocenia postępy i zarządza przejściami między etapami
-- **🧠 BaseAgent**: Inteligentna obsługa pamięci konwersacji i prompt'ów
-- **⚡ Memory Optimization**: 3-poziomowy system optymalizacji pamięci
+- **🩺 Terapeuta AI**: Prowadzi rozmowę według zasad TSR
+- **👥 Supervisor AI**: Ocenia postępy i decyduje o przejściach między etapami
+- **🧠 Inteligentna pamięć**: Optymalne zarządzanie kontekstem rozmowy
 
 ### 📋 **Etapy Terapii TSR**
-1. **🤝 Powitanie i Kontrakt** - Nawiązanie kontaktu i ustalenie celów
-2. **🎯 Formułowanie Celów** - Precyzyjne określenie pożądanych zmian
-3. **✨ Pytanie o Cud** - Wizualizacja idealnej przyszłości
-4. **💎 Pytania Wyjątkowe** - Odkrywanie istniejących zasobów
-5. **📊 Pytania Skalujące** - Ocena postępów (1-10)
-6. **📋 Planowanie Działań** - Konkretne kroki do realizacji
-7. **🎊 Zamknięcie** - Podsumowanie i motywacja
+1. **🤝 Otwarcie i określenie celu** (10-15 min) - Powitanie i precyzyjne określenie celu sesji
+2. **💎 Zasoby i wyjątki** (15-20 min) - Odkrywanie mocnych stron i momentów bez problemu
+3. **📊 Skale** (10-15 min) - Ocena obecnej sytuacji i wizualizacja poprawy
+4. **👣 Małe kroki i działania** (15-20 min) - Planowanie konkretnych kroków do celu
+5. **🎊 Podsumowanie i wzmocnienie** (10-15 min) - Wzmocnienie postępów i motywacji
 
-### 🚨 **Protokoły Bezpieczeństwa**
-- **Automatyczna detekcja** ryzyka samobójczego
-- **Protokół kryzysowy** z numerami alarmowymi
-- **Zawsze aktywne** monitorowanie bezpieczeństwa
+### 🚨 **Bezpieczeństwo**
+- **Automatyczna detekcja** sytuacji kryzysowych
+- **Protokół kryzysowy** z numerami pomocy
+- **Monitorowanie bezpieczeństwa** w czasie rzeczywistym
 
-### 🤖 **Obsługa Wielu Providerów LLM**
-- **🌐 OpenAI** (GPT-4o, GPT-4o-mini, GPT-4, GPT-3.5-turbo)
-- **🧠 Google Gemini** (gemini-1.5-flash, gemini-1.5-pro, gemini-pro)
-- **🔍 Dynamiczne wykrywanie** modeli z cache JSON
-- **🔄 ModelDiscovery** - automatyczne refreshowanie z 7-dniowym cache
+### 🤖 **Obsługa Modeli AI**
+- **🌐 OpenAI**: GPT-4o, GPT-4o-mini, GPT-4, GPT-3.5-turbo
+- **🧠 Google Gemini**: gemini-1.5-flash, gemini-1.5-pro, gemini-pro
+- **🔍 Automatyczne wykrywanie** dostępnych modeli
+- **💾 Inteligentny cache** z odświeżaniem co 7 dni
 
-### 🧪 **Advanced Model Testing**
-- **💬 Chat Mode**: Prosty interfejs testowania modeli
-- **🧠 Memory Test Mode**: Kompleksowe testowanie pamięci prompt'ów
-- **📊 5-stopniowy test**: System → Stage → Conversation → Memory → Awareness
-- **🔬 Analiza wyników**: Automatyczna ocena możliwości modelu
+### 🧪 **Testowanie Modeli**
+- **💬 Tryb czatu**: Proste testowanie konwersacji
+- **🧠 Test pamięci**: Zaawansowane sprawdzanie zdolności modelu
+- **📊 Analiza wyników**: Automatyczne rekomendacje konfiguracji
 
 ### 🔧 **Zaawansowane Logowanie**
-- **📝 Logi techniczne** z pełną historią konwersacji
-- **📋 Kopiowanie bloków** logów według interakcji użytkownika
-- **🎯 Wskaźniki zmian etapów** w czasie rzeczywistym
-- **🔍 Pełne prompty** w rozwijaných kontenerach
-
-## 🏗️ Architektura SOLID
-
-Projekt ściśle przestrzega zasad **SOLID** z zaawansowanym systemem zarządzania pamięcią:
-
-### **S** - Single Responsibility Principle
-```python
-class BaseAgent:                # Wspólna logika dla wszystkich agentów
-class TherapistAgent(BaseAgent): # Tylko interakcja terapeutyczna
-class SupervisorAgent(BaseAgent): # Tylko ocena etapów
-class StagePromptManager:       # Tylko zarządzanie promptami etapów
-class SystemPromptManager:      # Tylko zarządzanie promptami systemowych
-class UnifiedPromptManager:     # Orkiestracja prompt'ów
-```
-
-### **O** - Open/Closed Principle
-```python
-# Łatwe dodawanie nowych implementacji
-class NewLLMProvider(LLMProvider): ...
-class NewAgent(BaseAgent): ...
-```
-
-### **L** - Liskov Substitution Principle
-```python
-# Wszystkie implementacje są zamienne
-provider: LLMProvider = OpenAIProvider()
-provider: LLMProvider = GeminiProvider()
-agent: BaseAgent = TherapistAgent()
-agent: BaseAgent = SupervisorAgent()
-```
-
-### **I** - Interface Segregation Principle
-```python
-# Małe, specjalizowane interfejsy
-class IAgentProvider: ...        # Tylko zarządzanie agentami
-class ISessionState: ...         # Tylko stan sesji
-class ITechnicalLogger: ...      # Tylko logowanie techniczne
-```
-
-### **D** - Dependency Inversion Principle
-```python
-# Zależności od abstrakcji, nie konkretnych klas
-class BaseAgent:
-    def __init__(self, llm_provider: LLMProvider, safety_checker: SafetyChecker):
-```
+- **📝 Szczegółowe logi** wszystkich interakcji
+- **📋 Kopiowanie bloków** według rozmów użytkownika
+- **🎯 Śledzenie etapów** w czasie rzeczywistym
+- **🔍 Podgląd promptów** w rozwijaných kontenerach
 
 ## 🚀 Instalacja
 
-### Wymagania systemowe
+### Wymagania
 - **Python 3.12+**
-- **4GB RAM** minimum (dla modeli chmurowych)
-- **16GB+ RAM** zalecane dla lokalnych modeli
+- **4GB RAM** (dla modeli chmurowych)
+- **Klucze API** OpenAI lub Google Gemini
 
-### Szybka instalacja
+### Kroki instalacji
 
 ```bash
-# Klonowanie repozytorium
+# 1. Pobierz aplikację
 git clone https://github.com/your-username/psychia.git
 cd psychia
 
-# Tworzenie środowiska wirtualnego
+# 2. Utwórz środowisko wirtualne
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
 # venv\Scripts\activate   # Windows
 
-# Instalacja zależności
+# 3. Zainstaluj wymagania
 pip install -r requirements.txt
 
-# Uruchomienie
+# 4. Uruchom aplikację
 streamlit run app.py
 ```
 
 ## ⚙️ Konfiguracja
 
-### Zmienne środowiskowe
+### Klucze API - plik `.env`
 
-Utwórz plik `.env`:
+Utwórz plik `.env` w katalogu głównym:
 
 ```bash
 # OpenAI (zalecane)
-OPENAI_API_KEY=sk-your-api-key-here
-DEFAULT_THERAPIST_MODEL=gpt-4o-mini
-DEFAULT_SUPERVISOR_MODEL=gpt-4o-mini
+OPENAI_API_KEY=sk-your-openai-api-key-here
 
-# Google Gemini (opcjonalnie)
-GOOGLE_API_KEY=your-gemini-api-key
-
-# Bezpieczeństwo
-ENABLE_SAFETY_CHECKS=true
-STRICT_SAFETY_MODE=false
-
-# ModelDiscovery
-MODEL_CACHE_TTL_DAYS=7  # Cache modeli przez 7 dni
+# Google Gemini (alternatywa)
+GOOGLE_API_KEY=your-google-api-key-here
 ```
+
+**Gdzie uzyskać klucze:**
+- **OpenAI**: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+- **Google Gemini**: [makersuite.google.com/app/apikey](https://makersuite.google.com/app/apikey)
+
+### Konfiguracja w aplikacji
+
+Wszystkie pozostałe ustawienia można zmienić w interfejsie aplikacji:
+- **Wybór modeli** dla terapeuty i supervisora
+- **Parametry generowania** (temperatura, max tokens)
+- **Ustawienia bezpieczeństwa**
+- **Opcje logowania**
 
 ## 💻 Użycie
 
@@ -173,217 +123,152 @@ MODEL_CACHE_TTL_DAYS=7  # Cache modeli przez 7 dni
    streamlit run app.py
    ```
 
-2. **Skonfiguruj modele** w pasku bocznym:
-   - Wprowadź klucze API
-   - Wybierz modele dla terapeuty i supervisora z dynamicznej listy
-   - System automatycznie pobierze aktualne modele z API
+2. **Wprowadź klucze API** w pasku bocznym
 
-3. **Rozpocznij terapię**: Napisz pierwszą wiadomość
+3. **Wybierz modele** dla terapeuty i supervisora
 
-### Interfejs użytkownika
+4. **Rozpocznij rozmowę** - napisz pierwszą wiadomość!
 
-#### Panel główny
-- **💬 Okno czatu**: Główna przestrzeń rozmowy z informacją o aktualnym etapie
-- **🎯 Kontrola etapów**: Nawigacja między etapami terapii
-- **🔧 Logi techniczne**: Szczegółowe logi z kopiowaniem bloków
+### Interfejs aplikacji
 
-#### Funkcje logów
-- **📋 Kopiowanie bloków**: Każdy blok interakcji można skopiować osobno
-- **🔍 Rozwijane prompty**: Pełne prompty w kontenerach podobnych do JSON
-- **🎯 Wskaźniki etapów**: Jasne sygnalizowanie zmian etapów
-- **📊 Pełna historia**: Bez limitów - wszystkie wiadomości są zachowane
+#### **💬 Główne okno**
+- **Czat**: Rozmowa z terapeutą AI
+- **Informacja o etapie**: Aktualny etap terapii
+- **Kontrola etapów**: Możliwość ręcznej zmiany etapu
 
-## 🤖 Modele LLM
+#### **🔧 Logi techniczne**
+- **Kopiowanie bloków**: Każdą rozmowę można skopiować
+- **Rozwijane szczegóły**: Pełne prompty i odpowiedzi
+- **Kolorowe oznaczenia**: Różne typy wiadomości
+- **Historia bez limitów**: Wszystkie rozmowy są zapisywane
 
-### Dynamiczne wykrywanie modeli
+#### **⚙️ Pasek boczny**
+- **Klucze API**: Wprowadzanie i weryfikacja
+- **Wybór modeli**: Dynamiczna lista dostępnych modeli
+- **Parametry**: Temperatura, długość odpowiedzi
+- **Status**: Informacje o połączeniu z modelami
 
-System wykorzystuje **ModelDiscovery** z JSON cache:
-- **Automatyczne refresh**: Co 7 dni lub na żądanie
-- **API fallback**: Bezpośrednie połączenie gdy cache niedostępny
-- **Smart caching**: Lokalne przechowywanie przez określony czas
+## 🤖 Modele AI
 
 ### Zalecane konfiguracje
 
-#### **🏆 Konfiguracja Idealna** (chmurowa)
-- **Terapeuta**: `gpt-4o` - najlepsza jakość konwersacji
-- **Supervisor**: `gpt-4o-mini` - ekonomiczna ocena etapów
-- **Wymagania**: Klucze API OpenAI
-- **Zalety**: Najnowsze możliwości, niskie koszty
+#### **🏆 Konfiguracja Idealna**
+- **Terapeuta**: `gpt-4o`
+- **Supervisor**: `gpt-4o-mini`
+- **Koszt**: ~$0.01-0.05 za sesję
+- **Jakość**: Najwyższa
 
-#### **⚡ Konfiguracja Budżetowa** (chmurowa)
+#### **⚡ Konfiguracja Ekonomiczna**
 - **Terapeuta**: `gpt-4o-mini`
 - **Supervisor**: `gpt-4o-mini`
-- **Wymagania**: Klucz API OpenAI
-- **Zalety**: Bardzo niskie koszty, dobra jakość
+- **Koszt**: ~$0.001-0.01 za sesję
+- **Jakość**: Bardzo dobra
 
 #### **🧠 Konfiguracja Gemini**
 - **Terapeuta**: `gemini-1.5-pro`
 - **Supervisor**: `gemini-1.5-flash`
-- **Wymagania**: Klucz API Google
-- **Zalety**: Alternatywa dla OpenAI, długi kontekst
+- **Koszt**: ~$0.001-0.02 za sesję
+- **Jakość**: Dobra alternatywa
 
-### Status modeli
-System automatycznie wykrywa dostępne modele:
-- ✅ **Gotowy**: Model dostępny do użycia
-- ⚠️ **Wymaga klucza API**: Model chmurowy bez konfiguracji
-- ❌ **Niedostępny**: Model nie jest dostępny
+### Status modeli w aplikacji
+- ✅ **Dostępny**: Model gotowy do użycia
+- ⚠️ **Wymaga klucza**: Wprowadź klucz API
+- ❌ **Niedostępny**: Model nie jest obsługiwany
 
 ## 🧪 Testowanie modeli
 
-### Memory Test Mode
+### Test pamięci modelu
 
-Aplikacja zawiera zaawansowany system testowania pamięci modeli:
+Aplikacja zawiera zaawansowany system testowania:
 
-#### **🔬 5-stopniowy test pamięci:**
-1. **🔧 System Prompt**: Ustawienie globalnych instrukcji
-2. **🎯 Stage Prompt**: Ustawienie instrukcji etapu
-3. **💬 Test Message**: Wysłanie testowej wiadomości
-4. **🔍 Memory Check**: Sprawdzenie historii konwersacji
-5. **🎯 Stage Awareness**: Weryfikacja świadomości etapu
+#### **🔬 5-stopniowy test**
+1. **🔧 System Prompt**: Ustawienie podstawowych instrukcji
+2. **🎯 Stage Prompt**: Ustawienie instrukcji dla etapu
+3. **💬 Wiadomość testowa**: "Cześć jestem Kacper"
+4. **🔍 Test pamięci**: Sprawdzenie czy model pamięta rozmowę
+5. **🎯 Test świadomości**: Czy model wie w jakim jest etapie
 
-#### **📊 Analiza automatyczna:**
-- **Memory Support**: Czy model wspiera pamięć konwersacji
-- **Prompt Strategy**: Optymalna strategia dla danego modelu
-- **Performance Metrics**: Czas odpowiedzi i jakość
-- **Recommendations**: Zalecenia konfiguracji
+#### **📊 Automatyczna analiza**
+- **Obsługa pamięci**: Czy model zachowuje kontekst
+- **Jakość odpowiedzi**: Ocena poprawności reakcji
+- **Czas odpowiedzi**: Pomiar wydajności
+- **Rekomendacje**: Sugestie optymalnej konfiguracji
 
-#### **🎯 Test scenariusze:**
+#### **🎯 Przykład testu**
 ```
-System: "Jesteś profesjonalnym terapeutą..."
-Stage: "ETAP 1: POWITANIE - ciepłe powitanie klienta"
-Message: "Cześć jestem Kacper"
-→ Model Response
-Memory Check: "Pokaż naszą historię bez promptów"
-Stage Check: "W którym etapie się znajdujemy?"
-```
-
-## 🔧 Rozwój
-
-### Dodanie nowego providera LLM
-
-```python
-# 1. Utwórz provider w llm/
-class CustomLLMProvider(LLMProvider):
-    def generate_sync(self, prompt: str, **kwargs):
-        # Implementacja z obsługą pamięci konwersacji
-        pass
-
-    # Implementuj metody pamięci jeśli wspierane
-    def set_system_prompt(self, prompt: str): ...
-    def add_user_message(self, message: str): ...
-    def add_assistant_message(self, message: str): ...
-
-# 2. Dodaj do model_discovery.py
-async def get_custom_models():
-    return [{"id": "model-1", "name": "Custom Model 1", "available": True}]
+System: "Jesteś profesjonalnym terapeutą TSR..."
+Etap: "ETAP 1: OTWARCIE - ciepłe powitanie klienta"
+Wiadomość: "Cześć jestem Kacper"
+→ Odpowiedź modelu
+Test pamięci: "Pokaż naszą historię rozmowy"
+Test etapu: "W którym etapie terapii się znajdujemy?"
 ```
 
-### Dodanie nowego agenta
+### Jak interpretować wyniki
+- **Model z pamięcią**: Lepszy dla dłuższych sesji, niższe koszty
+- **Model bez pamięci**: Wymaga więcej konfiguracji, wyższe koszty
+- **Szybkie odpowiedzi**: Lepsze doświadczenie użytkownika
+- **Świadomość etapu**: Ważne dla jakości terapii
 
-```python
-# Nowy agent dziedziczy z BaseAgent
-class CustomAgent(BaseAgent):
-    def generate_response(self, *args, **kwargs) -> Dict[str, Any]:
-        # Implementacja specjalizowanej logiki
-        # BaseAgent automatycznie obsługuje pamięć
-        return {"success": True, "response": "..."}
-```
+## 🔧 Pliki konfiguracyjne
 
-### Dodanie nowego etapu terapii
-
-```python
-# 1. Dodaj definicję etapu w stages/stages.json
-{
-    "id": "new_stage",
-    "name": "Nowy Etap",
-    "order": 8,
-    "criteria": {...}
-}
-
-# 2. Utwórz prompty w prompts/stages/therapist/new_stage.json
-# 3. Utwórz prompty w prompts/stages/supervisor/new_stage.json
-```
-
-## 📁 Struktura projektu
+### Struktura konfiguracji
 
 ```
 psychia/
-├── 📁 src/
-│   ├── 📁 agents/                    # Agenci AI
-│   │   ├── base.py                   # BaseAgent - wspólna logika
-│   │   ├── therapist.py             # Agent terapeuty z memory optimization
-│   │   └── supervisor.py            # Agent supervisora z stage memory
-│   ├── 📁 core/                     # Logika biznesowa
-│   │   ├── 📁 prompts/              # Zarządzanie promptami
-│   │   │   ├── stage_prompt_manager.py      # Prompty etapów
-│   │   │   ├── system_prompt_manager.py     # Prompty systemowe
-│   │   │   └── unified_prompt_manager.py    # Orkiestracja
-│   │   ├── 📁 workflow/             # Workflow management
-│   │   │   ├── therapist_responder.py      # Logic terapeuty
-│   │   │   └── supervisor_evaluator.py     # Logic supervisora
-│   │   ├── 📁 session/              # Zarządzanie sesją
-│   │   └── therapy_workflow_manager.py     # Główny orkiestrator
-│   ├── 📁 llm/                      # Providery LLM
-│   │   ├── base.py                  # BaseProvider z memory support
-│   │   ├── openai_provider.py       # OpenAI z conversation memory
-│   │   ├── gemini_provider.py       # Gemini z session memory
-│   │   └── model_discovery.py       # Dynamiczne wykrywanie z cache
-│   ├── 📁 ui/                       # Interfejs użytkownika
-│   │   ├── 📁 pages/               # Strony Streamlit
-│   │   │   ├── therapy.py          # Główna strona terapii
-│   │   │   ├── model_test.py       # Zaawansowane testowanie modeli
-│   │   │   ├── prompts.py          # Zarządzanie promptami
-│   │   │   └── testing.py          # Narzędzia deweloperskie
-│   │   ├── chat.py                 # Interfejs czatu
-│   │   ├── technical_log_display.py    # Wyświetlanie logów
-│   │   └── sidebar.py              # Konfiguracja w pasku bocznym
-│   └── 📁 utils/                    # Narzędzia pomocnicze
-├── 📁 prompts/                      # Prompty systemowe
-│   ├── 📁 stages/                  # Prompty etapów (nowy format TSR)
-│   │   ├── 📁 therapist/           # Prompty terapeuty per etap
-│   │   └── 📁 supervisor/          # Prompty supervisora per etap
-│   └── 📁 system/                  # Prompty systemowe
-├── 📁 stages/                       # Konfiguracja etapów TSR
-├── app.py                          # Główny plik aplikacji
-├── config.py                       # Konfiguracja systemowa
-└── requirements.txt                # Zależności Python
+├── .env                          # Klucze API (utwórz samodzielnie)
+├── config.py                     # Główna konfiguracja Python
+├── config/json/
+│   ├── app_config.json          # Ustawienia aplikacji
+│   └── stages/
+│       └── stages.json          # Definicje etapów terapii
+├── prompts/
+│   ├── system/                  # Prompty systemowe
+│   │   ├── therapist.yaml
+│   │   └── supervisor.yaml
+│   └── stages/                  # Prompty dla etapów
+│       ├── therapist/           # Prompty terapeuty per etap
+│       └── supervisor/          # Prompty supervisora per etap
 ```
 
-## 🚀 Funkcjonalności Zaawansowane
+### Co znajduje się w każdym pliku
 
-### 🧠 **Smart Memory Management**
-- **3-poziomowy system**: Ultra-optimized → Memory-optimized → Traditional
-- **Automatyczna detekcja**: System wykrywa możliwości provider'a
-- **Stage Memory**: Inteligentne zarządzanie promptami etapów
-- **Memory Info**: Debugowanie i monitoring stanu pamięci
+#### **`.env` - Klucze API**
+```bash
+OPENAI_API_KEY=sk-...
+GOOGLE_API_KEY=AI...
+```
 
-### 🔧 **System Logowania**
-- **Pełna historia**: Wszystkie konwersacje bez limitów
-- **Bloki interakcji**: Logowanie grupowane według wiadomości użytkownika
-- **Kopiowanie**: Każdy blok można skopiować do schowka
-- **Prompty**: Pełne prompty w rozwijaných kontenerach
-- **Wizualne wskaźniki**: Różne kolory dla różnych typów logów
+#### **`config/json/app_config.json` - Ustawienia aplikacji**
+- Domyślne modele dla terapeuty i supervisora
+- Parametry generowania (temperatura, max tokens)
+- Ustawienia bezpieczeństwa
+- Opcje interfejsu
 
-### 🎯 **Zarządzanie Etapami**
-- **Automatyczna progresja**: Supervisor decyduje o przejściach
-- **Manualna kontrola**: Możliwość ręcznej zmiany etapów
-- **Unified Stage Memory**: Supervisor pamięta kontekst etapu
-- **Stage Prompt Optimization**: Wysyłanie prompt'ów etapu tylko raz
+#### **`config/json/stages/stages.json` - Etapy terapii**
+- Definicje 5 etapów TSR
+- Nazwy, opisy, kolejność
+- Szacowany czas trwania każdego etapu
 
-### 🛡️ **Bezpieczeństwo**
-- **Detekcja kryzysów**: Automatyczne wykrywanie ryzyka
-- **Protokół kryzysowy**: Natychmiastowe uruchomienie procedur bezpieczeństwa
-- **Numery alarmowe**: Telefon Zaufania, Pogotowie Ratunkowe
-- **Izolacja danych**: Każdy agent ma dedykowaną sesję
+#### **`prompts/system/` - Prompty podstawowe**
+- `therapist.yaml`: Podstawowe instrukcje dla terapeuty
+- `supervisor.yaml`: Instrukcje dla supervisora
 
-### 🧪 **Advanced Testing Framework**
-- **Memory Testing**: Kompleksowe testowanie pamięci prompt'ów
-- **Model Comparison**: Porównywanie różnych modeli i provider'ów
-- **Performance Analysis**: Metryki czasu odpowiedzi i jakości
-- **Configuration Recommendations**: Automatyczne zalecenia konfiguracji
+#### **`prompts/stages/` - Prompty dla etapów**
+- `therapist/opening.json`: Instrukcje terapeuty dla etapu otwarcia
+- `supervisor/opening.json`: Kryteria supervisora dla etapu otwarcia
+- *(analogicznie dla pozostałych etapów)*
+
+### Jak modyfikować konfigurację
+
+1. **Zmiana modeli**: Użyj interfejsu aplikacji (pasek boczny)
+2. **Zmiana parametrów**: Slider'y w aplikacji
+3. **Zmiana promptów**: Edytuj pliki w `prompts/`
+4. **Zmiana etapów**: Edytuj `config/json/stages/stages.json`
+5. **Nowe klucze API**: Edytuj plik `.env`
 
 ---
 
-**🧠 Psychia - Inteligentne wsparcie terapeutyczne z zaawansowaną architekturą AI**
+**🧠 Psychia - Twój inteligentny asystent terapeutyczny**
 
-*Developed with ❤️ using SOLID principles and cutting-edge AI memory optimization*
+*Łączy najlepsze praktyki terapii TSR z możliwościami nowoczesnej sztucznej inteligencji*
