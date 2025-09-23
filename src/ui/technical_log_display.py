@@ -151,7 +151,17 @@ class TechnicalLogDisplay:
             "📝 Full system prompt:",
             "📝 Current user prompt:",
             "📝 Complete supervisor prompt with context:",
-            "📝 Complete therapist prompt with context:"
+            "📝 Complete therapist prompt with context:",
+            "📝 SYSTEM PROMPT -",
+            "📝 STAGE PROMPT -",
+            "📝 CONVERSATION PROMPT -",
+            "📝 STRUCTURED_OUTPUT PROMPT -",
+            "📝 RAW_RESPONSE PROMPT -",
+            "📝 PARSE_DEBUG PROMPT -",
+            "📝 PARSE_SUCCESS PROMPT -",
+            "Description:",
+            "Content preview:",
+            "Full length:"
         ]
         return any(indicator in data for indicator in prompt_indicators)
 
@@ -178,29 +188,120 @@ class TechnicalLogDisplay:
     @staticmethod
     def _render_prompt_entry(style_info: Dict[str, str], timestamp: str, time_info: str, data: str) -> None:
         """Render log entry with prompt data in expandable container."""
-        # Split the data to get header and prompt content
-        lines = data.split('\n', 1)
-        header = lines[0] if lines else data
-        prompt_content = lines[1] if len(lines) > 1 else ""
 
-        st.markdown(
-            f'<div style="'
-            f'background: {style_info["bg_color"]}; '
-            f'border-left: 3px solid {style_info["border_color"]}; '
-            f'padding: 4px 6px; '
-            f'margin: 2px 0; '
-            f'border-radius: 3px; '
-            f'font-size: 0.75em; '
-            f'">'
-            f'<strong>{style_info["agent_label"]} {style_info["icon"]} {timestamp}{time_info}</strong><br>'
-            f'<span style="font-size: 0.95em;">{header}</span>'
-            f'</div>',
-            unsafe_allow_html=True
-        )
+        # Parse new detailed format (SYSTEM PROMPT -, CONVERSATION PROMPT -, etc.)
+        if ("📝" in data and " - " in data and any(x in data for x in ["SYSTEM PROMPT", "STAGE PROMPT", "CONVERSATION PROMPT", "STRUCTURED_OUTPUT PROMPT", "RAW_RESPONSE PROMPT", "PARSE_DEBUG PROMPT", "PARSE_SUCCESS PROMPT"])):
+            # New format parsing
+            lines = data.split('\n')
+            header_line = lines[0] if lines else data
 
-        if prompt_content.strip():
-            with st.expander("📝 Prompt Content", expanded=False):
-                st.text(prompt_content.strip())
+            # Extract prompt type and agent from header
+            prompt_type = "PROMPT"
+            if "SYSTEM PROMPT" in header_line:
+                prompt_type = "SYSTEM"
+            elif "STAGE PROMPT" in header_line:
+                prompt_type = "STAGE"
+            elif "CONVERSATION PROMPT" in header_line:
+                prompt_type = "CONVERSATION"
+            elif "STRUCTURED_OUTPUT PROMPT" in header_line:
+                prompt_type = "STRUCTURED"
+            elif "RAW_RESPONSE PROMPT" in header_line:
+                prompt_type = "RAW_RESPONSE"
+            elif "PARSE_DEBUG PROMPT" in header_line:
+                prompt_type = "PARSE_DEBUG"
+            elif "PARSE_SUCCESS PROMPT" in header_line:
+                prompt_type = "PARSE_SUCCESS"
+
+            # Extract description, preview and full content
+            description = ""
+            content_preview = ""
+            full_length = ""
+            full_content = ""
+
+            in_full_content = False
+            for line in lines[1:]:
+                if line.startswith("Description:"):
+                    description = line.replace("Description:", "").strip()
+                elif line.startswith("Content preview:"):
+                    content_preview = line.replace("Content preview:", "").strip()
+                elif line.startswith("Full length:"):
+                    full_length = line.replace("Full length:", "").strip()
+                elif line.startswith("Full content:"):
+                    full_content = line.replace("Full content:", "").strip()
+                    in_full_content = True
+                elif in_full_content:
+                    # Continue collecting full content on subsequent lines
+                    full_content += "\n" + line
+
+            # Create compact header
+            compact_header = f"{prompt_type} • {description} • {full_length}"
+
+            st.markdown(
+                f'<div style="'
+                f'background: {style_info["bg_color"]}; '
+                f'border-left: 3px solid {style_info["border_color"]}; '
+                f'padding: 4px 6px; '
+                f'margin: 2px 0; '
+                f'border-radius: 3px; '
+                f'font-size: 0.75em; '
+                f'">'
+                f'<strong>{style_info["agent_label"]} {style_info["icon"]} {timestamp}{time_info}</strong><br>'
+                f'<span style="font-size: 0.9em;">{compact_header}</span>'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+
+            # Show full content in expander if available
+            if full_content or content_preview:
+                # Use full content if available, otherwise fall back to preview
+                content_to_show = full_content if full_content else content_preview
+
+                with st.expander(f"📝 {prompt_type} Details", expanded=False):
+                    st.text(f"Description: {description}")
+                    if full_length:
+                        st.text(f"Full length: {full_length}")
+
+                    # Try to detect and format JSON content
+                    if content_to_show.strip().startswith('{') and content_to_show.strip().endswith('}'):
+                        try:
+                            # Try to parse and display as JSON
+                            import json
+                            json_data = json.loads(content_to_show)
+                            st.subheader("JSON Content:")
+                            st.json(json_data)
+                        except json.JSONDecodeError:
+                            # If not valid JSON, show as text
+                            st.subheader("Content:")
+                            st.text(content_to_show)
+                    else:
+                        # Show as regular text
+                        st.subheader("Content:")
+                        st.text(content_to_show)
+
+        else:
+            # Original format parsing (fallback)
+            lines = data.split('\n', 1)
+            header = lines[0] if lines else data
+            prompt_content = lines[1] if len(lines) > 1 else ""
+
+            st.markdown(
+                f'<div style="'
+                f'background: {style_info["bg_color"]}; '
+                f'border-left: 3px solid {style_info["border_color"]}; '
+                f'padding: 4px 6px; '
+                f'margin: 2px 0; '
+                f'border-radius: 3px; '
+                f'font-size: 0.75em; '
+                f'">'
+                f'<strong>{style_info["agent_label"]} {style_info["icon"]} {timestamp}{time_info}</strong><br>'
+                f'<span style="font-size: 0.95em;">{header}</span>'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+
+            if prompt_content.strip():
+                with st.expander("📝 Prompt Content", expanded=False):
+                    st.text(prompt_content.strip())
 
     @staticmethod
     def _render_standard_entry(style_info: Dict[str, str], timestamp: str, time_info: str, data: str) -> None:

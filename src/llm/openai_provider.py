@@ -28,6 +28,17 @@ class OpenAIProvider(LLMProvider):
 
         # Provider-specific configuration
         self.base_url = "https://api.openai.com/v1"
+
+        # Structured output configuration (set once per session)
+        self._default_response_format = None
+
+    def set_default_response_format(self, response_format: dict) -> None:
+        """Set default response format for all subsequent requests."""
+        self._default_response_format = response_format
+
+    def clear_default_response_format(self) -> None:
+        """Clear default response format."""
+        self._default_response_format = None
     
     # Conversation methods now inherited from base class
 
@@ -52,8 +63,8 @@ class OpenAIProvider(LLMProvider):
                 "top_p": common_params["top_p"]
             })
 
-        # Add structured output support
-        response_format = kwargs.get("response_format")
+        # Add structured output support (from per-request or default)
+        response_format = kwargs.get("response_format") or self._default_response_format
         if response_format:
             api_params["response_format"] = response_format
 

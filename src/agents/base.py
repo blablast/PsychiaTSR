@@ -134,12 +134,13 @@ class BaseAgent(ABC):
             # Use add_technical_log function which writes to session_state technical_log
             from src.ui.technical_log_display import add_technical_log
 
-            # Create detailed log entry
+            # Create detailed log entry with full content
             log_content = (
                 f"📝 {prompt_type} PROMPT - {self._agent_type.upper()}\n"
                 f"Description: {description}\n"
                 f"Content preview: {prompt_content[:100]}{'...' if len(prompt_content) > 100 else ''}\n"
-                f"Full length: {len(prompt_content)} characters"
+                f"Full length: {len(prompt_content)} characters\n"
+                f"Full content: {prompt_content}"
             )
 
             add_technical_log(f"{self._agent_type}_prompt_setting", log_content)
@@ -153,12 +154,13 @@ class BaseAgent(ABC):
             # Use add_technical_log function which writes to session_state technical_log
             from src.ui.technical_log_display import add_technical_log
 
-            # Create detailed log entry for system prompt
+            # Create detailed log entry for system prompt with full content
             log_content = (
                 f"📝 SYSTEM PROMPT - {self._agent_type.upper()}\n"
                 f"Description: {description}\n"
                 f"Content preview: {prompt_content[:200]}{'...' if len(prompt_content) > 200 else ''}\n"
-                f"Full length: {len(prompt_content)} characters"
+                f"Full length: {len(prompt_content)} characters\n"
+                f"Full content: {prompt_content}"
             )
 
             add_technical_log(f"{self._agent_type}_system_prompt", log_content)
@@ -172,12 +174,13 @@ class BaseAgent(ABC):
             # Use add_technical_log function which writes to session_state technical_log
             from src.ui.technical_log_display import add_technical_log
 
-            # Create detailed log entry for stage prompt
+            # Create detailed log entry for stage prompt with full content
             log_content = (
                 f"📝 STAGE PROMPT - {self._agent_type.upper()} - {stage_id}\n"
                 f"Description: {description}\n"
                 f"Content preview: {prompt_content[:200]}{'...' if len(prompt_content) > 200 else ''}\n"
-                f"Full length: {len(prompt_content)} characters"
+                f"Full length: {len(prompt_content)} characters\n"
+                f"Full content: {prompt_content}"
             )
 
             add_technical_log(f"{self._agent_type}_stage_prompt", log_content)

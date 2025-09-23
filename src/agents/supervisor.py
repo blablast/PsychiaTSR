@@ -15,26 +15,45 @@ class SupervisorAgent(BaseAgent):
         self._stage_prompt_set = False
         self._supports_structured_output = self._check_structured_output_support()
 
+        # Set structured output format once for entire session
+        if self._supports_structured_output:
+            self._configure_structured_output()
+
     def _check_structured_output_support(self) -> bool:
         """Check if current provider supports structured output."""
         provider_class = self.llm_provider.__class__.__name__
         return provider_class in ['OpenAIProvider', 'GeminiProvider']
 
-    def _get_structured_output_params(self) -> dict:
-        """Get structured output parameters based on provider type."""
-        if not self._supports_structured_output:
-            return {}
-
+    def _configure_structured_output(self) -> None:
+        """Configure structured output format once per session."""
         from ..utils.schemas import SupervisorDecision
 
         provider_class = self.llm_provider.__class__.__name__
 
         if provider_class == 'OpenAIProvider':
-            return {"response_format": SupervisorDecision.get_openai_response_format()}
+            if hasattr(self.llm_provider, 'set_default_response_format'):
+                response_format = SupervisorDecision.get_openai_response_format()
+                self.llm_provider.set_default_response_format(response_format)
+                self._log_prompt_setting(
+                    "STRUCTURED_OUTPUT_SESSION",
+                    f"OpenAI structured output configured once",
+                    f"Session-level: response_format set for all supervisor requests"
+                )
         elif provider_class == 'GeminiProvider':
-            return {"response_schema": SupervisorDecision.get_gemini_response_schema()}
-        else:
-            return {}
+            if hasattr(self.llm_provider, 'set_default_response_schema'):
+                response_schema = SupervisorDecision.get_gemini_response_schema()
+                self.llm_provider.set_default_response_schema(response_schema)
+                self._log_prompt_setting(
+                    "STRUCTURED_OUTPUT_SESSION",
+                    f"Gemini structured output configured once",
+                    f"Session-level: response_schema set for all supervisor requests"
+                )
+
+    def _get_structured_output_params(self) -> dict:
+        """Get structured output parameters - now returns empty since format is set at provider level."""
+        # Structured output is now configured once at provider level in __init__
+        # No need to pass parameters per request
+        return {}
 
     def set_stage_prompt(self, stage_id: str, stage_prompt: str):
         """Set stage prompt once when entering new stage"""
@@ -119,13 +138,13 @@ class SupervisorAgent(BaseAgent):
                 **structured_params
             )
 
-            # Log structured output usage
-            if structured_params:
+            # Log structured output usage (now set once at session level)
+            if self._supports_structured_output:
                 provider_type = self.llm_provider.__class__.__name__
                 self._log_prompt_setting(
                     "STRUCTURED_OUTPUT",
-                    f"Using {provider_type} structured output",
-                    f"Supervisor using structured JSON output for consistent parsing"
+                    f"Using session-configured {provider_type} structured output",
+                    f"Supervisor using structured JSON output (configured once per session)"
                 )
 
             # Log raw response before parsing

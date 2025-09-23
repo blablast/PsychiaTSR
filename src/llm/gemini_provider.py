@@ -32,6 +32,17 @@ class GeminiProvider(LLMProvider):
         # Provider-specific configuration
         self.base_url = "https://generativelanguage.googleapis.com/v1beta"
 
+        # Structured output configuration (set once per session)
+        self._default_response_schema = None
+
+    def set_default_response_schema(self, response_schema: dict) -> None:
+        """Set default response schema for all subsequent requests."""
+        self._default_response_schema = response_schema
+
+    def clear_default_response_schema(self) -> None:
+        """Clear default response schema."""
+        self._default_response_schema = None
+
         # Gemini-specific state (for sync API compatibility)
         self.chat_session = None
         self.conversation_history = []  # Separate from base conversation_messages
@@ -105,8 +116,8 @@ class GeminiProvider(LLMProvider):
             }
         }
 
-        # Add structured output support
-        response_schema = kwargs.get("response_schema")
+        # Add structured output support (from per-request or default)
+        response_schema = kwargs.get("response_schema") or self._default_response_schema
         if response_schema:
             request_data["generationConfig"]["responseMimeType"] = "application/json"
             request_data["generationConfig"]["responseSchema"] = response_schema
