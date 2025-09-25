@@ -18,7 +18,8 @@ class StorageProvider:
         """Create necessary directories if they don't exist"""
         self.logs_dir.mkdir(parents=True, exist_ok=True)
 
-    def _get_session_template(self) -> Dict[str, Any]:
+    @staticmethod
+    def _get_session_template() -> Dict[str, Any]:
         """Get session template from template file."""
         try:
             template_path = Path("config/templates/defaults/session_template.json")
