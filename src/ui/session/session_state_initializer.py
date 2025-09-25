@@ -1,10 +1,7 @@
 """Session state initialization for Streamlit application."""
 
 import streamlit as st
-from ...core.di.service_locator import ServiceLocator
-from ...infrastructure.storage import StorageProvider
-from ...core.safety import SafetyChecker
-from ...core.session.stages.stage_manager import StageManager
+from ...core.services.simple_service_factory import SimpleServiceFactory
 
 
 class SessionStateInitializer:
@@ -20,17 +17,17 @@ class SessionStateInitializer:
 
         # Current therapy stage
         if "current_stage" not in st.session_state:
-            # Get first stage dynamically using DI
-            stage_manager = ServiceLocator.resolve(StageManager)
+            # Get first stage dynamically using SimpleServiceFactory
+            stage_manager = SimpleServiceFactory.create_stage_manager()
             first_stage = stage_manager.get_first_stage()
             st.session_state.current_stage = first_stage.stage_id if first_stage else "opening"
 
-        # Core services - resolved through DI
+        # Core services - resolved through SimpleServiceFactory
         if "storage" not in st.session_state:
-            st.session_state.storage = ServiceLocator.resolve(StorageProvider)
+            st.session_state.storage = SimpleServiceFactory.create_storage_provider()
 
         if "safety_checker" not in st.session_state:
-            st.session_state.safety_checker = ServiceLocator.resolve(SafetyChecker)
+            st.session_state.safety_checker = SimpleServiceFactory.create_safety_checker()
 
         # Agent instances
         if "therapist_agent" not in st.session_state:

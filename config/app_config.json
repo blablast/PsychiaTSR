@@ -1,11 +1,16 @@
 {
+  "app": {
+    "title": "Psychia - TSR Therapy Assistant",
+    "icon": "🧠",
+    "language": "pl"
+  },
   "agents": {
     "therapist": {
       "provider": "openai",
-      "model": "gpt-4o",
+      "model": "gpt-4o-mini",
       "parameters": {
         "temperature": 0.7,
-        "max_tokens": 200,
+        "max_tokens": 150,
         "top_p": 0.9
       }
     },
@@ -13,39 +18,16 @@
       "provider": "gemini",
       "model": "gemini-2.5-flash-lite",
       "parameters": {
-        "temperature": 0.2,
-        "max_tokens": 300,
-        "top_p": 0.8
+        "temperature": 0.7,
+        "max_tokens": 150,
+        "top_p": 0.9
       }
     }
-  },
-  "app": {
-    "title": "Psychia - TSR Therapy Assistant",
-    "icon": "🧠",
-    "language": "pl"
-  },
-  "session": {
-    "timeout": 3600,
-    "max_history": 50
-  },
-  "safety": {
-    "enable_checks": true,
-    "strict_mode": false
   },
   "directories": {
     "logs_dir": "./logs",
     "prompt_dir": "./config/prompts",
     "stages_dir": "./config"
-  },
-  "logging": {
-    "level": "INFO",
-    "detailed": true
-  },
-  "audio": {
-    "enabled": false,
-    "tts_config": {
-      "voice_id": "lxYfHSkYm1EzQzGhdbfc"
-    }
   },
   "memory": {
     "max_therapist_messages": 20,
@@ -53,14 +35,8 @@
     "enable_summary": true,
     "compression_threshold": 100
   },
-  "providers": {
-    "therapist": {
-      "provider": "openai",
-      "model": "gpt-4o-mini"
-    },
-    "supervisor": {
-      "provider": "gemini",
-      "model": "gemini-2.5-flash-lite"
-    }
-  }
+  "providers": [
+    "openai",
+    "google"
+  ]
 }

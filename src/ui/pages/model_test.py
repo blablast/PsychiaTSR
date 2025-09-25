@@ -23,7 +23,8 @@ def get_openai_models():
     # If cache fails, try direct API as fallback
     try:
         import openai
-        client = openai.OpenAI(api_key=Config.OPENAI_API_KEY)
+        config = Config.get_instance()
+        client = openai.OpenAI(api_key=config.OPENAI_API_KEY)
         models = client.models.list()
 
         # Filter for chat models (exclude embeddings, whisper, etc.)
@@ -194,7 +195,8 @@ def chat_test_interface():
                     with st.expander("🔍 Debug OpenAI API", expanded=True):
                         try:
                             import openai
-                            client = openai.OpenAI(api_key=Config.OPENAI_API_KEY)
+                            config = Config.get_instance()
+                            client = openai.OpenAI(api_key=config.OPENAI_API_KEY)
 
                             # Test basic connection
                             from openai.types.chat import ChatCompletionUserMessageParam
@@ -359,10 +361,11 @@ def chat_test_interface():
                 debug_info = {}
 
                 # Create provider
+                config = Config.get_instance()
                 if provider == "OpenAI":
-                    llm_provider = OpenAIProvider(model, api_key=Config.OPENAI_API_KEY)
+                    llm_provider = OpenAIProvider(model, api_key=config.OPENAI_API_KEY)
                 else:
-                    llm_provider = GeminiProvider(model, api_key=Config.GOOGLE_API_KEY)
+                    llm_provider = GeminiProvider(model, api_key=config.GOOGLE_API_KEY)
 
                 debug_info["provider"] = provider
                 debug_info["model"] = model
@@ -536,167 +539,28 @@ def memory_test_interface():
 
 
 def run_memory_test(provider: str, model: str, system_prompt: str, stage_prompt: str, temperature: float, max_tokens: int):
-    """Execute memory test scenario."""
+    """Execute memory test scenario using MemoryTestRunner."""
     try:
-        # Initialize provider
-        if provider == "OpenAI":
-            llm_provider = OpenAIProvider(model, api_key=Config.OPENAI_API_KEY)
-        else:
-            llm_provider = GeminiProvider(model, api_key=Config.GOOGLE_API_KEY)
+        # Import the refactored test runner
+        from .memory_test_runner import MemoryTestRunner
 
-        test_results = {
-            "provider": provider,
-            "model": model,
-            "timestamp": datetime.now().isoformat(),
-            "start_time": datetime.now(),
-            "supports_memory": hasattr(llm_provider, 'conversation_messages') or hasattr(llm_provider, 'chat_session'),
-            "steps": []
-        }
+        # Create and run test
+        test_runner = MemoryTestRunner(
+            provider=provider,
+            model=model,
+            system_prompt=system_prompt,
+            stage_prompt=stage_prompt,
+            temperature=temperature,
+            max_tokens=max_tokens
+        )
 
-        # Initialize UI elements
-        progress_bar = st.progress(0)
-        status_text = st.empty()
+        test_results = test_runner.run_test()
 
-        status_text.text("🚀 Rozpoczynam test pamięci modelu...")
-
-        # Step 1: Set system prompt
-        status_text.text("🔧 Krok 1/5: Ustawianie system prompt...")
-        progress_bar.progress(0.2)
-
-        if hasattr(llm_provider, 'set_system_prompt'):
-            llm_provider.set_system_prompt(system_prompt)
-            step1_result = {"step": 1, "action": "set_system_prompt", "success": True, "method": "set_system_prompt"}
-        else:
-            step1_result = {"step": 1, "action": "set_system_prompt", "success": False, "method": "not_supported"}
-
-        test_results["steps"].append(step1_result)
-
-        # Step 2: Set stage prompt (if supported)
-        status_text.text("🎯 Krok 2/5: Ustawianie stage prompt...")
-        progress_bar.progress(0.4)
-
-        if test_results["supports_memory"]:
-            # Send stage prompt as conversation message
-            if hasattr(llm_provider, 'add_user_message') and hasattr(llm_provider, 'add_assistant_message'):
-                llm_provider.add_user_message(f"NOWY ETAP TERAPII:\n{stage_prompt}\n\nOd teraz pracuj zgodnie z tym etapem.")
-                llm_provider.add_assistant_message("Rozumiem. Pracuję zgodnie z wytycznymi tego etapu.")
-                step2_result = {"step": 2, "action": "set_stage_prompt", "success": True, "method": "conversation_memory"}
-            else:
-                step2_result = {"step": 2, "action": "set_stage_prompt", "success": False, "method": "no_conversation_methods"}
-        else:
-            step2_result = {"step": 2, "action": "set_stage_prompt", "success": False, "method": "no_memory_support"}
-
-        test_results["steps"].append(step2_result)
-
-        # Step 3: Send test message
-        status_text.text("💬 Krok 3/5: Wysyłanie wiadomości testowej...")
-        progress_bar.progress(0.6)
-
-        test_message = "Cześć jestem Kacper"
-        start_time = datetime.now()
-
-        try:
-            response = llm_provider.generate_sync(
-                prompt=test_message,
-                temperature=temperature,
-                max_tokens=max_tokens
-            )
-            end_time = datetime.now()
-            duration = (end_time - start_time).total_seconds()
-
-            step3_result = {
-                "step": 3,
-                "action": "send_test_message",
-                "success": True,
-                "message": test_message,
-                "response": response,
-                "duration_seconds": round(duration, 2)
-            }
-        except Exception as e:
-            step3_result = {
-                "step": 3,
-                "action": "send_test_message",
-                "success": False,
-                "error": str(e)
-            }
-
-        test_results["steps"].append(step3_result)
-
-        # Step 4: Memory verification - conversation history
-        status_text.text("🔍 Krok 4/5: Sprawdzanie historii konwersacji...")
-        progress_bar.progress(0.8)
-
-        memory_check_message = "Pokaż mi całą naszą historię rozmowy od początku, ale bez promptów systemowych i etapowych."
-
-        try:
-            memory_response = llm_provider.generate_sync(
-                prompt=memory_check_message,
-                temperature=0.1,  # Low temperature for consistent results
-                max_tokens=300
-            )
-
-            step4_result = {
-                "step": 4,
-                "action": "check_conversation_history",
-                "success": True,
-                "message": memory_check_message,
-                "response": memory_response
-            }
-        except Exception as e:
-            step4_result = {
-                "step": 4,
-                "action": "check_conversation_history",
-                "success": False,
-                "error": str(e)
-            }
-
-        test_results["steps"].append(step4_result)
-
-        # Step 5: Stage awareness check
-        status_text.text("🎯 Krok 5/5: Sprawdzanie świadomości etapu...")
-        progress_bar.progress(1.0)
-
-        stage_check_message = "W którym etapie terapii obecnie się znajdujemy? Jaki jest Twój cel w tym etapie? Jak mam na imię?"
-
-        try:
-            stage_response = llm_provider.generate_sync(
-                prompt=stage_check_message,
-                temperature=0.1,
-                max_tokens=200
-            )
-
-            step5_result = {
-                "step": 5,
-                "action": "check_stage_awareness",
-                "success": True,
-                "message": stage_check_message,
-                "response": stage_response
-            }
-        except Exception as e:
-            step5_result = {
-                "step": 5,
-                "action": "check_stage_awareness",
-                "success": False,
-                "error": str(e)
-            }
-
-        test_results["steps"].append(step5_result)
-
-        # Calculate total test duration
-        end_time = datetime.now()
-        total_duration = (end_time - test_results["start_time"]).total_seconds()
-        test_results["total_duration_seconds"] = str(round(total_duration, 2))
-        test_results["end_time"] = end_time
-
-        # Store results
+        # Store results in session state
         st.session_state["memory_test_results"] = test_results
 
-        status_text.text(f"✅ Test zakończony pomyślnie! (Czas: {total_duration:.1f}s)")
-        progress_bar.progress(1.0)
-        st.success(f"Test pamięci promptów został zakończony w {total_duration:.1f}s. Sprawdź wyniki poniżej.")
-
     except Exception as e:
-        st.error(f"Błąd podczas testu: {str(e)}")
+        st.error(f"❌ Błąd podczas testu: {str(e)}")
         st.exception(e)
 
 

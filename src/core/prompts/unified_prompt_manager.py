@@ -1,6 +1,6 @@
 """
 Unified prompt management orchestrating system and stage prompts.
-Follows Dependency Inversion Principle by composing specialized managers.
+Composes specialized managers for unified prompt access.
 """
 
 from .system_prompt_manager import SystemPromptManager
@@ -12,8 +12,8 @@ class UnifiedPromptManager:
     """
     Orchestrates system and stage prompt managers to provide unified prompt access.
 
-    Responsibility: Coordinate between SystemPromptManager and StagePromptManager
-    to provide combined prompts for therapy workflow while maintaining SRP.
+    Coordinates between SystemPromptManager and StagePromptManager
+    to provide combined prompts for therapy workflow.
     """
 
     def __init__(self, prompts_base_dir: str):
@@ -21,10 +21,14 @@ class UnifiedPromptManager:
         Initialize with base prompts directory.
 
         Args:
-            prompts_base_dir: Base path to prompts directory
+            prompts_base_dir: Base path to prompts directory (now pointing to config dir)
         """
-        self._system_manager = SystemPromptManager(f"{prompts_base_dir}/system")
-        self._stage_manager = StagePromptManager(f"{prompts_base_dir}/stages")
+
+        # Adjust paths - our files are directly in config/ not config/prompts/
+        config_dir = prompts_base_dir.replace("/prompts", "").replace("\\prompts", "")
+
+        self._system_manager = SystemPromptManager(config_dir)  # SystemPromptManager handles system_prompts.json directly
+        self._stage_manager = StagePromptManager(config_dir)   # StagePromptManager handles stage_prompts.json directly
 
     def get_full_prompt(self, stage_id: str, agent_type: str) -> Optional[str]:
         """
@@ -73,7 +77,8 @@ class UnifiedPromptManager:
         Returns:
             Stage prompt string or None if not found
         """
-        return self._stage_manager.get_prompt(stage_id, agent_type)
+        result = self._stage_manager.get_prompt(stage_id, agent_type)
+        return result
 
     def is_available(self, stage_id: str, agent_type: str) -> bool:
         """

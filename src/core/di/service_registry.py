@@ -17,7 +17,9 @@ class ServiceRegistry:
         """Register core application services."""
 
         # Configuration services
-        container.register_instance(Config, Config())
+        from config import Config
+        config = Config.get_instance()
+        container.register_instance(Config, config)
         container.register(ConfigManager, ConfigManager, ServiceLifetime.SINGLETON)
 
         # Specialized config classes (updated paths)
@@ -60,7 +62,7 @@ class ServiceRegistry:
         # Storage and safety services
         container.register_factory(
             StorageProvider,
-            lambda: StorageProvider(Config.LOGS_DIR),
+            lambda: StorageProvider(Config.get_instance().LOGS_DIR),
             ServiceLifetime.SINGLETON
         )
         container.register(SafetyChecker, SafetyChecker, ServiceLifetime.SINGLETON)
@@ -68,7 +70,7 @@ class ServiceRegistry:
         # Stage management
         container.register_factory(
             StageManager,
-            lambda: StageManager(Config.STAGES_DIR),
+            lambda: StageManager(Config.get_instance().STAGES_DIR),
             ServiceLifetime.SINGLETON
         )
 
@@ -87,7 +89,7 @@ class ServiceRegistry:
         # Prompt management - use factory to provide the directory parameter
         container.register_factory(
             UnifiedPromptManager,
-            lambda: UnifiedPromptManager(Config.PROMPT_DIR),
+            lambda: UnifiedPromptManager(Config.get_instance().PROMPT_DIR),
             ServiceLifetime.SINGLETON
         )
 

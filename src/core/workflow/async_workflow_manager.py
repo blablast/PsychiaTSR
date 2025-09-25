@@ -120,7 +120,7 @@ class AsyncWorkflowManager:
                 "Faster response times",
                 "Better resource utilization",
                 "Improved user experience",
-                "Scalable architecture"
+                "Scalable processing"
             ]
         }
 
@@ -165,7 +165,8 @@ def send_supervisor_request_stream_async(prompt: str) -> Generator[str, None, No
 
     try:
         # Get dependencies (similar to existing workflow)
-        prompt_manager = UnifiedPromptManager(Config.PROMPT_DIR)
+        config = Config.get_instance()
+        prompt_manager = UnifiedPromptManager(config.PROMPT_DIR)
         from ...ui.session.streamlit_agent_provider import StreamlitAgentProvider
         agent_provider = StreamlitAgentProvider()
 

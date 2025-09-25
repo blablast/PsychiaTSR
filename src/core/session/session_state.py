@@ -21,7 +21,8 @@ class StreamlitSessionState(ISessionState):
             # Get first stage dynamically
             from .stages.stage_manager import StageManager
             from config import Config
-            stage_manager = StageManager(Config.STAGES_DIR)
+            config = Config.get_instance()
+            stage_manager = StageManager(config.STAGES_DIR)
             first_stage = stage_manager.get_first_stage()
             current_stage = first_stage.stage_id if first_stage else "opening"
             # Cache it

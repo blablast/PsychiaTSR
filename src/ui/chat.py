@@ -1,7 +1,6 @@
 """Chat display functionality for Psychia TSR"""
 
 from typing import Optional, Dict
-import os
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -340,8 +339,9 @@ def _render_audio_play_button(message) -> None:
 
         from src.infrastructure.storage import StorageProvider
         from config import Config
+        config = Config.get_instance()
 
-        storage = StorageProvider(Config.LOGS_DIR)
+        storage = StorageProvider(config.LOGS_DIR)
         audio_path = storage.get_audio_file_path(session_id, message_id)
 
         if audio_path and audio_path.exists():
@@ -424,7 +424,8 @@ def _process_and_save_audio(text: str, tts_config: dict) -> None:
             last_therapist_msg.id = message_id  # Add ID to the message
 
         # Save audio file to disk
-        storage = StorageProvider(Config.LOGS_DIR)
+        config = Config.get_instance()
+        storage = StorageProvider(config.LOGS_DIR)
         audio_file_path = storage.save_audio_file(session_id, message_id, audio_data)
 
         if audio_file_path:

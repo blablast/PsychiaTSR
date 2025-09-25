@@ -269,7 +269,8 @@ class SupervisorAgent(AgentBase, IAsyncSupervisorAgent):
         """
         # Build conversation context with configurable token limit for performance optimization
         from config import Config
-        conversation_context = self._build_conversation_context(history, max_messages=Config.MAX_SUPERVISOR_CONTEXT_MESSAGES)
+        config = Config.get_instance()
+        conversation_context = self._build_conversation_context(history, max_messages=config.MAX_SUPERVISOR_CONTEXT_MESSAGES)
 
         # Build safety context to identify potential risks or crisis indicators
         safety_context = self._build_safety_context(history)

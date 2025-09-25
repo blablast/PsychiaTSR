@@ -68,7 +68,7 @@ class StageManager:
 
             self._stages_cache = [
                 StageInfo(
-                    stage_id=stage["id"],
+                    stage_id=stage["stage_id"],
                     name=stage["name"],
                     order=stage["order"],
                     description=stage.get("description")

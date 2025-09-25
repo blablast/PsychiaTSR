@@ -36,8 +36,8 @@ def main():
         from src.ui.pages.therapy import therapy_page
         therapy_page()
     elif current_page == "prompts":
-        from src.ui.pages.prompts import prompts_management_page
-        prompts_management_page()
+        from src.ui.pages.prompts_unified import prompts_unified_page
+        prompts_unified_page()
     elif current_page == "settings":
         from src.ui.pages.conversation_settings import display_conversation_settings
         display_conversation_settings()
@@ -80,8 +80,8 @@ def _display_tests_page():
         from src.ui.pages.model_test import model_test_page
         model_test_page()
     elif test_option == "Testy Promptów":
-        from src.ui.pages.prompts import prompts_page
-        prompts_page()
+        from src.ui.pages.prompts_new import prompts_management_page
+        prompts_management_page()
     elif test_option == "Eksport Danych":
         from src.ui.pages.export import export_page
         export_page()

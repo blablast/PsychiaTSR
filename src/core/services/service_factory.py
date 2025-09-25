@@ -1,50 +1,46 @@
-"""Service factory for dependency injection setup."""
+"""Service factory using simple factory pattern instead of complex DI."""
 
-from ..di.service_locator import ServiceLocator
-from ..prompts.unified_prompt_manager import UnifiedPromptManager
-from ...core.safety import SafetyChecker
-from .prompt_service import PromptService
-from .parsing_service import ParsingService
-from .safety_service import SafetyService
-from .memory_service import MemoryService
+from .simple_service_factory import SimpleServiceFactory
 
 
 class ServiceFactory:
-    """Factory for creating and wiring services with proper dependencies."""
+    """
+    Backwards compatible service factory using SimpleServiceFactory.
+
+    Simplified from complex DI container to simple factory pattern.
+    """
 
     @staticmethod
-    def create_services(prompt_manager: UnifiedPromptManager = None,
-                       safety_checker: SafetyChecker = None,
-                       logger=None) -> tuple:
+    def create_services(prompt_manager=None, safety_checker=None, logger=None) -> tuple:
         """
-        Create all services with proper dependencies using DI container.
+        Create all services with proper dependencies using SimpleServiceFactory.
 
         Returns:
             Tuple of (prompt_service, parsing_service, safety_service, memory_service)
         """
-        # Resolve dependencies through DI if not provided
-        if prompt_manager is None:
-            prompt_manager = ServiceLocator.resolve(UnifiedPromptManager)
-        if safety_checker is None:
-            safety_checker = ServiceLocator.resolve(SafetyChecker)
+        # Use SimpleServiceFactory instead of complex DI container
+        agent_services = SimpleServiceFactory.create_agent_services()
 
-        # Create services - DI container will handle dependencies automatically
-        prompt_service = ServiceLocator.resolve(PromptService)
-        parsing_service = ServiceLocator.resolve(ParsingService)
-        safety_service = ServiceLocator.resolve(SafetyService)
-        memory_service = ServiceLocator.resolve(MemoryService)
-
-        return prompt_service, parsing_service, safety_service, memory_service
+        return (
+            agent_services['prompt_service'],
+            agent_services['parsing_service'],
+            agent_services['safety_service'],
+            agent_services['memory_service']
+        )
 
     @staticmethod
-    def create_supervisor_agent(llm_provider, prompt_manager: UnifiedPromptManager = None,
-                              safety_checker: SafetyChecker = None, logger=None):
-        """Create fully configured SupervisorAgent with dependency injection."""
+    def create_supervisor_agent(llm_provider, prompt_manager=None, safety_checker=None, logger=None):
+        """Create fully configured SupervisorAgent using SimpleServiceFactory."""
         from ...agents.supervisor import SupervisorAgent
 
+        # Get services from SimpleServiceFactory
         prompt_service, parsing_service, safety_service, memory_service = (
-            ServiceFactory.create_services(prompt_manager, safety_checker, logger)
+            ServiceFactory.create_services()
         )
+
+        # Use provided logger or create default
+        if logger is None:
+            logger = SimpleServiceFactory.create_logger()
 
         return SupervisorAgent(
             llm_provider=llm_provider,
@@ -56,14 +52,18 @@ class ServiceFactory:
         )
 
     @staticmethod
-    def create_therapist_agent(llm_provider, prompt_manager: UnifiedPromptManager = None,
-                             safety_checker: SafetyChecker = None, logger=None):
-        """Create fully configured TherapistAgent with dependency injection."""
+    def create_therapist_agent(llm_provider, prompt_manager=None, safety_checker=None, logger=None):
+        """Create fully configured TherapistAgent using SimpleServiceFactory."""
         from ...agents.therapist import TherapistAgent
 
+        # Get services from SimpleServiceFactory
         prompt_service, parsing_service, safety_service, memory_service = (
-            ServiceFactory.create_services(prompt_manager, safety_checker, logger)
+            ServiceFactory.create_services()
         )
+
+        # Use provided logger or create default
+        if logger is None:
+            logger = SimpleServiceFactory.create_logger()
 
         return TherapistAgent(
             llm_provider=llm_provider,

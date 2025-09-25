@@ -98,16 +98,15 @@ class ConversationWorkflowStrategy(WorkflowStrategy):
         Yields therapist response chunks while handling supervisor evaluation normally.
         """
         try:
+
             # Check if already processing and abort if needed
             if self._conversation_manager.is_processing():
-                # Remove excessive warning logging - this is expected behavior
                 self._conversation_manager.abort_processing()
 
             # Start processing - freeze current question
             committed_context, current_question = self._conversation_manager.start_processing()
 
             # Step 1: Supervisor evaluation (non-streaming, simplified logging)
-            # Removed verbose logging
 
             supervisor_result = self._supervisor_evaluator.evaluate_stage(
                 context.current_stage, current_question, committed_context
@@ -120,10 +119,7 @@ class ConversationWorkflowStrategy(WorkflowStrategy):
 
             supervisor_decision = supervisor_result.data["decision"]
 
-            # Simplified supervisor decision logging (decision already logged by supervisor)
-            # Removed verbose info logging
-
-            # Step 2: Generate streaming therapist response (removed verbose logging)
+            # Step 2: Generate streaming therapist response
 
             full_response = ""
             therapist_result = None
@@ -133,7 +129,9 @@ class ConversationWorkflowStrategy(WorkflowStrategy):
                 context.current_stage, current_question, committed_context
             )
 
+            chunk_count = 0
             for chunk in stream_generator:
+                chunk_count += 1
                 if isinstance(chunk, str):
                     full_response += chunk
                     yield chunk
@@ -141,6 +139,7 @@ class ConversationWorkflowStrategy(WorkflowStrategy):
                     # This is the final WorkflowResult
                     therapist_result = chunk
                     break
+
 
             if not therapist_result or not therapist_result.success:
                 self._conversation_manager.abort_processing()

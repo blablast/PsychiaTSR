@@ -10,7 +10,7 @@
       "metadata": {
         "id": 1,
         "agent": "supervisor",
-        "stage": 1,
+        "stage_id": "opening",
         "created_at": "2025-01-15T12:00:00Z",
         "updated_at": "2025-09-24T22:35:00Z",
         "status": "active",
@@ -45,7 +45,7 @@
       "metadata": {
         "id": 2,
         "agent": "supervisor",
-        "stage": 2,
+        "stage_id": "resources",
         "created_at": "2025-09-24T23:00:00Z",
         "updated_at": "2025-09-24T23:00:00Z",
         "status": "active",
@@ -80,7 +80,7 @@
       "metadata": {
         "id": 3,
         "agent": "supervisor",
-        "stage": 3,
+        "stage_id": "scaling",
         "created_at": "2025-09-24T23:00:00Z",
         "updated_at": "2025-09-24T23:00:00Z",
         "status": "active",
@@ -115,7 +115,7 @@
       "metadata": {
         "id": 4,
         "agent": "supervisor",
-        "stage": 4,
+        "stage_id": "small_steps",
         "created_at": "2025-09-24T23:00:00Z",
         "updated_at": "2025-09-24T23:00:00Z",
         "status": "active",
@@ -150,7 +150,7 @@
       "metadata": {
         "id": 5,
         "agent": "supervisor",
-        "stage": 5,
+        "stage_id": "summary",
         "created_at": "2025-09-24T23:00:00Z",
         "updated_at": "2025-09-24T23:00:00Z",
         "status": "active",
@@ -185,7 +185,7 @@
       "metadata": {
         "id": 6,
         "agent": "supervisor",
-        "stage": 6,
+        "stage_id": "rest",
         "created_at": "2025-09-24T23:00:00Z",
         "updated_at": "2025-09-24T23:00:00Z",
         "status": "active",
@@ -220,7 +220,7 @@
       "metadata": {
         "id": 7,
         "agent": "therapist",
-        "stage": 1,
+        "stage_id": "opening",
         "created_at": "2025-09-24T23:00:00Z",
         "updated_at": "2025-09-24T23:00:00Z",
         "status": "active",
@@ -229,16 +229,20 @@
       "configuration": {
         "sections": {
           "cel_etapu": {
-            "title": "Cel etapu 1",
+            "title": "Cel etapu",
             "content": "Nawiązać kontakt i stworzyć poczucie bezpieczeństwa. Zbudować przyjacielską więź, a dopiero potem wspólnie określić jasny, niewielki cel rozmowy. Ten prompt nadpisuje wcześniejsze ustawienia dla tego etapu."
           },
           "styl_etapu": {
-            "title": "Styl etapu 1",
-            "content": "Ciepły, serdeczny, przyjacielski. Najpierw powitanie i uznanie odwagi rozmówcy. Dopiero później pytanie o oczekiwania wobec rozmowy."
+            "title": "Styl etapu",
+            "content": "Ciepły, serdeczny, przyjacielski. Najpierw powitanie i uznanie odwagi rozmówcy. Używaj form NEUTRALNYCH (bez „x/y”)."
           },
           "instrukcje_praktyczne": {
             "title": "Instrukcje praktyczne",
-            "content": "- Przywitaj się i podziękuj, że rozmówca się odezwał.\n- Krótko odzwierciedl emocje, pokaż obecność.\n- Dopiero potem zapytaj, czego chciałby w tej rozmowie doświadczyć lub co chciałby uzyskać.\n- Potwierdź parafrazą, że dobrze rozumiesz oczekiwania."
+            "content": "- Przywitaj się i podziękuj, że rozmówca się odezwał.\n- Krótko odzwierciedl emocje.\n- Ustal preferencje formy zwracania się (Ty vs. Pan/Pani) i imię/zaimki.\n- Zapytaj o oczekiwania w formie neutralnej (bez „x/y”).\n\nPrzykłady neutralnych startów:\n• \"Dzięki, że piszesz. To odważny krok. Jak wolisz, żebym się do Ciebie zwracała: na Ty czy Pan/Pani?\"\n• \"Co byłoby dla Ciebie dziś najbardziej pomocne w tej rozmowie?\"\n• \"Gdyby ta rozmowa miała przynieść coś dobrego, co chciałabyś/chciałbyś…\" — NIE UŻYWAĆ; zamiast tego: \"…co chciałabyś/chciałbyś\" zastąp: \"…co chciałabyś/chciałbyś\" → \"…co CHCESZ z niej wziąć?\" (neutralne)\n• \"Jak chciałabyś/chciałbyś się czuć po rozmowie?\" — NIE UŻYWAĆ; zamiast tego: \"Jak CHCESZ się czuć po rozmowie?\""
+          },
+          "neutralne_frazy": {
+            "title": "Przykładowe neutralne frazy",
+            "content": "• \"Co byłoby dla Ciebie pomocne dziś?\"\n• \"Co chcesz z tej rozmowy wziąć?\"\n• \"Jak wolisz, żebym się do Ciebie zwracała?\"\n• \"Po czym poznasz, że ta rozmowa była wspierająca?\""
           }
         }
       }
@@ -247,7 +251,7 @@
       "metadata": {
         "id": 8,
         "agent": "therapist",
-        "stage": 2,
+        "stage_id": "resources",
         "created_at": "2025-09-24T23:00:00Z",
         "updated_at": "2025-09-24T23:00:00Z",
         "status": "active",
@@ -256,11 +260,11 @@
       "configuration": {
         "sections": {
           "cel_etapu": {
-            "title": "Cel etapu 2",
+            "title": "Cel etapu",
             "content": "Pomóc rozmówcy odnaleźć momenty lub rzeczy, które choć trochę mu pomagają. Nie nazywać tego wprost zasobami, lecz inteligentnie zapytać z kontekstu. Ten prompt nadpisuje wcześniejsze ustawienia dla tego etapu."
           },
           "styl_etapu": {
-            "title": "Styl etapu 2",
+            "title": "Styl etapu",
             "content": "Naturalny, przyjacielski ton. Oparte na ciekawości i docenianiu drobnych pozytywnych rzeczy. Zero akademickiego języka."
           },
           "instrukcje_praktyczne": {
@@ -274,7 +278,7 @@
       "metadata": {
         "id": 9,
         "agent": "therapist",
-        "stage": 3,
+        "stage_id": "scaling",
         "created_at": "2025-09-24T23:00:00Z",
         "updated_at": "2025-09-24T23:00:00Z",
         "status": "active",
@@ -283,11 +287,11 @@
       "configuration": {
         "sections": {
           "cel_etapu": {
-            "title": "Cel etapu 3",
+            "title": "Cel etapu",
             "content": "Pomóc rozmówcy określić, gdzie jest teraz na skali 0–10 i co dałoby +1. Ważne: wyjaśnić po przyjacielsku, dlaczego to ćwiczenie jest użyteczne i że mały krok wystarczy. Ten prompt nadpisuje wcześniejsze ustawienia dla tego etapu."
           },
           "styl_etapu": {
-            "title": "Styl etapu 3",
+            "title": "Styl etapu",
             "content": "Przyjacielski, normalizujący, bez akademickiego tonu. Podkreśl, że skala to tylko narzędzie, które czasem ułatwia spojrzenie na sytuację."
           },
           "instrukcje_praktyczne": {
@@ -301,7 +305,7 @@
       "metadata": {
         "id": 10,
         "agent": "therapist",
-        "stage": 4,
+        "stage_id": "small_steps",
         "created_at": "2025-09-24T23:00:00Z",
         "updated_at": "2025-09-24T23:00:00Z",
         "status": "active",
@@ -310,11 +314,11 @@
       "configuration": {
         "sections": {
           "cel_etapu": {
-            "title": "Cel etapu 4",
+            "title": "Cel etapu",
             "content": "Wspólnie opracować jeden mały, realny krok, który rozmówca podejmie, by przybliżyć się do +1 na skali. Ten prompt nadpisuje wcześniejsze ustawienia dla tego etapu."
           },
           "styl_etapu": {
-            "title": "Styl etapu 4",
+            "title": "Styl etapu",
             "content": "Ciepły, wspierający, motywujący. Język prostych propozycji i zgody rozmówcy. Zero presji."
           },
           "instrukcje_praktyczne": {
@@ -328,7 +332,7 @@
       "metadata": {
         "id": 11,
         "agent": "therapist",
-        "stage": 5,
+        "stage_id": "summary",
         "created_at": "2025-09-24T23:00:00Z",
         "updated_at": "2025-09-24T23:00:00Z",
         "status": "active",
@@ -337,11 +341,11 @@
       "configuration": {
         "sections": {
           "cel_etapu": {
-            "title": "Cel etapu 5",
+            "title": "Cel etapu",
             "content": "Podsumować rozmowę, wzmocnić nadzieję, upewnić się co do planu i bezpieczeństwa oraz zakończyć rozmowę w ciepły sposób. Ten prompt nadpisuje wcześniejsze ustawienia dla tego etapu."
           },
           "styl_etapu": {
-            "title": "Styl etapu 5",
+            "title": "Styl etapu",
             "content": "Przyjacielski, serdeczny, wzmacniający. Zero nowych tematów. Ciepłe pożegnanie."
           },
           "instrukcje_praktyczne": {
@@ -355,7 +359,7 @@
       "metadata": {
         "id": 12,
         "agent": "therapist",
-        "stage": 6,
+        "stage_id": "rest",
         "created_at": "2025-09-24T23:00:00Z",
         "updated_at": "2025-09-24T23:00:00Z",
         "status": "active",
@@ -364,11 +368,11 @@
       "configuration": {
         "sections": {
           "cel_etapu": {
-            "title": "Cel etapu 6",
+            "title": "Cel etapu",
             "content": "Utrzymać przyjacielski kontakt po zakończonej części TSR. Wspierać rozmówcę w motywacji do realizacji planu, zachęcać do kontaktu z bliskimi i budowania relacji międzyludzkich. Ten prompt nadpisuje wcześniejsze ustawienia dla tego etapu."
           },
           "styl_etapu": {
-            "title": "Styl etapu 6",
+            "title": "Styl etapu",
             "content": "Jeszcze bardziej swobodny i serdeczny niż wcześniej. Brzmij jak bliska osoba, reaguj naturalnie, doceniaj i motywuj."
           },
           "instrukcje_praktyczne": {

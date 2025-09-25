@@ -2,7 +2,7 @@
 
 import streamlit as st
 from src.ui.pages.therapy import therapy_page
-from src.ui.pages.prompts import prompts_management_page
+from src.ui.pages.prompts_new import prompts_management_page
 from src.ui.pages.export import export_project_page
 from src.ui.pages.testing import testing_page
 from src.ui.pages.model_test import model_test_page

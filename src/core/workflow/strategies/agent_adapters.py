@@ -16,6 +16,7 @@ class SupervisorAdapter:
     def evaluate_stage(self, current_stage: str, user_message: str, conversation_history: List[MessageData]) -> WorkflowResult:
         """Evaluate stage using supervisor agent directly."""
         try:
+
             supervisor_agent = self._agent_provider.get_supervisor_agent()
             if not supervisor_agent:
                 return WorkflowResult(
@@ -24,8 +25,10 @@ class SupervisorAdapter:
                     error="SUPERVISOR_NOT_AVAILABLE"
                 )
 
+
             # Get stage prompt
             stage_prompt = self._prompt_manager.get_stage_prompt(current_stage, "supervisor")
+
             if not stage_prompt:
                 return WorkflowResult(
                     success=False,
@@ -118,6 +121,7 @@ class TherapistAdapter:
     def generate_response_stream(self, current_stage: str, user_message: str, conversation_history: List[MessageData]):
         """Generate streaming response using therapist agent directly."""
         try:
+
             therapist_agent = self._agent_provider.get_therapist_agent()
             if not therapist_agent:
                 # Yield error message for streaming context
@@ -128,6 +132,7 @@ class TherapistAdapter:
                     error="THERAPIST_NOT_AVAILABLE"
                 )
 
+
             # Get stage prompt
             stage_prompt = self._prompt_manager.get_stage_prompt(current_stage, "therapist")
             if not stage_prompt:
@@ -137,6 +142,7 @@ class TherapistAdapter:
                     message=f"No stage prompt available for stage: {current_stage}",
                     error="STAGE_PROMPT_NOT_FOUND"
                 )
+
 
             # Stream response from therapist agent
             full_response = ""
@@ -149,7 +155,9 @@ class TherapistAdapter:
                 stage_id=current_stage
             )
 
+            chunk_count = 0
             for chunk in stream_generator:
+                chunk_count += 1
                 if isinstance(chunk, str):
                     full_response += chunk
                     yield chunk
@@ -157,6 +165,7 @@ class TherapistAdapter:
                     # This is the final metadata dict
                     metadata = chunk
                     break
+
 
             # Yield final result with collected response
             if full_response:

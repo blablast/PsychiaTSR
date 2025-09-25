@@ -294,9 +294,10 @@ class AgentBase(ABC):
             Formatted conversation context string (with summarization if enabled)
         """
         from config import Config
+        config = Config.get_instance()
 
         # Use optimized context building with summarization if enabled
-        if Config.ENABLE_CONVERSATION_SUMMARY and max_messages and len(conversation_history) > max_messages:
+        if config.ENABLE_CONVERSATION_SUMMARY and max_messages and len(conversation_history) > max_messages:
             return self._memory_service.build_optimized_conversation_context(
                 conversation_history,
                 max_messages=max_messages,

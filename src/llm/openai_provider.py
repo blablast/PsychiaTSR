@@ -46,7 +46,7 @@ class OpenAIProvider(LLMProvider):
             # gpt-5 specific parameters
             api_params.update({
                 "max_completion_tokens": common_params["max_tokens"],
-                "temperature": "1",
+                "temperature": 1,
             })
         else:
             # Standard GPT models

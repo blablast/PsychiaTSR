@@ -1,4 +1,4 @@
-"""Workflow strategy implementations following Strategy pattern."""
+"""Workflow strategy implementations for different therapy modes."""
 
 from .workflow_strategy import WorkflowStrategy
 from .conversation_workflow_strategy import ConversationWorkflowStrategy

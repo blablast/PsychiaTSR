@@ -17,7 +17,8 @@ class SessionStorage(IStorage):
         if self._storage_provider is None:
             from src.infrastructure.storage import StorageProvider
             from config import Config
-            self._storage_provider = StorageProvider(Config.LOGS_DIR)
+            config = Config.get_instance()
+            self._storage_provider = StorageProvider(config.LOGS_DIR)
         return self._storage_provider
 
     @staticmethod

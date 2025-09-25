@@ -8,7 +8,7 @@ class AgentLoader:
 
     def __init__(self, config_data: Dict[str, Any]):
         """Initialize with configuration data."""
-        self._agents_config = config_data.get("providers", {})
+        self._agents_config = config_data.get("agents", {})
 
     def get_agent_provider(self, agent_type: str) -> str:
         """Get provider for specified agent."""
@@ -61,7 +61,7 @@ class AgentLoader:
             if template_path.exists():
                 with open(template_path, 'r', encoding='utf-8') as f:
                     defaults = json.load(f)
-                    return defaults.get("providers", {}).get(agent_type, "openai")
+                    return defaults.get("agents", {}).get(agent_type, {}).get("provider", "openai")
         except Exception:
             pass
 
@@ -83,7 +83,7 @@ class AgentLoader:
             if template_path.exists():
                 with open(template_path, 'r', encoding='utf-8') as f:
                     defaults = json.load(f)
-                    return defaults.get("models", {}).get(agent_type, "gpt-4o-mini")
+                    return defaults.get("agents", {}).get(agent_type, {}).get("model", "gpt-4o-mini")
         except Exception:
             pass
 

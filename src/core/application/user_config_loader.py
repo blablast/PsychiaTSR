@@ -1,7 +1,7 @@
 """User configuration loading and application."""
 
 import streamlit as st
-from config import Config
+from config import Config, get_agent_defaults
 from ..di.service_locator import ServiceLocator
 from ..config.config_manager import ConfigManager
 from ..models import Language
@@ -13,13 +13,13 @@ class UserConfigLoader:
     def __init__(self):
         self._config_manager = ServiceLocator.resolve(ConfigManager)
 
-    def load_and_apply_config(self):
+    def load_and_apply_config(self, force_reload: bool = False):
         """Load user configuration and apply it to session state."""
-        if "config_loaded" in st.session_state:
+        if "config_loaded" in st.session_state and not force_reload:
             return  # Already loaded
 
         user_config = self._config_manager.load_config()
-        agent_defaults = Config.get_agent_defaults()
+        agent_defaults = get_agent_defaults()
 
         # Apply model configurations
         self._apply_model_config(user_config, agent_defaults)
@@ -33,10 +33,26 @@ class UserConfigLoader:
         st.session_state.config_loaded = True
 
     @staticmethod
+    def reload_config():
+        """Force reload configuration from file."""
+        if "config_loaded" in st.session_state:
+            del st.session_state["config_loaded"]
+
+        # Clear cached config in Config singleton
+        from config import Config
+        Config._instance = None
+
+        # Reload config
+        loader = UserConfigLoader()
+        loader.load_and_apply_config(force_reload=True)
+
+    @staticmethod
     def _apply_model_config(user_config: dict, agent_defaults: dict):
         """Apply model configuration to session state."""
-        therapist_config = user_config.get('providers', {}).get('therapist', {})
-        supervisor_config = user_config.get('providers', {}).get('supervisor', {})
+        # Use the 'agents' key which contains therapist/supervisor configs
+        agents_config = user_config.get('agents', {})
+        therapist_config = agents_config.get('therapist', {})
+        supervisor_config = agents_config.get('supervisor', {})
 
         st.session_state.selected_therapist_model = therapist_config.get(
             'model', agent_defaults['therapist']['model']

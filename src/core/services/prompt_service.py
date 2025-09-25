@@ -33,4 +33,4 @@ class PromptService:
     @staticmethod
     def build_therapist_prompt(user_message: str, conversation_context: str) -> str:
         """Build complete prompt for therapist response."""
-        return f"KONTEKST ROZMOWY:\n{conversation_context}\n\nAKTUALNA WIADOMOŚĆ UŻYTKOWNIKA:\n{user_message}\n\nOdpowiedz zgodnie z zasadami TSR."
+        return f"KONTEKST ROZMOWY:\n{conversation_context}\n\nAKTUALNA WIADOMOŚĆ UŻYTKOWNIKA:\n{user_message}"

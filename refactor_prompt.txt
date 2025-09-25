@@ -1,0 +1,63 @@
+
+
+
+Context: You are an experienced software engineer and clean code expert. You have access to the full source code of a project (Python repository) along with its build and test tools. Your task is to perform a deep analysis of the code and generate a detailed, optimized refactoring plan aligned with clean code best practices.
+Scope of Analysis – Principles and Patterns to Evaluate
+Analyze the project for compliance with the following principles and patterns, identifying concrete issues and improvement opportunities:
+DRY (Don't Repeat Yourself): Locate duplicated logic or code across methods, classes, or modules. Suggest extracting shared functionality to eliminate redundancy.
+KISS (Keep It Simple, Stupid): Identify overly complex algorithms, functions, or data structures. Suggest simplifications while keeping correctness.
+YAGNI (You Aren't Gonna Need It): Find code implemented “for the future” or unused features (methods, classes, fields, imports). Propose their removal if not currently needed.
+SOLID:
+SRP (Single Responsibility Principle): Identify classes/modules with multiple responsibilities.
+OCP (Open/Closed Principle): Highlight places where adding new functionality requires modifying existing code instead of extending it.
+LSP (Liskov Substitution Principle): Find violations where subclasses do not respect base class contracts.
+ISP (Interface Segregation Principle): Check whether interfaces/classes force clients to depend on unused methods.
+DIP (Dependency Inversion Principle): Evaluate whether high-level modules depend on abstractions rather than concrete implementations; propose dependency injection (DI) or inversion where beneficial.
+SoC (Separation of Concerns): Ensure application layers are properly separated (business logic, data access, presentation). Point out violations where concerns are mixed.
+PoLA (Principle of Least Astonishment): Identify unintuitive or misleading code constructs and propose clearer alternatives.
+LoD (Law of Demeter): Locate violations of Demeter’s Law (e.g., long call chains a.b().c().d()) and suggest reducing deep dependencies between objects.
+CQRS (Command Query Responsibility Segregation): If the project uses CQRS, check correctness of read/write separation. If not, consider whether introducing CQRS would add value.
+DDD (Domain-Driven Design): Assess whether domain logic is properly isolated and modeled. Identify whether the domain model is anemic or rich, whether bounded contexts are properly defined, and whether domain/application/infrastructure layers follow DDD guidelines.
+TDD/BDD (Test-Driven / Behavior-Driven Development): Check for the presence and quality of unit/integration tests. Assess testability (e.g., use of DI, abstraction of external dependencies). If tests are missing, propose a test structure and recommend writing minimal critical tests before refactoring.
+Technical Project Analysis
+Perform a technical scan of the codebase and infrastructure, identifying:
+Dead/legacy code: List all unused variables, functions, methods, classes, and modules. Identify outdated or legacy fragments left from previous versions. Propose their removal or modernization, providing evidence of non-usage (e.g., no references).
+Architectural issues: Check whether architecture is outdated or flawed. Examples: lack of clear layers, UI logic mixed with business logic, absence of DI leading to tight coupling, presence of god objects or anemic models. Suggest restructuring as needed.
+Code organization (files/packages): Assess repo structure. Ensure classes/modules are logically placed (e.g., services in services, models in models or domain). Flag files that contain too many classes or are overly dense. Suggest reorganizing directories/modules only if justified (SoC/DDD/CQRS alignment).
+Naming and readability: Verify whether variable, function, class, and file names are consistent and descriptive. Highlight poor naming, missing comments, or formatting issues. Suggest fixes for improved clarity (renaming, comments, formatting via linters/formatters).
+Complexity and size: Identify classes or functions with high cyclomatic complexity, large “god functions,” and oversized files. Propose splitting into smaller, understandable units.
+Testability and coverage: Identify untestable or untested areas. Highlight problematic external dependencies (databases, external services, singletons). Suggest introducing abstractions (interfaces, DI, adapters, factories) to improve testability. Recommend priority areas for test coverage (e.g., critical business logic, complex algorithms).
+Note: If information is missing (e.g., build/test tools, technologies), create a section “Missing Information / Assumptions” clearly listing assumptions. Continue the plan based on reasonable assumptions.
+Refactoring Plan Requirements (Output)
+Produce a detailed migration plan to clean code. Save it in refactor.md (Markdown), structured as follows:
+## 1. Current State Summary
+- Main architectural issues
+- Major violations of principles
+## 2. Refactoring Task List
+For each identified problem, provide:
+- **Location:** File path and class/method if relevant
+- **Problem:** Description of issue (e.g., “SRP violation – class handles validation and DB persistence”)
+- **Proposed Change:** Specific refactoring action
+- **Justification (Principle):** Link to violated principle (e.g., DRY, SRP, OCP)
+- **Expected Gain:** Benefits of the change (e.g., improved testability, reduced complexity)
+- **Potential Risk:** Risks or costs (e.g., regression, breaking API, effort required)
+## 3. Prioritization
+- **Critical tasks (high priority):** Must be done first
+- **Medium priority tasks:** Important but not urgent
+- **Low priority tasks / tech debt:** Optional or future improvements
+## 4. Change Strategy
+- **Execution order:** Suggested sequence (e.g., write missing tests → remove dead code → apply quick wins → structural refactors → architectural changes)
+- **Regression prevention:** Guidelines for safe refactoring (tests, deprecations, iterative PRs)
+- **Supporting tools:** Suggested linters, formatters, type checkers, coverage tools, CI/CD quality gates
+## 5. Plan Verification
+- **Principle compliance:** Ensure proposed changes align with clean code principles
+- **No new issues:** Verify no new cyclic dependencies or readability regressions
+- **Concreteness:** Replace vague notes with actionable, measurable tasks
+Additional Instructions
+After generating refactor.md:
+Self-review: Recheck and refine the plan for clarity, concreteness, and feasibility.
+Remove vague statements: Replace “bad code” with specific examples.
+Ensure measurability: Every step must have clear benefits and measurable outcomes (e.g., improved coverage %, reduced complexity).
+Consistency: Verify naming, file paths, and terminology match the codebase.
+If tests are missing: Recommend writing a minimal set of unit tests for critical components before refactoring.
+The final deliverable is a comprehensive, concrete roadmap (refactor.md) guiding the project toward maintainable, testable, and extensible clean code.

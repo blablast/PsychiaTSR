@@ -8,7 +8,7 @@ from ..logging import LoggerFactory
 # Agents now created via ServiceFactory with dependency injection
 from ...llm import OpenAIProvider, GeminiProvider
 from ...core.safety import SafetyChecker
-from config import Config
+# Config import moved to functions to avoid circular dependency
 
 
 def _get_or_create_session_logger():
@@ -18,7 +18,9 @@ def _get_or_create_session_logger():
 
     if logger_key not in st.session_state:
         # Create logger only once per session
-        log_file = os.path.join(Config.LOGS_DIR, "sessions", f"{st.session_state.get('session_id', 'unknown')}.json")
+        from config import Config
+        config = Config.get_instance()
+        log_file = os.path.join(config.LOGS_DIR, "sessions", f"{st.session_state.get('session_id', 'unknown')}.json")
         st.session_state[logger_key] = LoggerFactory.create_multi_logger(
             file_path=log_file,
             use_console=False,
@@ -48,7 +50,9 @@ def send_supervisor_request(user_message: str):
         from ..prompts.unified_prompt_manager import UnifiedPromptManager
 
         agent_provider = StreamlitAgentProvider()
-        prompt_manager = UnifiedPromptManager(Config.PROMPT_DIR)
+        from config import Config
+        config = Config.get_instance()
+        prompt_manager = UnifiedPromptManager(config.PROMPT_DIR)
 
         # Reuse logger from session state if available, otherwise create new one
         logger = _get_or_create_session_logger()
@@ -85,12 +89,14 @@ def initialize_agents():
 
     try:
         # Initialize LLM providers based on configuration
-        agent_defaults = Config.get_agent_defaults()
+        from config import Config
+        config = Config.get_instance()
+        agent_defaults = config.get_agent_defaults()
 
         # Prepare API keys
         api_keys = {
-            'openai': Config.OPENAI_API_KEY,
-            'gemini': Config.GOOGLE_API_KEY
+            'openai': config.OPENAI_API_KEY,
+            'gemini': config.GOOGLE_API_KEY
         }
 
         # Initialize therapist LLM
@@ -106,12 +112,12 @@ def initialize_agents():
         # Reuse logger from session state if available, otherwise create new one
         logger = _get_or_create_session_logger()
 
-        # Initialize agents using new ServiceFactory architecture
+        # Initialize agents using ServiceFactory
         from ..prompts.unified_prompt_manager import UnifiedPromptManager
         from ..services import ServiceFactory
 
         safety_checker = SafetyChecker()
-        prompt_manager = UnifiedPromptManager(Config.PROMPT_DIR)
+        prompt_manager = UnifiedPromptManager(config.PROMPT_DIR)
 
         # Create agents with dependency injection
         st.session_state.therapist_agent = ServiceFactory.create_therapist_agent(
@@ -157,7 +163,9 @@ def send_supervisor_request_stream(user_message: str):
         from ..prompts.unified_prompt_manager import UnifiedPromptManager
 
         agent_provider = StreamlitAgentProvider()
-        prompt_manager = UnifiedPromptManager(Config.PROMPT_DIR)
+        from config import Config
+        config = Config.get_instance()
+        prompt_manager = UnifiedPromptManager(config.PROMPT_DIR)
 
         # Reuse logger from session state if available, otherwise create new one
         logger = _get_or_create_session_logger()

@@ -12,7 +12,8 @@ def create_streamlit_session_manager(storage_provider: Optional[StorageProvider]
     """Create a SessionManager configured for Streamlit."""
     from config import Config
 
+    config = Config.get_instance()
     session_state = StreamlitSessionState()
-    stage_manager = StageManager(Config.STAGES_DIR)
+    stage_manager = StageManager(config.STAGES_DIR)
 
     return SessionManager(session_state, stage_manager, storage_provider)

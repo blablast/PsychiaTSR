@@ -236,6 +236,13 @@ def _apply_model_changes(model_config: Dict[str, Any]) -> bool:
                 supervisor_provider=supervisor_info['provider']
             )
 
+            # Reload configuration to reflect changes
+            config_manager.reload_config()
+
+            # Force reload user configuration in session state
+            from src.core.application.user_config_loader import UserConfigLoader
+            UserConfigLoader.reload_config()
+
             # Log model information
             logger.log_model_info(
                 therapist_model=therapist_info['model_id'],
@@ -248,7 +255,8 @@ def _apply_model_changes(model_config: Dict[str, Any]) -> bool:
             if st.session_state.get('session_id'):
                 from src.infrastructure.storage import StorageProvider
                 from config import Config
-                storage = StorageProvider(Config.LOGS_DIR)
+                config = Config.get_instance()
+                storage = StorageProvider(config.LOGS_DIR)
                 storage.update_session_models(
                     session_id=st.session_state.session_id,
                     therapist_model=therapist_info['model_id'],
@@ -276,7 +284,8 @@ def _initialize_agents_with_selected_models(logger=None):
         import os
 
         # Get selected models from session state with new defaults
-        agent_defaults = Config.get_agent_defaults()
+        config = Config.get_instance()
+        agent_defaults = config.get_agent_defaults()
         therapist_provider = st.session_state.get('selected_therapist_provider', agent_defaults['therapist']['provider'])
         therapist_model = st.session_state.get('selected_therapist_model', agent_defaults['therapist']['model'])
         supervisor_provider = st.session_state.get('selected_supervisor_provider', agent_defaults['supervisor']['provider'])
@@ -335,7 +344,8 @@ def _initialize_agents_with_selected_models(logger=None):
         from src.core.services import ServiceFactory
 
         safety_checker = SafetyChecker()
-        prompt_manager = UnifiedPromptManager(Config.PROMPT_DIR)
+        # config is already defined above in this function
+        prompt_manager = UnifiedPromptManager(config.PROMPT_DIR)
 
         st.session_state.therapist_agent = ServiceFactory.create_therapist_agent(
             llm_provider=therapist_llm,

@@ -134,8 +134,10 @@ def testing_page():
             test_therapist_model = configured_models['therapist_model']
             test_supervisor_model = configured_models['supervisor_model']
         except:
-            test_therapist_model = Config.DEFAULT_THERAPIST_MODEL
-            test_supervisor_model = Config.DEFAULT_SUPERVISOR_MODEL
+            from config import Config
+            config = Config.get_instance()
+            test_therapist_model = config.DEFAULT_THERAPIST_MODEL
+            test_supervisor_model = config.DEFAULT_SUPERVISOR_MODEL
 
         # Display current configured models
         st.info(f"🤖 **Skonfigurowane modele:**\n- Terapeuta: {test_therapist_model}\n- Nadzorca: {test_supervisor_model}")
@@ -280,7 +282,8 @@ def run_automated_test(test_params):
         st.session_state.messages = []
         from src.core.session.stages.stage_manager import StageManager
         from config import Config
-        stage_manager = StageManager(Config.STAGES_DIR)
+        config = Config.get_instance()
+        stage_manager = StageManager(config.STAGES_DIR)
         first_stage = stage_manager.get_first_stage()
         st.session_state.current_stage = first_stage.stage_id if first_stage else "opening"
         add_technical_log("info", "🧹 Historia konwersacji wyczyszczona - test zaczyna od czystego stanu")

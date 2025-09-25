@@ -15,7 +15,7 @@ Key responsibilities:
 """
 import streamlit as st
 from typing import Dict, List, Optional, Any, Tuple
-from ...core.services.prompt_management_service import PromptManagementService
+from ...core.prompts.prompt_management_service import PromptManagementService
 from ...core.session import load_stages
 
 

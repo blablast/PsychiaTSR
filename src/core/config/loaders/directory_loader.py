@@ -11,9 +11,9 @@ class DirectoryLoader:
         """Initialize with configuration data."""
         self._directories_data = config_data.get("directories", {})
 
-    def get_data_dir(self) -> str:
-        """Get data directory path."""
-        return self._directories_data.get("data_dir", "./data")
+    def get_logs_dir(self) -> str:
+        """Get logs directory path."""
+        return self._directories_data.get("logs_dir", "./logs")
 
     def get_prompt_dir(self) -> str:
         """Get prompts directory path."""
@@ -26,7 +26,7 @@ class DirectoryLoader:
     def get_all_directories(self) -> Dict[str, str]:
         """Get all configured directories."""
         return {
-            "data_dir": self.get_data_dir(),
+            "logs_dir": self.get_logs_dir(),
             "prompt_dir": self.get_prompt_dir(),
             "stages_dir": self.get_stages_dir()
         }
@@ -40,8 +40,8 @@ class DirectoryLoader:
             path.mkdir(parents=True, exist_ok=True)
 
         # Create additional subdirectories
-        data_path = Path(self.get_data_dir())
-        (data_path / "sessions").mkdir(exist_ok=True)
+        logs_path = Path(self.get_logs_dir())
+        (logs_path / "sessions").mkdir(exist_ok=True)
 
     def validate_directories(self) -> Dict[str, Any]:
         """Validate directory configuration."""

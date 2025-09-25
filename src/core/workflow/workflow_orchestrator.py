@@ -1,4 +1,4 @@
-"""Main workflow orchestrator following SOLID principles."""
+"""Main workflow orchestrator for therapy sessions."""
 
 from .strategies.strategy_factory import WorkflowStrategyFactory
 from .strategies.workflow_context import WorkflowContext
@@ -10,10 +10,10 @@ from ..session.session_orchestrator import SessionOrchestrator
 
 class WorkflowOrchestrator:
     """
-    Simplified workflow orchestrator following Single Responsibility Principle.
+    Simplified workflow orchestrator for therapy sessions.
 
-    This class has ONE responsibility: orchestrating the workflow steps.
-    All other concerns are delegated to specialized services.
+    Orchestrates the workflow steps while delegating
+    specific concerns to specialized services.
     """
 
     def __init__(self,
@@ -37,7 +37,7 @@ class WorkflowOrchestrator:
 
     def process_request(self, request: WorkflowRequest) -> WorkflowResult:
         """
-        Main orchestration method with single responsibility.
+        Main orchestration method for processing workflow requests.
 
         Args:
             request: WorkflowRequest containing type and context
@@ -107,6 +107,7 @@ class WorkflowOrchestrator:
 
         Yields therapist response chunks while processing supervisor normally.
         """
+
         request = WorkflowRequest.conversation(
             user_message=user_message,
             current_stage=current_stage,
@@ -116,6 +117,7 @@ class WorkflowOrchestrator:
 
         # Process request with streaming
         context = WorkflowContext.from_request(request)
+
         strategy = self._strategy_factory.create_strategy(request.type)
 
         # Check if strategy supports streaming
@@ -128,3 +130,4 @@ class WorkflowOrchestrator:
                 yield result.data["therapist_response"]
             else:
                 yield f"[Błąd: {result.message}]"
+

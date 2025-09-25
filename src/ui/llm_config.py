@@ -212,7 +212,8 @@ class LLMConfigUI:
         # Get current defaults from Config (which may be updated by user preferences)
         from config import Config
 
-        agent_defaults = Config.get_agent_defaults()
+        config = Config.get_instance()
+        agent_defaults = config.get_agent_defaults()
         target_provider = None
         target_model = None
 
@@ -387,7 +388,8 @@ class LLMConfigUI:
             from config import Config
 
             # Load current config
-            config_file = Config.CONFIG_FILE
+            config = Config.get_instance()
+            config_file = config.CONFIG_FILE
             if config_file.exists():
                 with open(config_file, 'r', encoding='utf-8') as f:
                     config_data = json.load(f)

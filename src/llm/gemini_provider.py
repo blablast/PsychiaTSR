@@ -292,11 +292,13 @@ class GeminiProvider(LLMProvider):
     def generate_stream(self, prompt: str, system_prompt: str = None, **kwargs):
         """Generate streaming text using Gemini API."""
         try:
+
             # Initialize chat session if needed
             if not self.chat_session:
                 self.start_conversation(system_prompt)
             elif system_prompt and not self.system_prompt_set:
                 self._set_gemini_system_prompt(system_prompt)
+
 
             # Prepare common parameters
             common_params = self._prepare_common_params(**kwargs)
@@ -322,7 +324,9 @@ class GeminiProvider(LLMProvider):
             )
 
             full_response = ""
+            chunk_count = 0
             for chunk in response:
+                chunk_count += 1
                 if chunk.text:
                     full_response += chunk.text
                     yield chunk.text
@@ -334,6 +338,7 @@ class GeminiProvider(LLMProvider):
             # Also update base class conversation for consistency
             self.add_user_message(prompt)
             self.add_assistant_message(full_response)
+
 
         except Exception as e:
             raise Exception(f"Gemini Streaming API error: {str(e)}")

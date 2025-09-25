@@ -1,59 +1,55 @@
-"""Configuration manager - Centralized facade for all configuration loading."""
+"""Configuration manager - Legacy wrapper for backwards compatibility."""
 
-from pathlib import Path
 from typing import Dict, Any
-from config import Config
-from .loaders import BaseLoader, AgentLoader, AppLoader, DirectoryLoader, EnvironmentLoader
+from .configuration_manager import ConfigurationManager
 
 
 class ConfigManager:
-    """Manages persistent configuration settings - Facade for specialized loaders"""
+    """Legacy configuration manager - delegates to new ConfigurationManager."""
 
-    def __init__(self):
-        self._config_file = Path(Config.BASE_DIR) / "config" / "app_config.json"
-        self._base_loader = BaseLoader(str(self._config_file))
-        self._environment_loader = EnvironmentLoader()
-        self._cached_config = None
+    def __init__(self, config_file_path: str = None):
+        """Initialize with ConfigurationManager."""
+        self._config_manager = ConfigurationManager(config_file_path)
+        self._config_manager.load_configuration()
 
     def load_config(self) -> Dict[str, Any]:
-        """Load configuration using base loader"""
-        if self._cached_config is None:
-            self._cached_config = self._base_loader.get_config_data()
-            if not self._cached_config:
-                self._cached_config = self._get_default_config()
-        return self._cached_config
+        """Load configuration."""
+        return self._config_manager.to_dict()
 
     def save_config(self, config: Dict[str, Any]) -> bool:
-        """Save configuration using base loader"""
-        self._cached_config = None  # Clear cache
-        return self._base_loader.save_config(config)
+        """Save configuration."""
+        return self._config_manager.save_configuration(config)
 
     def get_agent_config(self, agent_type: str = None) -> Dict[str, Any]:
-        """Get agent configuration using AgentLoader"""
-        config = self.load_config()
-        agent_loader = AgentLoader(config)
-        return agent_loader.get_agent_config(agent_type) if agent_type else agent_loader.get_all_agents_config()
+        """Get agent configuration."""
+        if agent_type:
+            return self._config_manager.get_agent_config(agent_type)
+        else:
+            return self._config_manager.get_all_agents_config()
 
-    def get_app_config(self) -> Dict[str, Any]:
-        """Get application configuration using AppLoader"""
-        config = self.load_config()
-        app_loader = AppLoader(config)
+    def reload_config(self) -> bool:
+        """Reload configuration."""
+        return self._config_manager.load_configuration()
+
+    def get_directory_config(self) -> Dict[str, str]:
+        """Get directory configuration."""
         return {
-            "app": app_loader.get_app_settings(),
-            "session": app_loader.get_session_settings(),
-            "safety": app_loader.get_safety_settings(),
-            "logging": app_loader.get_logging_settings()
+            "logs_dir": self._config_manager.get_logs_dir(),
+            "prompt_dir": self._config_manager.get_prompt_dir(),
+            "stages_dir": self._config_manager.get_stages_dir()
         }
 
-    def get_directory_config(self) -> Dict[str, Any]:
-        """Get directory configuration using DirectoryLoader"""
-        config = self.load_config()
-        directory_loader = DirectoryLoader(config)
-        return directory_loader.get_all_directories()
+    def get_app_config(self) -> Dict[str, Any]:
+        """Get application configuration."""
+        return {
+            "title": self._config_manager.get_app_title(),
+            "icon": self._config_manager.get_app_icon(),
+            "language": self._config_manager.get_app_language()
+        }
 
     def get_environment_config(self) -> Dict[str, Any]:
-        """Get environment configuration using EnvironmentLoader"""
-        return self._environment_loader.get_all_api_keys()
+        """Get environment configuration."""
+        return self._config_manager.get_all_api_keys()
 
     def update_model_config(self,
                           therapist_model: str,
@@ -61,45 +57,38 @@ class ConfigManager:
                           supervisor_model: str,
                           supervisor_provider: str) -> bool:
         """Update model configuration in app_config.json"""
-        config = self.load_config()
+        config_dict = self._config_manager.to_dict()
 
-        # Update providers section
-        if "providers" not in config:
-            config["providers"] = {}
+        # Update agents section
+        config_dict["agents"]["therapist"]["provider"] = therapist_provider
+        config_dict["agents"]["therapist"]["model"] = therapist_model
+        config_dict["agents"]["supervisor"]["provider"] = supervisor_provider
+        config_dict["agents"]["supervisor"]["model"] = supervisor_model
 
-        config["providers"]["therapist"] = {
-            "provider": therapist_provider,
-            "model": therapist_model
-        }
-        config["providers"]["supervisor"] = {
-            "provider": supervisor_provider,
-            "model": supervisor_model
-        }
-
-        return self.save_config(config)
+        return self._config_manager.save_configuration(config_dict)
 
     def update_audio_config(self, enabled: bool, tts_config: Dict[str, Any] = None) -> bool:
         """Update audio configuration in app_config.json"""
-        config = self.load_config()
+        config_dict = self._config_manager.to_dict()
 
         # Initialize audio section if not exists
-        if "audio" not in config:
-            config["audio"] = {"enabled": False, "tts_config": {}}
+        if "audio" not in config_dict:
+            config_dict["audio"] = {"enabled": False, "tts_config": {}}
 
         # Update audio settings
-        config["audio"]["enabled"] = enabled
+        config_dict["audio"]["enabled"] = enabled
 
         if tts_config:
             # Don't save API key for security
             safe_tts_config = {k: v for k, v in tts_config.items() if k != "api_key"}
-            config["audio"]["tts_config"].update(safe_tts_config)
+            config_dict["audio"]["tts_config"].update(safe_tts_config)
 
-        return self.save_config(config)
+        return self._config_manager.save_configuration(config_dict)
 
     def get_audio_config(self) -> Dict[str, Any]:
         """Get audio configuration from app_config.json"""
-        config = self.load_config()
-        return config.get("audio", {"enabled": False, "tts_config": {}})
+        config_dict = self._config_manager.to_dict()
+        return config_dict.get("audio", {"enabled": False, "tts_config": {}})
 
     @staticmethod
     def _get_default_config() -> Dict[str, Any]:
@@ -123,8 +112,8 @@ class ConfigManager:
                 "language": "pl"
             },
             "directories": {
-                "data_dir": "./data",
+                "logs_dir": "./logs",
                 "prompt_dir": "./config/prompts",
-                "stages_dir": "./config/stages"
+                "stages_dir": "./config"
             }
         }

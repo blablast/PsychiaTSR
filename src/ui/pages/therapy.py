@@ -14,7 +14,9 @@ def therapy_page() -> None:
     col1, col2, col3 = st.columns([2, 1, 1])
 
     with col1:
-        st.title(Config.APP_TITLE)
+        from config import Config
+        config = Config.get_instance()
+        st.title(config.APP_TITLE)
 
     with col2:
         if st.button("🆕 Nowa sesja", use_container_width=True, help="Rozpocznij nową sesję terapeutyczną"):

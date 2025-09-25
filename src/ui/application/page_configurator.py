@@ -10,10 +10,13 @@ class PageConfigurator:
     @staticmethod
     def configure():
         """Configure Streamlit page settings and apply custom styling."""
+        # Initialize configuration instance
+        config = Config.get_instance()
+
         # Page configuration
         st.set_page_config(
-            page_title=Config.APP_TITLE,
-            page_icon=Config.APP_ICON,
+            page_title=config.APP_TITLE,
+            page_icon=config.APP_ICON,
             layout="wide",
             initial_sidebar_state="expanded"
         )

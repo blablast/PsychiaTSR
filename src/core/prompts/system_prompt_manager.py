@@ -1,5 +1,5 @@
 """
-System prompt management following Single Responsibility Principle.
+System prompt management for AI agents.
 Handles loading and formatting of system-level prompts for AI agents.
 """
 
@@ -12,7 +12,7 @@ class SystemPromptManager:
     """
     Manages system-level prompts for therapy agents.
 
-    Responsibility: Load and format base system prompts that define
+    Loads and formats base system prompts that define
     the core role and principles for therapist and supervisor agents.
     """
 
@@ -39,8 +39,8 @@ class SystemPromptManager:
         try:
             # Lazy import to avoid circular dependency
             if self._prompt_management_service is None:
-                from ..services.prompt_management_service import PromptManagementService
-                config_dir = self._system_dir.parent.parent
+                from .prompt_management_service import PromptManagementService
+                config_dir = self._system_dir
                 self._prompt_management_service = PromptManagementService(str(config_dir))
 
             # Use new PromptManagementService to get system prompt

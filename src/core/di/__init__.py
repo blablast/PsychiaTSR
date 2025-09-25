@@ -1,11 +1,20 @@
-"""Dependency Injection module."""
+"""
+Simplified dependency injection using factory pattern.
 
-from .container_interface import IDependencyContainer, ServiceLifetime
-from .container import DependencyContainer
-from .service_registry import ServiceRegistry
-from .service_locator import ServiceLocator
+Features:
+- SimpleServiceFactory with direct method calls
+- Singletons via @lru_cache where needed
+- No reflection or complex lifecycle management
+- Clear service creation methods
 
-__all__ = [
-    'IDependencyContainer', 'DependencyContainer', 'ServiceLifetime',
-    'ServiceRegistry', 'ServiceLocator'
-]
+Benefits:
+- Easier to understand and maintain
+- Better performance
+- Simpler testing
+- Implements only needed functionality
+"""
+
+# Re-export the simplified ServiceLocator for backwards compatibility
+from ..services.simple_service_factory import ServiceLocator
+
+__all__ = ["ServiceLocator"]

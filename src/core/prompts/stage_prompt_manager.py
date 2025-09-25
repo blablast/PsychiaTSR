@@ -1,5 +1,5 @@
 """
-Stage prompt management following Single Responsibility Principle.
+Stage prompt management for therapy phases.
 Handles loading and formatting of stage-specific prompts for therapy phases.
 """
 
@@ -12,7 +12,7 @@ class StagePromptManager:
     """
     Manages stage-specific prompts for therapy workflow.
 
-    Responsibility: Load and format stage-specific prompts that define
+    Loads and formats stage-specific prompts that define
     goals, guidelines, and examples for each therapy stage.
     """
 
@@ -38,10 +38,11 @@ class StagePromptManager:
             Formatted stage prompt string or None if not found
         """
         try:
+
             # Lazy import to avoid circular dependency
             if self._prompt_management_service is None:
-                from ..services.prompt_management_service import PromptManagementService
-                config_dir = self._stages_dir.parent.parent
+                from .prompt_management_service import PromptManagementService
+                config_dir = self._stages_dir
                 self._prompt_management_service = PromptManagementService(str(config_dir))
 
             # Use new PromptManagementService to get stage prompt
@@ -51,9 +52,10 @@ class StagePromptManager:
                 return None
 
             # Generate prompt text from new structured format
-            return self._prompt_management_service.generate_prompt_text(prompt_data, "stage")
+            result = self._prompt_management_service.generate_prompt_text(prompt_data, "stage")
+            return result
 
-        except Exception:
+        except Exception as e:
             return None
 
     @staticmethod

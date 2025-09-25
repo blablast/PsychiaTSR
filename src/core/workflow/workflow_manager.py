@@ -1,5 +1,5 @@
 """
-Refactored workflow manager using new SOLID architecture.
+Refactored workflow manager with improved structure.
 """
 
 from .workflow_result import WorkflowResult
@@ -10,7 +10,7 @@ from ..session.interfaces.session_provider_interface import ISessionAgentProvide
 
 class TherapyWorkflowManager:
     """
-    Refactored workflow manager using new SOLID architecture.
+    Refactored workflow manager with improved structure.
 
     Acts as a facade over the new WorkflowOrchestrator.
     """
@@ -22,7 +22,7 @@ class TherapyWorkflowManager:
                  logger):
         self._conversation_manager = conversation_manager
 
-        # New architecture components
+        # New structure components
         self._session_manager = None
         self._orchestrator = None
         self._factory_args = {
@@ -90,12 +90,22 @@ class TherapyWorkflowManager:
             )
 
         _, current_question = self._conversation_manager.start_processing()
-        return self._orchestrator.process_conversation_message(
-            user_message=current_question,
-            current_stage=self._session_manager.get_current_stage(),
-            conversation_history=self._conversation_manager.get_committed_context(),
-            session_id=self._session_manager.get_session_id()
-        )
+
+        try:
+            return self._orchestrator.process_conversation_message(
+                user_message=current_question,
+                current_stage=self._session_manager.get_current_stage(),
+                conversation_history=self._conversation_manager.get_committed_context(),
+                session_id=self._session_manager.get_session_id()
+            )
+        except Exception as e:
+            # Reset ConversationManager state on any error
+            self._conversation_manager.abort_processing()
+            return WorkflowResult(
+                success=False,
+                message=f"Błąd przetwarzania: {str(e)}",
+                error="PROCESSING_ERROR"
+            )
 
     def process_pending_question_stream(self):
         """
@@ -113,11 +123,16 @@ class TherapyWorkflowManager:
 
         _, current_question = self._conversation_manager.start_processing()
 
-        yield from self._orchestrator.process_conversation_message_stream(
-            user_message=current_question,
-            current_stage=self._session_manager.get_current_stage(),
-            conversation_history=self._conversation_manager.get_committed_context(),
-            session_id=self._session_manager.get_session_id()
-        )
+        try:
+            yield from self._orchestrator.process_conversation_message_stream(
+                user_message=current_question,
+                current_stage=self._session_manager.get_current_stage(),
+                conversation_history=self._conversation_manager.get_committed_context(),
+                session_id=self._session_manager.get_session_id()
+            )
+        except Exception as e:
+            # Reset ConversationManager state on any error
+            self._conversation_manager.abort_processing()
+            yield f"[Błąd przetwarzania: {str(e)}]"
 
 

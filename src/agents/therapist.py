@@ -172,7 +172,7 @@ class TherapistAgent(AgentBase, IAsyncTherapistAgent):
                     first_chunk_time = self._calculate_response_time(start_time)
 
                 full_response += chunk
-                yield chunk  # Real-time chunk delivery
+                yield chunk
 
             # Yield final metadata for completion handling
             metadata = self._build_streaming_metadata(full_response, safety_check, start_time, first_chunk_time)
@@ -281,7 +281,8 @@ class TherapistAgent(AgentBase, IAsyncTherapistAgent):
         """
         # Build conversation context for therapeutic continuity (configurable limit for performance)
         from config import Config
-        conversation_context = self._build_conversation_context(conversation_history, max_messages=Config.MAX_THERAPIST_CONTEXT_MESSAGES)
+        config = Config.get_instance()
+        conversation_context = self._build_conversation_context(conversation_history, max_messages=config.MAX_THERAPIST_CONTEXT_MESSAGES)
 
         # Combine user message and context into therapeutic prompt
         return self._prompt_service.build_therapist_prompt(user_message, conversation_context)
