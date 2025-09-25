@@ -1,17 +1,15 @@
 """
-Advanced model testing page with prompt memory verification and chat interface.
+Advanced model testing page with prompt memory verification and chat interfaces.
 """
 
-import streamlit as st
 import traceback
-import json
 from datetime import datetime
-from typing import Dict, Any, List, Optional
 
+import streamlit as st
+
+from config import Config
 from ...llm import OpenAIProvider, GeminiProvider
 from ...llm.model_discovery import ModelDiscovery
-from ...core.prompts.stage_prompt_manager import StagePromptManager
-from config import Config
 
 
 @st.cache_data(ttl=300)  # Cache for 5 minutes
@@ -108,7 +106,7 @@ def get_models_from_discovery(provider: str):
             return model_names if model_names else ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
 
     except Exception as e:
-        st.info(f"💾 ModelDiscovery cache: {str(e)[:50]}... używam zapasowej listy")
+        st.info(f"💾 ModelDiscovery cache: {str(e)}... używam zapasowej listy")
         # Fallback to static lists
         if provider.lower() == "openai":
             return ["gpt-4o-mini", "gpt-4o", "gpt-4", "gpt-3.5-turbo"]
@@ -125,7 +123,7 @@ def get_gemini_models():
 
 
 def model_test_page():
-    """Advanced model testing interface with prompt memory verification."""
+    """Advanced model testing interfaces with prompt memory verification."""
 
     st.title("🧪 Advanced Model Testing")
     st.markdown("Kompleksowe testowanie modeli AI z weryfikacją pamięci promptów")
@@ -143,7 +141,7 @@ def model_test_page():
         chat_test_interface()
 
 def chat_test_interface():
-    """Simple chat testing interface."""
+    """Simple chat testing interfaces."""
     st.subheader("💬 Chat Mode")
     st.markdown("Prosty test czatu z wybranym modelem")
 
@@ -199,9 +197,10 @@ def chat_test_interface():
                             client = openai.OpenAI(api_key=Config.OPENAI_API_KEY)
 
                             # Test basic connection
+                            from openai.types.chat import ChatCompletionUserMessageParam
                             response = client.chat.completions.create(
                                 model='gpt-3.5-turbo',
-                                messages=[{'role': 'user', 'content': 'test'}],
+                                messages=[ChatCompletionUserMessageParam(role='user', content='test')],
                                 max_tokens=5
                             )
                             st.success("✅ Klucz API działa poprawnie!")
@@ -438,7 +437,7 @@ def chat_test_interface():
                     "provider": provider,
                     "model": model,
                     "error": traceback.format_exc(),
-                    "prompt": prompt[:100] + "..." if len(prompt) > 100 else prompt
+                    "prompt": prompt
                 }
                 st.session_state.test_errors.append(error_details)
 
@@ -455,7 +454,7 @@ def chat_test_interface():
 
 
 def memory_test_interface():
-    """Advanced interface for testing prompt memory capabilities."""
+    """Advanced interfaces for testing prompt memory capabilities."""
     st.subheader("🧠 Memory Test Mode")
     st.markdown("Testowanie pamięci promptów systemowych i etapowych")
 
@@ -686,7 +685,7 @@ def run_memory_test(provider: str, model: str, system_prompt: str, stage_prompt:
         # Calculate total test duration
         end_time = datetime.now()
         total_duration = (end_time - test_results["start_time"]).total_seconds()
-        test_results["total_duration_seconds"] = round(total_duration, 2)
+        test_results["total_duration_seconds"] = str(round(total_duration, 2))
         test_results["end_time"] = end_time
 
         # Store results
@@ -723,12 +722,16 @@ def display_memory_test_results():
 
     with col4:
         if 'total_duration_seconds' in results:
-            duration = results['total_duration_seconds']
-            if duration < 10:
-                duration_text = f"{duration:.3f}s"
-            else:
-                duration_text = f"{duration:.1f}s"
-            st.metric("Czas trwania", duration_text)
+            duration_str = results['total_duration_seconds']
+            try:
+                duration = float(duration_str)
+                if duration < 10:
+                    duration_text = f"{duration:.3f}s"
+                else:
+                    duration_text = f"{duration:.1f}s"
+                st.metric("Czas trwania", duration_text)
+            except (ValueError, TypeError):
+                st.metric("Czas trwania", f"{duration_str}s")
         else:
             test_time = datetime.fromisoformat(results['timestamp']).strftime("%H:%M:%S")
             st.metric("Czas rozpoczęcia", test_time)

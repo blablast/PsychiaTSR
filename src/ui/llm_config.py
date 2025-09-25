@@ -12,10 +12,10 @@ class LLMConfigUI:
         self._ensure_session_state()
 
     def display_provider_config(self) -> Dict[str, Any]:
-        """Display LLM provider configuration interface."""
+        """Display LLM provider configuration interfaces."""
         st.subheader("🤖 Modele LLM")
 
-        with st.expander("⚙️ API Keys", expanded=False):
+        with st.expander("🔑 API Keys (wymagane dla modeli)", expanded=True):
             self._display_api_keys_config()
 
         return self._display_model_selection()
@@ -23,27 +23,47 @@ class LLMConfigUI:
     @staticmethod
     def _display_api_keys_config():
         """Display API keys configuration."""
-        st.markdown("**Klucze API (opcjonalne)**")
+        import os
+
+        st.markdown("**Konfiguracja kluczy API**")
+
+        # Initialize variables
+        openai_key = ""
+        google_key = ""
 
         # OpenAI API Key
-        openai_key = st.text_input(
-            "OpenAI API Key",
-            type="password",
-            value=st.session_state.get('openai_api_key', ''),
-            help="Wprowadź klucz API OpenAI dla dostępu do modeli GPT"
-        )
-        if openai_key != st.session_state.get('openai_api_key', ''):
-            st.session_state.openai_api_key = openai_key
+        env_openai_key = os.getenv('OPENAI_API_KEY', '')
+        if env_openai_key:
+            st.success("✅ OpenAI API Key wczytany ze zmiennych środowiskowych")
+            st.session_state.openai_api_key = env_openai_key
+            openai_key = env_openai_key
+        else:
+            openai_key = st.text_input(
+                "OpenAI API Key",
+                type="password",
+                value=st.session_state.get('openai_api_key', ''),
+                placeholder="Wklej klucz API OpenAI...",
+                help="Klucz API OpenAI dla dostępu do modeli GPT (lub ustaw OPENAI_API_KEY w .env)"
+            )
+            if openai_key != st.session_state.get('openai_api_key', ''):
+                st.session_state.openai_api_key = openai_key
 
         # Google API Key
-        google_key = st.text_input(
-            "Google API Key",
-            type="password",
-            value=st.session_state.get('google_api_key', ''),
-            help="Wprowadź klucz API Google dla dostępu do modeli Gemini"
-        )
-        if google_key != st.session_state.get('google_api_key', ''):
-            st.session_state.google_api_key = google_key
+        env_google_key = os.getenv('GOOGLE_API_KEY', '')
+        if env_google_key:
+            st.success("✅ Google API Key wczytany ze zmiennych środowiskowych")
+            st.session_state.google_api_key = env_google_key
+            google_key = env_google_key
+        else:
+            google_key = st.text_input(
+                "Google API Key",
+                type="password",
+                value=st.session_state.get('google_api_key', ''),
+                placeholder="Wklej klucz API Google...",
+                help="Klucz API Google dla dostępu do modeli Gemini (lub ustaw GOOGLE_API_KEY w .env)"
+            )
+            if google_key != st.session_state.get('google_api_key', ''):
+                st.session_state.google_api_key = google_key
 
         # Check if keys changed
         old_openai_key = st.session_state.get('_last_openai_key', '')
@@ -69,7 +89,7 @@ class LLMConfigUI:
             st.session_state.available_models = None
 
     def _display_model_selection(self) -> Dict[str, Any]:
-        """Display model selection interface."""
+        """Display model selection interfaces."""
         if st.button("🔄 Odśwież listę modeli"):
             st.session_state.available_models = None
             st.rerun()
@@ -138,8 +158,7 @@ class LLMConfigUI:
 
         st.divider()
 
-        # Agent Parameters Configuration
-        self._display_agent_parameters()
+        # Agent parameters moved to dedicated settings page
 
         return {
             'therapist_model': all_options.get(therapist_selected),

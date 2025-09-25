@@ -7,12 +7,13 @@ Manages the separation between:
 - Processing state (workflow in progress)
 """
 
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 from datetime import datetime
-from ...utils.schemas import MessageData
+from ..models.schemas import MessageData
+from .interfaces.conversation_manager_interface import IConversationManager
 
 
-class ConversationManager:
+class ConversationManager(IConversationManager):
     """
     Centralized conversation state manager.
 
@@ -23,6 +24,13 @@ class ConversationManager:
     - Accepting: User can add/extend current question
     - Processing: Workflow active, current question frozen
     - Committing: Finalizing user-therapist exchange
+
+    Example:
+        >>> manager = ConversationManager()
+        >>> manager.accept_user_input("Witaj, jak się masz?")
+        >>> context, question = manager.start_processing()
+        >>> manager.commit_therapist_response("Dziękuję za pytanie...")
+        >>> conversation = manager.get_full_conversation_for_display()
     """
 
     def __init__(self):
@@ -52,8 +60,10 @@ class ConversationManager:
             return True  # Accept empty input silently
 
         if self._current_question:
-            # Extend existing question
-            self._current_question += " " + text
+            # Check if this is the same text to avoid duplication
+            if self._current_question.strip() != text.strip():
+                # Extend existing question only if different
+                self._current_question += " " + text
         else:
             self._current_question = text
 
@@ -187,7 +197,6 @@ class ConversationManager:
             Dictionary with conversation metrics
         """
         user_messages = [msg for msg in self._committed_context if msg.role == "user"]
-        therapist_messages = [msg for msg in self._committed_context if msg.role == "therapist"]
 
         return {
             "committed_exchanges": len(user_messages),

@@ -4,12 +4,7 @@ import os
 import json
 from typing import Dict, Any, List, Optional, AsyncGenerator
 from .base import LLMProvider
-
-try:
-    import google.generativeai as genai
-    GEMINI_AVAILABLE = True
-except ImportError:
-    GEMINI_AVAILABLE = False
+import google.generativeai as genai
 
 
 class GeminiProvider(LLMProvider):
@@ -18,14 +13,10 @@ class GeminiProvider(LLMProvider):
     def __init__(self, model_name: str = "gemini-pro", **kwargs):
         super().__init__(model_name, **kwargs)
 
-        if not GEMINI_AVAILABLE:
-            raise ImportError("Google AI package not installed. Install with: pip install google-generativeai")
-
         self.api_key = kwargs.get('api_key') or os.getenv('GOOGLE_API_KEY')
         if not self.api_key:
             raise ValueError("Gemini API key not provided. Set GOOGLE_API_KEY environment variable or pass api_key parameter.")
 
-        # Keep sync client for backward compatibility
         genai.configure(api_key=self.api_key)
         self.model = genai.GenerativeModel(model_name)
 
@@ -67,14 +58,15 @@ class GeminiProvider(LLMProvider):
 
         try:
             # Send system prompt and get confirmation for sync API
-            response = self.chat_session.send_message(
+            _ = self.chat_session.send_message(
                 f"System: {system_prompt}\n\nRespond only with 'OK' to confirm you understand your role."
             )
             self.conversation_history.append(("system", system_prompt))
         except Exception as e:
             raise Exception(f"Failed to set system prompt: {str(e)}")
 
-    def _convert_to_gemini_format(self, messages: List[Dict[str, str]]) -> List[Dict[str, Any]]:
+    @staticmethod
+    def _convert_to_gemini_format(messages: List[Dict[str, str]]) -> List[Dict[str, Any]]:
         """Convert OpenAI-style messages to Gemini format."""
         gemini_messages = []
 
@@ -218,7 +210,8 @@ class GeminiProvider(LLMProvider):
 
     # HTTP session management now inherited from base class
 
-    def _extract_response_text(self, response) -> str:
+    @staticmethod
+    def _extract_response_text(response) -> str:
         """Safely extract text from Gemini response, handling different finish reasons."""
         try:
             # Check if response has candidates
@@ -358,9 +351,6 @@ class GeminiProvider(LLMProvider):
 
     def is_available(self) -> bool:
         """Check if Gemini API is available."""
-        if not GEMINI_AVAILABLE:
-            return False
-
         try:
             # Test with a minimal request
             test_response = self.model.generate_content("Hi")

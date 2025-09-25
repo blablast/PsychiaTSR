@@ -1,7 +1,8 @@
 """Factory for creating complete workflow orchestration system."""
 
 from ..crisis.crisis_handler import CrisisHandler
-from ..crisis.ui_notifier import StreamlitCrisisNotifier, NoOpCrisisNotifier
+from ..crisis import NoOpCrisisNotifier
+from ...ui.crisis import StreamlitCrisisNotifier
 from ..session.session_orchestrator import SessionOrchestrator
 from ..session.stage_progression_handler import StageProgressionHandler
 from .workflow_orchestrator import WorkflowOrchestrator
@@ -17,7 +18,7 @@ class WorkflowFactory:
         Create workflow orchestrator with Streamlit UI dependencies.
 
         Args:
-            agent_provider: Agent provider interface
+            agent_provider: Agent provider interfaces
             prompt_manager: Prompt management service
             session_manager: Session state manager
             conversation_manager: Conversation state manager
@@ -71,7 +72,7 @@ class WorkflowFactory:
         Create workflow orchestrator for testing (no UI dependencies).
 
         Args:
-            agent_provider: Agent provider interface
+            agent_provider: Agent provider interfaces
             prompt_manager: Prompt management service
             session_manager: Session state manager
             conversation_manager: Conversation state manager

@@ -1,19 +1,19 @@
-"""Base logging interface for all logger implementations."""
+"""Base logging interfaces for all logger implementations."""
 
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, List
 
 from ..log_entry import LogEntry
-from ....utils.schemas import SupervisorDecision
+from ...models.schemas import SupervisorDecision
 
 
 class ILogger(ABC):
     """
-    Universal logging interface for therapy session applications.
+    Universal logging interfaces for therapy session applications.
 
-    This interface defines all logging operations needed for therapy applications,
+    This interfaces defines all logging operations needed for therapy applications,
     including specialized methods for supervisor/therapist interactions, stage
-    transitions, and model configurations. All loggers implement this interface
+    transitions, and model configurations. All loggers implement this interfaces
     regardless of their storage mechanism (file, console, Streamlit, memory).
 
     Common Usage Patterns:
@@ -50,8 +50,8 @@ class ILogger(ABC):
         pass
 
     @abstractmethod
-    def log_therapist_response(self, response: str, response_time_ms: int) -> None:
-        """Log therapist response with timing."""
+    def log_therapist_response(self, response: str, response_time_ms: int, first_chunk_time_ms: int = None) -> None:
+        """Log therapist response with timing and optional first chunk timing."""
         pass
 
     @abstractmethod
@@ -78,6 +78,16 @@ class ILogger(ABC):
     def log_model_info(self, therapist_model: str, supervisor_model: str,
                       therapist_provider: str = "openai", supervisor_provider: str = "gemini") -> None:
         """Log information about currently used models."""
+        pass
+
+    @abstractmethod
+    def log_system_prompt(self, agent_type: str, prompt_content: str, description: str) -> None:
+        """Log system prompt configuration."""
+        pass
+
+    @abstractmethod
+    def log_stage_prompt(self, agent_type: str, stage_id: str, prompt_content: str, description: str) -> None:
+        """Log stage-specific prompt configuration."""
         pass
 
     @abstractmethod

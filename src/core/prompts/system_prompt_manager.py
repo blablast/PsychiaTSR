@@ -24,6 +24,7 @@ class SystemPromptManager:
             system_prompts_dir: Path to directory containing system prompt files
         """
         self._system_dir = Path(system_prompts_dir)
+        self._prompt_management_service = None
 
     def get_prompt(self, agent_type: str) -> Optional[str]:
         """
@@ -36,15 +37,20 @@ class SystemPromptManager:
             Formatted system prompt string or None if not found
         """
         try:
-            prompt_file = self._system_dir / f"{agent_type}_base.json"
+            # Lazy import to avoid circular dependency
+            if self._prompt_management_service is None:
+                from ..services.prompt_management_service import PromptManagementService
+                config_dir = self._system_dir.parent.parent
+                self._prompt_management_service = PromptManagementService(str(config_dir))
 
-            if not prompt_file.exists():
+            # Use new PromptManagementService to get system prompt
+            prompt_data = self._prompt_management_service.get_active_system_prompt(agent_type)
+
+            if not prompt_data:
                 return None
 
-            with open(prompt_file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-
-            return self._format_system_prompt(data)
+            # Generate prompt text from new structured format
+            return self._prompt_management_service.generate_prompt_text(prompt_data, "system")
 
         except Exception:
             return None

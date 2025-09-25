@@ -2,12 +2,12 @@
 import os
 import streamlit as st
 from .workflow_manager import TherapyWorkflowManager
-from ..agents.agent_provider import StreamlitAgentProvider
-from ..conversation.conversation_manager import ConversationManager
+from ...ui.session.streamlit_agent_provider import StreamlitAgentProvider
+from ..conversation import ConversationManager
 from ..logging import LoggerFactory
 # Agents now created via ServiceFactory with dependency injection
 from ...llm import OpenAIProvider, GeminiProvider
-from ...utils.safety import SafetyChecker
+from ...core.safety import SafetyChecker
 from config import Config
 
 
@@ -18,7 +18,7 @@ def _get_or_create_session_logger():
 
     if logger_key not in st.session_state:
         # Create logger only once per session
-        log_file = os.path.join(Config.DATA_DIR, "sessions", f"{st.session_state.get('session_id', 'unknown')}.json")
+        log_file = os.path.join(Config.LOGS_DIR, "sessions", f"{st.session_state.get('session_id', 'unknown')}.json")
         st.session_state[logger_key] = LoggerFactory.create_multi_logger(
             file_path=log_file,
             use_console=False,
@@ -75,11 +75,11 @@ def send_supervisor_request(user_message: str):
 def initialize_agents():
     """Initialize therapy agents with default configuration."""
 
-    def assign_llm(provider_name, model_name, api_keys):
+    def assign_llm(provider_name, model_name, keys):
         if provider_name == 'openai':
-            return OpenAIProvider(model_name, api_key=api_keys['openai'])
+            return OpenAIProvider(model_name, api_key=keys['openai'])
         elif provider_name == 'gemini':
-            return GeminiProvider(model_name, api_key=api_keys['gemini'])
+            return GeminiProvider(model_name, api_key=keys['gemini'])
         else:
             raise ValueError(f"Unknown provider: {provider_name}")
 

@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from typing import List
-from ....utils.schemas import MessageData
+from src.core.models.schemas import MessageData
 
 
 @dataclass(frozen=True)

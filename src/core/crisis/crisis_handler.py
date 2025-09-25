@@ -1,25 +1,26 @@
 """Crisis handling logic separated from workflow concerns."""
 
-from typing import Dict, Any
 from ..workflow.workflow_result import WorkflowResult
-from .ui_notifier import UICrisisNotifier
+from .interfaces import ICrisisHandler, ICrisisSessionManager, UICrisisNotifier
+from .crisis_config import CrisisConfig
 
 
-class CrisisHandler:
+class CrisisHandler(ICrisisHandler):
     """Handles crisis situations when safety risks are detected."""
 
-    def __init__(self, session_manager, ui_notifier: UICrisisNotifier, logger):
+    def __init__(self, session_manager: ICrisisSessionManager, ui_notifier: UICrisisNotifier, logger):
         """
         Initialize crisis handler.
 
         Args:
-            session_manager: Session manager for conversation updates
+            session_manager: Session manager for conversation updates (interface)
             ui_notifier: UI notification strategy
             logger: Logger for crisis events
         """
         self._session_manager = session_manager
         self._ui_notifier = ui_notifier
         self._logger = logger
+        self._crisis_active = False
 
     def handle_crisis(self, user_message: str, supervisor_decision) -> WorkflowResult:
         """
@@ -34,16 +35,18 @@ class CrisisHandler:
         """
         # Log crisis activation
         self._logger.log_error("🚨 PROTOKÓŁ KRYZYSOWY AKTYWOWANY")
+        self._crisis_active = True
 
         # Notify UI of crisis state
         self._ui_notifier.notify_crisis_detected()
 
-        # Generate crisis response
-        crisis_response = self._generate_crisis_response()
+        # Generate crisis response from config
+        crisis_response = CrisisConfig.get_crisis_response()
+        protocols = CrisisConfig.get_crisis_protocols()
 
         # Update conversation with crisis response
         self._session_manager.add_user_message(user_message)
-        self._session_manager.add_assistant_message(crisis_response, "crisis_protocol_v1")
+        self._session_manager.add_assistant_message(crisis_response, protocols["immediate_response"])
 
         # Log crisis response sent
         self._logger.log_info("🚨 Wysłano odpowiedź kryzysową")
@@ -60,16 +63,15 @@ class CrisisHandler:
             }
         )
 
-    def _generate_crisis_response(self) -> str:
-        """Generate standardized crisis response message."""
-        return (
-            "**⚠️ NATYCHMIASTOWA POMOC POTRZEBNA**\n\n"
-            "Rozumiem, że przeżywasz bardzo trudny moment. Twoje bezpieczeństwo jest najważniejsze.\n\n"
-            "**PILNE KONTAKTY:**\n"
-            "• **Telefon Zaufania**: 116 123 (bezpłatny, całodobowy)\n"
-            "• **Pogotowie Ratunkowe**: 112\n"
-            "• **Najbliższy SOR** (Szpitalny Oddział Ratunkowy)\n\n"
-            "**Nie jesteś sam/sama.** Jeśli masz myśli o skrzywdzeniu siebie, proszę natychmiast skontaktuj się "
-            "z którymś z powyższych numerów lub udaj się do najbliższego szpitala.\n\n"
-            "Czy możesz mi powiedzieć, czy jesteś teraz w bezpiecznym miejscu?"
-        )
+    def is_crisis_active(self) -> bool:
+        """Check if crisis mode is currently active."""
+        return self._crisis_active
+
+    def get_crisis_contacts(self) -> dict:
+        """Get emergency contact information."""
+        return CrisisConfig.get_crisis_contacts()
+
+    def deactivate_crisis(self) -> None:
+        """Deactivate crisis mode (for testing/admin purposes)."""
+        self._crisis_active = False
+        self._logger.log_info("🚨 Protokół kryzysowy dezaktywowany")

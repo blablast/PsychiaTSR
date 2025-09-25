@@ -2,7 +2,7 @@
 
 import streamlit as st
 from datetime import datetime
-from ..stages.stage_manager import StageManager
+from .stages.stage_manager import StageManager
 from .session_factory import create_streamlit_session_manager
 from ..logging import LoggerFactory
 from config import Config
@@ -26,16 +26,22 @@ def load_stages():
 
 def create_new_session():
     """Create new therapy session with current models."""
+    # Clear technical logs for new session
+    _clear_technical_logs()
+
     session_manager = create_streamlit_session_manager()
     try:
-        from src.utils import StorageProvider
-        storage = StorageProvider(Config.DATA_DIR)
+        from src.infrastructure.storage import StorageProvider
+        storage = StorageProvider(Config.LOGS_DIR)
         session_manager._storage_provider = storage
         session_id = session_manager.create_new_session()
 
-        # Log current model configuration
+        # Log current model configuration to logs directory
         import os
-        log_file = os.path.join(Config.DATA_DIR, "sessions", f"{session_id}.json")
+        logs_dir = os.path.join("logs", session_id)
+        os.makedirs(logs_dir, exist_ok=True)
+        log_file = os.path.join(logs_dir, "session.json")
+
         logger = LoggerFactory.create_multi_logger(
             file_path=log_file,
             use_console=False,
@@ -66,8 +72,16 @@ def create_new_session():
             supervisor_provider=supervisor_provider
         )
 
+        # Save current audio configuration to session
+        _save_current_audio_config_to_session(session_id, storage)
+
         # Add initial stage message as first chat message
         _add_initial_stage_message()
+
+        # Also save session data to logs directory
+        session_data = storage.load_session(session_id)
+        if session_data:
+            storage.save_session_log(session_id, session_data)
 
         st.success(f"Nowa sesja utworzona: {session_id}")
         return session_id
@@ -139,10 +153,50 @@ def _add_initial_stage_message():
         })
 
 
+def load_audio_config_from_session():
+    """Load audio configuration from current session."""
+    # NOTE: This function is now deprecated - audio config is loaded from app config in SessionStateInitializer
+    pass
+
+
+def save_audio_config_to_session():
+    """Save current audio configuration to session."""
+    # NOTE: This function is now deprecated - audio config is saved to app config in conversation_settings
+    pass
+
+
+def _save_current_audio_config_to_session(session_id: str, storage):
+    """Save current session state audio config to session file."""
+    audio_enabled = st.session_state.get('audio_enabled', False)
+    tts_config = st.session_state.get('_tts_cfg')
+
+    if audio_enabled or tts_config:
+        storage.update_audio_config(
+            session_id=session_id,
+            audio_enabled=audio_enabled,
+            tts_config=tts_config
+        )
+
+
+def _clear_technical_logs():
+    """Clear technical logs from session state when creating new session."""
+    import streamlit as st
+
+    # Clear the technical log session state
+    if "technical_log" in st.session_state:
+        st.session_state["technical_log"] = []
+
+    # Log that logs were cleared
+    from src.ui.technical_log_display import add_technical_log
+    add_technical_log("session_start", "🆕 Nowa sesja - logi wyczyszczone")
+
+
 __all__ = [
     'load_stages',
     'create_new_session',
     'advance_stage',
     'format_timestamp',
-    'get_configured_models'
+    'get_configured_models',
+    'load_audio_config_from_session',
+    'save_audio_config_to_session'
 ]

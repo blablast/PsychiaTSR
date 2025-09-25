@@ -1,14 +1,15 @@
 """JSON parsing and validation service following Single Responsibility Principle."""
 
 import json
-from typing import Dict, Any
-from ...utils.schemas import SupervisorDecision
+from typing import Dict, Any, Optional
+from ...core.models.schemas import SupervisorDecision
+from ..logging.interfaces.logger_interface import ILogger
 
 
 class ParsingService:
     """Handles JSON parsing and validation for agent responses."""
 
-    def __init__(self, logger=None):
+    def __init__(self, logger: Optional[ILogger] = None):
         self._logger = logger
 
     def parse_supervisor_response(self, response: str) -> Dict[str, Any]:
@@ -21,7 +22,7 @@ class ParsingService:
             if start_idx == -1 or end_idx == 0:
                 if self._logger:
                     self._logger.log_error("No JSON structure detected in supervisor response", {
-                        "response_preview": response[:100]
+                        "response_preview": response
                     })
                 raise ValueError("No JSON found in response")
 
@@ -100,7 +101,7 @@ class ParsingService:
             "summary": summary,
             "addressing": addressing,
             "reason": reason,
-            "handoff": {"parsing_error": True, "original_response": response[:200]},
+            "handoff": {"parsing_error": True, "original_response": response},
             "safety_risk": False,
             "safety_message": ""
         }

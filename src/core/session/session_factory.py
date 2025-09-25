@@ -4,8 +4,8 @@ from typing import Optional
 
 from .session_manager import SessionManager
 from .session_state import StreamlitSessionState
-from ..stages.stage_manager import StageManager
-from ...utils.storage import StorageProvider
+from .stages.stage_manager import StageManager
+from ...infrastructure.storage import StorageProvider
 
 
 def create_streamlit_session_manager(storage_provider: Optional[StorageProvider] = None) -> SessionManager:

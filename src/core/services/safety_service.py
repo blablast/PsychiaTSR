@@ -1,8 +1,8 @@
 """Safety checking service following Single Responsibility Principle."""
 
 from typing import List, Dict, Any
-from ...utils.safety import SafetyChecker
-from ...utils.schemas import MessageData, SupervisorDecision
+from ...core.safety import SafetyChecker
+from ...core.models.schemas import MessageData, SupervisorDecision
 
 
 class SafetyService:
@@ -28,7 +28,7 @@ class SafetyService:
             if msg.role == "user":
                 safety_check = self.check_user_input(msg.text)
                 if safety_check["has_risk"]:
-                    concern_text = f"RYZYKO BEZPIECZEŃSTWA w wiadomości: {msg.text[:100]}..."
+                    concern_text = f"RYZYKO BEZPIECZEŃSTWA w wiadomości: {msg.text}..."
                     safety_concerns.append(concern_text)
 
         return {

@@ -2,18 +2,17 @@
 Main session manager coordinating session state, stages, and conversation history.
 
 Follows Single Responsibility Principle by delegating specific concerns
-to specialized managers while providing a unified interface.
+to specialized managers while providing a unified interfaces.
 """
 
 from typing import List, Optional
 
 from .interfaces.session_state_interface import ISessionState
-from ..stages.stage_manager import StageManager
+from .stages.stage_manager import StageManager
 from ..models.session_info import SessionInfo
 from datetime import datetime
-from ..exceptions.session_manager_error import SessionManagerError
-from ...utils.schemas import MessageData
-from ...utils.storage import StorageProvider
+from ..models.schemas import MessageData
+from ...infrastructure.storage import StorageProvider
 
 
 class SessionManager:
@@ -21,7 +20,7 @@ class SessionManager:
     Main session manager coordinating session state, stages, and conversation history.
 
     Follows Single Responsibility Principle by delegating specific concerns
-    to specialized managers while providing a unified interface.
+    to specialized managers while providing a unified interfaces.
     """
 
     def __init__(self,
@@ -35,7 +34,7 @@ class SessionManager:
     def create_new_session(self, user_id: Optional[str] = None) -> str:
         """Create a new therapy session."""
         if not self._storage_provider:
-            raise SessionManagerError("Storage provider not configured")
+            raise ValueError("Storage provider not configured")
 
         try:
             session_id = self._storage_provider.create_session(user_id)
@@ -54,7 +53,7 @@ class SessionManager:
             return session_id
 
         except Exception as e:
-            raise SessionManagerError(f"Failed to create new session: {str(e)}")
+            raise ValueError(f"Failed to create new session: {str(e)}")
 
     def get_session_info(self) -> SessionInfo:
         """Get current session information."""
@@ -87,7 +86,7 @@ class SessionManager:
 
     def _change_stage(self, direction: str, action_verb: str, action_name: str):
         """Helper method to change stage in either direction."""
-        from src.core.models import WorkflowResult
+        from ..models import WorkflowResult
 
         try:
             current_stage = self.get_current_stage()

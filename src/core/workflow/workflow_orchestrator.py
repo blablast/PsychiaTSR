@@ -1,11 +1,11 @@
 """Main workflow orchestrator following SOLID principles."""
 
+from .strategies.strategy_factory import WorkflowStrategyFactory
+from .strategies.workflow_context import WorkflowContext
+from .strategies.workflow_request import WorkflowRequest
+from .workflow_result import WorkflowResult
 from ..crisis.crisis_handler import CrisisHandler
 from ..session.session_orchestrator import SessionOrchestrator
-from .strategies.strategy_factory import WorkflowStrategyFactory
-from .strategies.workflow_request import WorkflowRequest, WorkflowType
-from .strategies.workflow_context import WorkflowContext
-from .workflow_result import WorkflowResult
 
 
 class WorkflowOrchestrator:
@@ -79,26 +79,6 @@ class WorkflowOrchestrator:
                 error=str(e)
             )
 
-    def process_legacy_message(self, user_message: str, current_stage: str, conversation_history, session_id: str) -> WorkflowResult:
-        """
-        Convenience method for legacy workflow processing.
-
-        Args:
-            user_message: User's message
-            current_stage: Current therapy stage
-            conversation_history: Conversation history
-            session_id: Session identifier
-
-        Returns:
-            WorkflowResult with execution results
-        """
-        request = WorkflowRequest.legacy(
-            user_message=user_message,
-            current_stage=current_stage,
-            conversation_history=conversation_history,
-            session_id=session_id
-        )
-        return self.process_request(request)
 
     def process_conversation_message(self, user_message: str, current_stage: str, conversation_history, session_id: str) -> WorkflowResult:
         """

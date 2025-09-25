@@ -1,7 +1,6 @@
 """Interface for log formatters."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any
 
 from ..log_entry import LogEntry
 

@@ -28,14 +28,14 @@ async def main():
         cache_data = await ModelDiscovery.refresh_models_cache()
 
         print("✅ Cache refreshed successfully!")
-        print(f"📅 Last updated: {cache_data.get_prompt('last_updated')}")
-        print(f"⏰ Expires at: {cache_data.get_prompt('expires_at')}")
+        print(f"📅 Last updated: {cache_data.get('last_updated')}")
+        print(f"⏰ Expires at: {cache_data.get('expires_at')}")
 
         # Show summary
-        providers = cache_data.get_prompt("providers", {})
+        providers = cache_data.get("providers", {})
         for provider, data in providers.items():
-            models = data.get_prompt("models", [])
-            status = data.get_prompt("status", "unknown")
+            models = data.get("models", [])
+            status = data.get("status", "unknown")
             print(f"  🤖 {provider}: {len(models)} models ({status})")
 
     except Exception as e:

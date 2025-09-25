@@ -8,7 +8,7 @@ from .interfaces.logger_interface import ILogger
 from .interfaces.formatter_interface import IFormatter
 from .interfaces.storage_interface import IStorage
 from .log_entry import LogEntry
-from ...utils.schemas import SupervisorDecision
+from ..models.schemas import SupervisorDecision
 
 
 class BaseLogger(ILogger):
@@ -61,13 +61,34 @@ class BaseLogger(ILogger):
         )
 
     def log_supervisor_request(self, prompt_info: Dict[str, Any]) -> None:
-        """Log supervisor request with prompt information."""
-        message = f"Prompt Used: {prompt_info.get('id', 'unknown')} | {prompt_info.get('created_at', '')}"
+        """Log supervisor request with full prompt content for debugging."""
+        prompt_id = prompt_info.get('id', 'unknown')
+        full_prompt = prompt_info.get('full_prompt')
+
+        if full_prompt:
+            # Enhanced message with full content for display
+            stage_info = f" - {prompt_info.get('stage')}" if prompt_info.get('stage') else ""
+            preview = full_prompt[:200] + "..." if len(full_prompt) > 200 else full_prompt
+            enhanced_message = f"📝 SUPERVISOR PROMPT - {prompt_id.upper()}{stage_info}\nFull content: {full_prompt}"
+
+            data = {
+                "id": prompt_id,
+                "stage": prompt_info.get('stage'),
+                "history_summary": prompt_info.get('history_summary'),
+                "last_user_message": prompt_info.get('last_user_message'),
+                "full_prompt": full_prompt,
+                "prompt_length": len(full_prompt)
+            }
+            message = enhanced_message
+        else:
+            # Fallback for old minimal logging
+            message = f"Prompt: {prompt_id}"
+            data = {"id": prompt_id}
 
         entry = self._create_entry(
             event_type="supervisor_request",
             message=message,
-            data=prompt_info,
+            data=data,
             agent_type="supervisor"
         )
 
@@ -75,21 +96,22 @@ class BaseLogger(ILogger):
 
     def log_supervisor_response(self, decision: SupervisorDecision, response_time_ms: int) -> None:
         """Log supervisor response with decision and timing."""
-        decision_data = {
-            "decision": decision.decision,
-            "reason": decision.reason,
-            "handoff": decision.handoff,
-            "safety_risk": decision.safety_risk,
-            "summary": decision.summary,
-            "addressing": decision.addressing
-        }
+        # Simplified logging - only key decision info, not full JSON
+        message = f"Decision: {decision.decision}"
+        if decision.safety_risk:
+            message += f" | SAFETY RISK"
 
-        message = json.dumps(decision_data, ensure_ascii=False)
+        # Store only essential data, not full supervisor response
+        data = {
+            "response_time_ms": response_time_ms,
+            "decision": decision.decision,
+            "safety_risk": decision.safety_risk
+        }
 
         entry = self._create_entry(
             event_type="supervisor_response",
             message=message,
-            data={"response_time_ms": response_time_ms, **decision_data},
+            data=data,
             response_time_ms=response_time_ms,
             agent_type="supervisor"
         )
@@ -97,31 +119,52 @@ class BaseLogger(ILogger):
         self._storage.store(entry)
 
     def log_therapist_request(self, prompt_info: Dict[str, Any]) -> None:
-        """Log therapist request with prompt information."""
-        # Extract stage from prompt ID (e.g. "therapist_opening" -> "opening")
+        """Log therapist request with full prompt content for debugging."""
         prompt_id = prompt_info.get('id', 'unknown')
-        if prompt_id.startswith('therapist_'):
-            stage_id = prompt_id.replace('therapist_', '')
-        else:
-            stage_id = 'unknown'
+        full_prompt = prompt_info.get('full_prompt')
 
-        message = f"Prompt Used: {prompt_id} | Stage: {stage_id}"
+        if full_prompt:
+            # Enhanced message with full content for display
+            stage_info = f" - {prompt_info.get('stage')}" if prompt_info.get('stage') else ""
+            enhanced_message = f"📝 THERAPIST PROMPT - {prompt_id.upper()}{stage_info}\nFull content: {full_prompt}"
+
+            data = {
+                "id": prompt_id,
+                "stage": prompt_info.get('stage'),
+                "user_message": prompt_info.get('user_message'),
+                "full_prompt": full_prompt,
+                "prompt_length": len(full_prompt)
+            }
+            message = enhanced_message
+        else:
+            # Fallback for old minimal logging
+            if prompt_id.startswith('therapist_'):
+                stage_id = prompt_id.replace('therapist_', '')
+            else:
+                stage_id = 'unknown'
+            message = f"Prompt: {prompt_id}"
+            data = {"id": prompt_id, "stage": stage_id}
 
         entry = self._create_entry(
             event_type="therapist_request",
             message=message,
-            data=prompt_info,
+            data=data,
             agent_type="therapist"
         )
 
         self._storage.store(entry)
 
-    def log_therapist_response(self, response: str, response_time_ms: int) -> None:
-        """Log therapist response with timing."""
+    def log_therapist_response(self, response: str, response_time_ms: int, first_chunk_time_ms: int = None) -> None:
+        """Log therapist response with timing and optional first chunk timing."""
+
+        data = {"response_time_ms": response_time_ms}
+        if first_chunk_time_ms is not None:
+            data["first_chunk_time_ms"] = first_chunk_time_ms
+
         entry = self._create_entry(
             event_type="therapist_response",
             message=response,
-            data={"response_time_ms": response_time_ms},
+            data=data,
             response_time_ms=response_time_ms,
             agent_type="therapist"
         )
@@ -232,16 +275,21 @@ class BaseLogger(ILogger):
 
     def log_system_prompt(self, agent_type: str, prompt_content: str, description: str) -> None:
         """Log system prompt configuration."""
+        # Create enhanced message with full content for display
+        preview = prompt_content[:200] + "..." if len(prompt_content) > 200 else prompt_content
+        enhanced_message = f"📝 SYSTEM PROMPT - {agent_type.upper()}\nFull content: {prompt_content}"
+
         data = {
             "description": description,
-            "content_preview": prompt_content[:200] + "..." if len(prompt_content) > 200 else prompt_content,
+            "content_preview": preview,
             "full_length": len(prompt_content),
+            "full_content": prompt_content,
             "agent_type": agent_type
         }
 
         entry = self._create_entry(
             event_type="system_prompt_set",
-            message=f"📝 SYSTEM PROMPT - {agent_type.upper()}",
+            message=enhanced_message,
             data=data,
             agent_type=agent_type
         )
@@ -250,17 +298,22 @@ class BaseLogger(ILogger):
 
     def log_stage_prompt(self, agent_type: str, stage_id: str, prompt_content: str, description: str) -> None:
         """Log stage-specific prompt configuration."""
+        # Create enhanced message with full content for display
+        preview = prompt_content[:200] + "..." if len(prompt_content) > 200 else prompt_content
+        enhanced_message = f"📝 STAGE PROMPT - {agent_type.upper()} - {stage_id}\nFull content: {prompt_content}"
+
         data = {
             "stage_id": stage_id,
             "description": description,
-            "content_preview": prompt_content[:200] + "..." if len(prompt_content) > 200 else prompt_content,
+            "content_preview": preview,
             "full_length": len(prompt_content),
+            "full_content": prompt_content,
             "agent_type": agent_type
         }
 
         entry = self._create_entry(
             event_type="stage_prompt_set",
-            message=f"📝 STAGE PROMPT - {agent_type.upper()} - {stage_id}",
+            message=enhanced_message,
             data=data,
             agent_type=agent_type
         )

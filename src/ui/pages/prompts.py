@@ -1,376 +1,261 @@
 """
-Prompt editing page for the new unified prompt system.
-Allows editing of system prompts and stage-specific prompts.
+Prompt editing page - Clean UI using service facade pattern.
+All business logic delegated to PromptUIService facade.
 """
 
 import streamlit as st
 import json
-from pathlib import Path
-from src.core.prompts import UnifiedPromptManager
-from src.core.prompts import SystemPromptManager
-from src.core.prompts import StagePromptManager
-from src.core.session import load_stages
-from config import Config
+from ..services.prompt_ui_service import PromptUIService
 
 
 def prompts_management_page():
-    """Display prompt management interface for unified prompt system."""
+    """Display prompt management interfaces using service facade."""
     st.title("📝 Edycja Promptów")
 
-    # Initialize managers
-    unified_manager = UnifiedPromptManager(Config.PROMPT_DIR)
-    system_manager = SystemPromptManager(f"{Config.PROMPT_DIR}/system")
-    stage_manager = StagePromptManager(f"{Config.PROMPT_DIR}/stages")
+    # Initialize UI service facade
+    ui_service = PromptUIService()
 
     # Create tabs for different prompt types
     tab1, tab2, tab3 = st.tabs(["🏠 System", "🎯 Etapy", "🔍 Podgląd"])
 
     with tab1:
-        _display_system_prompts_editor(system_manager)
+        _display_system_prompts_editor(ui_service)
 
     with tab2:
-        _display_stage_prompts_editor(stage_manager)
+        _display_stage_prompts_editor(ui_service)
 
     with tab3:
-        _display_prompt_preview(unified_manager)
+        _display_prompt_preview(ui_service)
 
 
-def _display_system_prompts_editor(system_manager: SystemPromptManager):
-    """Display system prompts editor."""
-    st.subheader("🏠 Prompty Systemowe")
-    st.info("Prompty systemowe definiują podstawową rolę i zasady dla agentów. Ustawiane raz na początku sesji.")
+def _display_system_prompts_editor(ui_service: PromptUIService):
+    """Display system prompts editor in 2 columns - therapist and supervisor side by side."""
+    st.subheader("🏠 Zaawansowany Edytor Promptów Systemowych")
 
-    # Agent type selection
-    agent_type = st.selectbox(
-        "Wybierz typ agenta:",
-        ["therapist", "supervisor"],
-        format_func=lambda x: "🩺 Terapeuta" if x == "therapist" else "👥 Supervisor"
-    )
+    # Create two columns for therapist and supervisor
+    col_therapist, col_supervisor = st.columns(2)
 
-    # Load current system prompt
-    current_prompt = system_manager.get_prompt(agent_type)
+    # THERAPIST COLUMN
+    with col_therapist:
+        st.markdown("### 🩺 TERAPEUTA")
 
-    if current_prompt:
-        st.success(f"✅ Prompt systemowy dla {agent_type} załadowany")
+        # Load therapist data
+        therapist_data = ui_service.load_system_prompt_for_editing("therapist")
 
-        # Display current content in expandable section
-        with st.expander("📖 Aktualny prompt systemowy", expanded=False):
-            st.text(current_prompt)
+        # Display editor form for therapist
+        with st.form("therapist_system_form"):
+            st.markdown("🛠️ **Edytor dla: THERAPIST**")
 
-        # Edit button
-        if st.button(f"✏️ Edytuj prompt systemowy ({agent_type})", use_container_width=True):
-            st.session_state[f"editing_system_{agent_type}"] = True
-    else:
-        st.warning(f"⚠️ Brak promptu systemowego dla {agent_type}")
-        if st.button(f"➕ Utwórz prompt systemowy ({agent_type})", use_container_width=True):
-            st.session_state[f"editing_system_{agent_type}"] = True
+            # Render dynamic sections for therapist
+            updated_therapist_data = ui_service.render_dynamic_sections_form(therapist_data, "system_therapist")
 
-    # Editor interface
-    if st.session_state.get(f"editing_system_{agent_type}", False):
-        _show_system_prompt_editor(system_manager, agent_type)
+            # Form buttons for therapist
+            tcol1, tcol2, tcol3 = st.columns([1, 1, 1])
+
+            with tcol1:
+                save_therapist = st.form_submit_button("💾 Zapisz", use_container_width=True)
+
+            with tcol2:
+                preview_therapist = st.form_submit_button("👀 JSON", use_container_width=True)
+
+            with tcol3:
+                generate_therapist = st.form_submit_button("🚀 Prompt", use_container_width=True)
+
+        # Handle therapist form submissions
+        if save_therapist:
+            ui_service.save_system_prompt_from_ui("therapist", updated_therapist_data)
+
+        if preview_therapist:
+            with st.expander("JSON - Terapeuta", expanded=True):
+                st.json(updated_therapist_data)
+
+        if generate_therapist:
+            generated_prompt = ui_service.generate_prompt_for_preview(updated_therapist_data, "system")
+            with st.expander("Prompt - Terapeuta", expanded=True):
+                st.code(generated_prompt, language="text")
+                ui_service.show_prompt_statistics(generated_prompt)
+
+    # SUPERVISOR COLUMN
+    with col_supervisor:
+        st.markdown("### 👥 SUPERVISOR")
+
+        # Load supervisor data
+        supervisor_data = ui_service.load_system_prompt_for_editing("supervisor")
+
+        # Display editor form for supervisor
+        with st.form("supervisor_system_form"):
+            st.markdown("🛠️ **Edytor dla: SUPERVISOR**")
+
+            # Render dynamic sections for supervisor
+            updated_supervisor_data = ui_service.render_dynamic_sections_form(supervisor_data, "system_supervisor")
+
+            # Form buttons for supervisor
+            scol1, scol2, scol3 = st.columns([1, 1, 1])
+
+            with scol1:
+                save_supervisor = st.form_submit_button("💾 Zapisz", use_container_width=True)
+
+            with scol2:
+                preview_supervisor = st.form_submit_button("👀 JSON", use_container_width=True)
+
+            with scol3:
+                generate_supervisor = st.form_submit_button("🚀 Prompt", use_container_width=True)
+
+        # Handle supervisor form submissions
+        if save_supervisor:
+            ui_service.save_system_prompt_from_ui("supervisor", updated_supervisor_data)
+
+        if preview_supervisor:
+            with st.expander("JSON - Supervisor", expanded=True):
+                st.json(updated_supervisor_data)
+
+        if generate_supervisor:
+            generated_prompt = ui_service.generate_prompt_for_preview(updated_supervisor_data, "system")
+            with st.expander("Prompt - Supervisor", expanded=True):
+                st.code(generated_prompt, language="text")
+                ui_service.show_prompt_statistics(generated_prompt)
 
 
-def _show_system_prompt_editor(system_manager: SystemPromptManager, agent_type: str):
-    """Show system prompt editor interface."""
-    st.subheader(f"✏️ Edycja promptu systemowego: {agent_type}")
+def _display_stage_prompts_editor(ui_service: PromptUIService):
+    """Display stage prompts editor in 2 columns - therapist and supervisor side by side."""
+    st.subheader("🎯 Zaawansowany Edytor Promptów Etapowych")
 
-    # Load current data
-    try:
-        prompt_file = Path(f"{Config.PROMPT_DIR}/system/{agent_type}_base.json")
-        if prompt_file.exists():
-            with open(prompt_file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-        else:
-            # Default structure
-            data = {
-                "id": f"{agent_type}_system_base",
-                "role": "",
-                "core_principles": "",
-                "general_guidelines": [],
-                "created_at": "",
-                "version": "1.0"
-            }
-    except Exception as e:
-        st.error(f"Błąd ładowania danych: {e}")
+    # Load stages through service
+    stages = ui_service.get_available_stages_for_ui()
+
+    if not stages:
+        st.error("❌ Nie można załadować listy etapów")
         return
 
-    # Form for editing
-    with st.form(f"system_prompt_form_{agent_type}"):
-        st.write("### Podstawowe informacje")
+    # Create two columns for therapist and supervisor
+    col_therapist, col_supervisor = st.columns(2)
 
-        role = st.text_area(
-            "Rola agenta:",
-            value=data.get("role", ""),
-            height=100,
-            help="Podstawowa definicja roli agenta"
-        )
+    # THERAPIST COLUMN
+    with col_therapist:
+        st.markdown("### 🩺 TERAPEUTA")
 
-        core_principles = st.text_area(
-            "Główne zasady:",
-            value=data.get("core_principles", ""),
-            height=150,
-            help="Kluczowe zasady działania agenta"
-        )
+        # Loop through all stages for therapist
+        for stage in stages:
+            stage_id = stage["id"]
+            stage_name = stage.get("display_name", stage_id)
 
-        # Guidelines as text (convert from list)
-        guidelines_text = "\n".join(data.get("general_guidelines", []))
-        guidelines = st.text_area(
-            "Ogólne wytyczne (jedna na linię):",
-            value=guidelines_text,
-            height=200,
-            help="Każda linia to osobna wytyczna"
-        )
+            # Check availability for status display
+            is_available, status_message = ui_service.check_stage_prompt_availability(stage_id, "therapist")
+            status_emoji = "✅" if is_available else "ℹ️"
 
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.form_submit_button("💾 Zapisz", use_container_width=True):
-                # Update data
-                data.update({
-                    "role": role,
-                    "core_principles": core_principles,
-                    "general_guidelines": [line.strip() for line in guidelines.split('\n') if line.strip()],
-                    "version": "1.0"
-                })
+            # Each stage in its own expander
+            with st.expander(f"{status_emoji} **Etap {stage.get('order', '?')}: {stage.get('name', stage_id)}**", expanded=False):
+                # Show status
+                if is_available:
+                    st.success(f"✅ {status_message}")
+                else:
+                    st.info(f"ℹ️ {status_message}")
 
-                # Save to file
-                try:
-                    prompt_file.parent.mkdir(parents=True, exist_ok=True)
-                    with open(prompt_file, 'w', encoding='utf-8') as f:
-                        json.dump(data, f, ensure_ascii=False, indent=2)
+                # Load data through service
+                prompt_data = ui_service.load_stage_prompt_for_editing(stage_id, "therapist")
 
-                    st.success("✅ Prompt systemowy zapisany!")
-                    st.session_state[f"editing_system_{agent_type}"] = False
-                    st.rerun()
+                # Display editor form for this stage
+                with st.form(f"therapist_stage_{stage_id}_form"):
+                    st.markdown(f"🛠️ **Edytor - Etap {stage_id} (THERAPIST)**")
 
-                except Exception as e:
-                    st.error(f"❌ Błąd zapisu: {e}")
+                    # Render dynamic sections
+                    updated_data = ui_service.render_dynamic_sections_form(prompt_data, f"stage_therapist_{stage_id}")
 
-        with col2:
-            if st.form_submit_button("❌ Anuluj", use_container_width=True):
-                st.session_state[f"editing_system_{agent_type}"] = False
-                st.rerun()
+                    # Form buttons
+                    tcol1, tcol2, tcol3 = st.columns([1, 1, 1])
 
+                    with tcol1:
+                        save_therapist = st.form_submit_button("💾 Zapisz", use_container_width=True)
 
-def _display_stage_prompts_editor(stage_manager: StagePromptManager):
-    """Display stage prompts editor."""
-    st.subheader("🎯 Prompty Etapowe")
-    st.info("Prompty etapowe definiują cele, zasady i przykłady dla konkretnych etapów terapii.")
+                    with tcol2:
+                        preview_therapist = st.form_submit_button("👀 JSON", use_container_width=True)
 
-    # Load stages
-    stages = load_stages()
+                    with tcol3:
+                        generate_therapist = st.form_submit_button("🚀 Prompt", use_container_width=True)
 
-    # Stage and agent selection
-    col1, col2 = st.columns(2)
-    with col1:
-        selected_stage = st.selectbox(
-            "Wybierz etap:",
-            [stage["id"] for stage in stages],
-            format_func=lambda x: next((f"{s['order']}. {s['name']}" for s in stages if s["id"] == x), x)
-        )
+                # Handle form submissions
+                if save_therapist:
+                    ui_service.save_stage_prompt_from_ui(stage_id, "therapist", updated_data)
 
-    with col2:
-        agent_type = st.selectbox(
-            "Wybierz typ agenta:",
-            ["therapist", "supervisor"],
-            format_func=lambda x: "🩺 Terapeuta" if x == "therapist" else "👥 Supervisor",
-            key="stage_agent_type"
-        )
+                if preview_therapist:
+                    with st.expander(f"JSON - Terapeuta Etap {stage_id}", expanded=True):
+                        st.json(updated_data)
 
-    # Check if prompt exists
-    is_available = stage_manager.is_available(selected_stage, agent_type)
+                if generate_therapist:
+                    generated_prompt = ui_service.generate_prompt_for_preview(updated_data, "stage")
+                    with st.expander(f"Prompt - Terapeuta Etap {stage_id}", expanded=True):
+                        st.code(generated_prompt, language="text")
+                        ui_service.show_prompt_statistics(generated_prompt)
 
-    if is_available:
-        current_prompt = stage_manager.get_prompt(selected_stage, agent_type)
-        st.success(f"✅ Prompt etapowy załadowany")
+    # SUPERVISOR COLUMN
+    with col_supervisor:
+        st.markdown("### 👥 SUPERVISOR")
 
-        # Display current content
-        with st.expander("📖 Aktualny prompt etapowy", expanded=False):
-            st.text(current_prompt)
+        # Loop through all stages for supervisor
+        for stage in stages:
+            stage_id = stage["id"]
+            stage_name = stage.get("display_name", stage_id)
 
-        # Edit button
-        if st.button(f"✏️ Edytuj prompt etapowy", use_container_width=True):
-            st.session_state[f"editing_stage_{selected_stage}_{agent_type}"] = True
-    else:
-        st.warning(f"⚠️ Brak promptu etapowego dla {selected_stage} ({agent_type})")
-        if st.button(f"➕ Utwórz prompt etapowy", use_container_width=True):
-            st.session_state[f"editing_stage_{selected_stage}_{agent_type}"] = True
+            # Check availability for status display
+            is_available, status_message = ui_service.check_stage_prompt_availability(stage_id, "supervisor")
+            status_emoji = "✅" if is_available else "ℹ️"
 
-    # Editor interface
-    if st.session_state.get(f"editing_stage_{selected_stage}_{agent_type}", False):
-        _show_stage_prompt_editor(stage_manager, selected_stage, agent_type, stages)
+            # Each stage in its own expander
+            with st.expander(f"{status_emoji} **Etap {stage.get('order', '?')}: {stage.get('name', stage_id)}**", expanded=False):
+                # Show status
+                if is_available:
+                    st.success(f"✅ {status_message}")
+                else:
+                    st.info(f"ℹ️ {status_message}")
 
+                # Load data through service
+                prompt_data = ui_service.load_stage_prompt_for_editing(stage_id, "supervisor")
 
-def _show_stage_prompt_editor(stage_manager: StagePromptManager, stage_id: str, agent_type: str, stages: list):
-    """Show stage prompt editor interface."""
-    stage_info = next((s for s in stages if s["id"] == stage_id), {"name": stage_id})
-    st.subheader(f"✏️ Edycja promptu: {stage_info['name']} ({agent_type})")
+                # Display editor form for this stage
+                with st.form(f"supervisor_stage_{stage_id}_form"):
+                    st.markdown(f"🛠️ **Edytor - Etap {stage_id} (SUPERVISOR)**")
 
-    # Load current data
-    try:
-        prompt_file = Path(f"{Config.PROMPT_DIR}/stages/{agent_type}/{stage_id}.json")
-        if prompt_file.exists():
-            with open(prompt_file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-        else:
-            # Default structure based on agent type
-            if agent_type == "therapist":
-                data = {
-                    "id": f"{agent_type}_{stage_id}_stage",
-                    "stage_goals": [],
-                    "stage_specific_guidelines": [],
-                    "suggested_questions": [],
-                    "good_examples": [],
-                    "avoid_examples": [],
-                    "created_at": "",
-                    "version": "1.0"
-                }
-            else:  # supervisor
-                data = {
-                    "id": f"{agent_type}_{stage_id}_stage",
-                    "stage_name": stage_info.get('name', ''),
-                    "stage_description": stage_info.get('description', ''),
-                    "criteria": {},
-                    "evaluation_rules": [],
-                    "created_at": "",
-                    "version": "1.0"
-                }
-    except Exception as e:
-        st.error(f"Błąd ładowania danych: {e}")
-        return
+                    # Render dynamic sections
+                    updated_data = ui_service.render_dynamic_sections_form(prompt_data, f"stage_supervisor_{stage_id}")
 
-    # Form for editing
-    with st.form(f"stage_prompt_form_{stage_id}_{agent_type}"):
-        if agent_type == "therapist":
-            _show_therapist_stage_form(data)
-        else:
-            _show_supervisor_stage_form(data)
+                    # Form buttons
+                    scol1, scol2, scol3 = st.columns([1, 1, 1])
 
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.form_submit_button("💾 Zapisz", use_container_width=True):
-                # Save to file
-                try:
-                    prompt_file.parent.mkdir(parents=True, exist_ok=True)
-                    with open(prompt_file, 'w', encoding='utf-8') as f:
-                        json.dump(data, f, ensure_ascii=False, indent=2)
+                    with scol1:
+                        save_supervisor = st.form_submit_button("💾 Zapisz", use_container_width=True)
 
-                    st.success("✅ Prompt etapowy zapisany!")
-                    st.session_state[f"editing_stage_{stage_id}_{agent_type}"] = False
-                    st.rerun()
+                    with scol2:
+                        preview_supervisor = st.form_submit_button("👀 JSON", use_container_width=True)
 
-                except Exception as e:
-                    st.error(f"❌ Błąd zapisu: {e}")
+                    with scol3:
+                        generate_supervisor = st.form_submit_button("🚀 Prompt", use_container_width=True)
 
-        with col2:
-            if st.form_submit_button("❌ Anuluj", use_container_width=True):
-                st.session_state[f"editing_stage_{stage_id}_{agent_type}"] = False
-                st.rerun()
+                # Handle form submissions
+                if save_supervisor:
+                    ui_service.save_stage_prompt_from_ui(stage_id, "supervisor", updated_data)
+
+                if preview_supervisor:
+                    with st.expander(f"JSON - Supervisor Etap {stage_id}", expanded=True):
+                        st.json(updated_data)
+
+                if generate_supervisor:
+                    generated_prompt = ui_service.generate_prompt_for_preview(updated_data, "stage")
+                    with st.expander(f"Prompt - Supervisor Etap {stage_id}", expanded=True):
+                        st.code(generated_prompt, language="text")
+                        ui_service.show_prompt_statistics(generated_prompt)
 
 
-def _show_therapist_stage_form(data: dict):
-    """Show form for editing therapist stage prompt."""
-    st.write("### Cele etapu")
-    goals_text = "\n".join(data.get("stage_goals", []))
-    goals = st.text_area(
-        "Cele etapu (jeden na linię):",
-        value=goals_text,
-        height=100,
-        help="Główne cele do osiągnięcia w tym etapie"
-    )
-    data["stage_goals"] = [line.strip() for line in goals.split('\n') if line.strip()]
-
-    st.write("### Wytyczne")
-    guidelines_text = "\n".join(data.get("stage_specific_guidelines", []))
-    guidelines = st.text_area(
-        "Wytyczne specyficzne dla etapu (jedna na linię):",
-        value=guidelines_text,
-        height=120,
-        help="Zasady specifyczne dla tego etapu"
-    )
-    data["stage_specific_guidelines"] = [line.strip() for line in guidelines.split('\n') if line.strip()]
-
-    st.write("### Przykładowe pytania")
-    questions_text = "\n".join(data.get("suggested_questions", []))
-    questions = st.text_area(
-        "Sugerowane pytania (jedno na linię):",
-        value=questions_text,
-        height=100,
-        help="Pytania które terapeuta może zadać"
-    )
-    data["suggested_questions"] = [line.strip() for line in questions.split('\n') if line.strip()]
-
-    st.write("### Przykłady")
-    col1, col2 = st.columns(2)
-    with col1:
-        good_text = "\n".join(data.get("good_examples", []))
-        good = st.text_area(
-            "Dobre przykłady (jeden na linię):",
-            value=good_text,
-            height=100,
-            help="Przykłady dobrych odpowiedzi"
-        )
-        data["good_examples"] = [line.strip() for line in good.split('\n') if line.strip()]
-
-    with col2:
-        avoid_text = "\n".join(data.get("avoid_examples", []))
-        avoid = st.text_area(
-            "Czego unikać (jeden na linię):",
-            value=avoid_text,
-            height=100,
-            help="Przykłady złych podejść"
-        )
-        data["avoid_examples"] = [line.strip() for line in avoid.split('\n') if line.strip()]
-
-
-def _show_supervisor_stage_form(data: dict):
-    """Show form for editing supervisor stage prompt."""
-    st.write("### Informacje o etapie")
-    data["stage_name"] = st.text_input(
-        "Nazwa etapu:",
-        value=data.get("stage_name", ""),
-        help="Czytelna nazwa etapu"
-    )
-
-    data["stage_description"] = st.text_area(
-        "Opis etapu:",
-        value=data.get("stage_description", ""),
-        height=80,
-        help="Krótki opis celu etapu"
-    )
-
-    st.write("### Zasady oceny")
-    rules_text = "\n".join(data.get("evaluation_rules", []))
-    rules = st.text_area(
-        "Zasady oceny (jedna na linię):",
-        value=rules_text,
-        height=100,
-        help="Ogólne zasady oceniania postępu w etapie"
-    )
-    data["evaluation_rules"] = [line.strip() for line in rules.split('\n') if line.strip()]
-
-    st.write("### Kryteria (uproszczone)")
-    st.info("💡 Dla pełnej edycji kryteriów użyj edytora JSON lub edytuj plik bezpośrednio")
-
-    criteria_json = st.text_area(
-        "Kryteria (JSON):",
-        value=json.dumps(data.get("criteria", {}), ensure_ascii=False, indent=2),
-        height=200,
-        help="Kryteria w formacie JSON"
-    )
-
-    try:
-        data["criteria"] = json.loads(criteria_json)
-    except json.JSONDecodeError:
-        st.error("❌ Nieprawidłowy format JSON w kryteriach")
-
-
-def _display_prompt_preview(unified_manager: UnifiedPromptManager):
-    """Display prompt preview interface."""
+def _display_prompt_preview(ui_service: PromptUIService):
+    """Display prompt preview using UI service facade."""
     st.subheader("🔍 Podgląd Pełnych Promptów")
     st.info("Zobacz jak wyglądają połączone prompty systemowe + etapowe")
 
-    # Load stages
-    stages = load_stages()
+    # Load stages through service
+    stages = ui_service.get_available_stages_for_ui()
+
+    if not stages:
+        st.error("❌ Nie można załadować listy etapów")
+        return
 
     # Stage and agent selection
     col1, col2 = st.columns(2)
@@ -378,7 +263,7 @@ def _display_prompt_preview(unified_manager: UnifiedPromptManager):
         selected_stage = st.selectbox(
             "Wybierz etap:",
             [stage["id"] for stage in stages],
-            format_func=lambda x: next((f"{s['order']}. {s['name']}" for s in stages if s["id"] == x), x),
+            format_func=lambda x: next((stage["display_name"] for stage in stages if stage["id"] == x), x),
             key="preview_stage"
         )
 
@@ -390,17 +275,23 @@ def _display_prompt_preview(unified_manager: UnifiedPromptManager):
             key="preview_agent_type"
         )
 
-    # Get and display full prompt
+    # Generate preview
     if st.button("🔍 Pokaż pełny prompt", use_container_width=True):
-        full_prompt = unified_manager.get_full_prompt(selected_stage, agent_type)
+        try:
+            # Load both system and stage prompts
+            system_data = ui_service.load_system_prompt_for_editing(agent_type)
+            stage_data = ui_service.load_stage_prompt_for_editing(selected_stage, agent_type)
 
-        if full_prompt:
+            # Generate individual prompts
+            system_prompt = ui_service.generate_prompt_for_preview(system_data, "system")
+            stage_prompt = ui_service.generate_prompt_for_preview(stage_data, "stage")
+
+            # Combine prompts
+            full_prompt = f"{system_prompt}\n\n{'-' * 50}\n\n{stage_prompt}"
+
             st.success("✅ Prompt pomyślnie wygenerowany")
 
             # Display components separately
-            system_prompt = unified_manager.get_system_prompt(agent_type)
-            stage_prompt = unified_manager.get_stage_prompt(selected_stage, agent_type)
-
             col1, col2 = st.columns(2)
             with col1:
                 with st.expander("🏠 Prompt systemowy", expanded=False):
@@ -415,6 +306,7 @@ def _display_prompt_preview(unified_manager: UnifiedPromptManager):
                 st.text(full_prompt)
 
             # Show statistics
-            st.info(f"📊 **Statystyki:** {len(full_prompt)} znaków, {len(full_prompt.split())} słów")
-        else:
-            st.error("❌ Nie można wygenerować promptu - sprawdź czy istnieją komponenty systemowe i etapowe")
+            ui_service.show_prompt_statistics(full_prompt)
+
+        except Exception as e:
+            st.error(f"❌ Błąd generowania podglądu: {e}")

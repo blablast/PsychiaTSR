@@ -2,10 +2,10 @@
 Refactored workflow manager using new SOLID architecture.
 """
 
-from ..agents.interfaces.agent_provider_interface import IAgentProvider
-from ..prompts.unified_prompt_manager import UnifiedPromptManager
-from ..conversation.conversation_manager import ConversationManager
 from .workflow_result import WorkflowResult
+from ..conversation import IConversationManager
+from ..prompts.unified_prompt_manager import UnifiedPromptManager
+from ..session.interfaces.session_provider_interface import ISessionAgentProvider
 
 
 class TherapyWorkflowManager:
@@ -16,14 +16,13 @@ class TherapyWorkflowManager:
     """
 
     def __init__(self,
-                 agent_provider: IAgentProvider,
+                 agent_provider: ISessionAgentProvider,
                  prompt_manager: UnifiedPromptManager,
-                 conversation_manager: ConversationManager,
+                 conversation_manager: IConversationManager,
                  logger):
         self._conversation_manager = conversation_manager
 
         # New architecture components
-        from .workflow_factory import WorkflowFactory
         self._session_manager = None
         self._orchestrator = None
         self._factory_args = {
@@ -61,7 +60,7 @@ class TherapyWorkflowManager:
                 error="ORCHESTRATOR_NOT_INITIALIZED"
             )
 
-        return self._orchestrator.process_legacy_message(
+        return self._orchestrator.process_user_message(
             user_message=user_message,
             current_stage=self._session_manager.get_current_stage(),
             conversation_history=self._session_manager.get_conversation_history(exclude_stage_transitions=True),

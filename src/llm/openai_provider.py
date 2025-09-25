@@ -2,12 +2,7 @@ import os
 import json
 from typing import Optional, List, Dict, Any, AsyncGenerator
 from .base import LLMProvider
-
-try:
-    import openai
-    OPENAI_AVAILABLE = True
-except ImportError:
-    OPENAI_AVAILABLE = False
+import openai
 
 
 class OpenAIProvider(LLMProvider):
@@ -16,14 +11,10 @@ class OpenAIProvider(LLMProvider):
     def __init__(self, model_name: str = "gpt-3.5-turbo", **kwargs):
         super().__init__(model_name, **kwargs)
 
-        if not OPENAI_AVAILABLE:
-            raise ImportError("OpenAI package not installed. Install with: pip install openai")
-
         self.api_key = kwargs.get("api_key") or os.getenv("OPENAI_API_KEY")
         if not self.api_key:
             raise ValueError("OpenAI API key not provided")
 
-        # Keep sync client for backward compatibility
         self.client = openai.OpenAI(api_key=self.api_key)
 
         # Provider-specific configuration
@@ -200,4 +191,4 @@ class OpenAIProvider(LLMProvider):
 
     def is_available(self) -> bool:
         """Check if OpenAI API is available"""
-        return bool(self.api_key and OPENAI_AVAILABLE)
+        return bool(self.api_key)

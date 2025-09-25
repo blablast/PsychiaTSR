@@ -23,8 +23,8 @@ Quick Start:
 
 Key Components:
     - LoggerFactory: Creates pre-configured loggers
-    - ILogger: Universal logging interface
-    - Formatters: JsonFormatter, TextFormatter, StreamlitFormatter
+    - ILogger: Universal logging interfaces
+    - Formatters: JsonFormatter, TextFormatter
     - Storages: FileStorage, ConsoleStorage, MemoryStorage, CompositeStorage
 
 Architecture:
@@ -44,10 +44,10 @@ from .interfaces.storage_interface import IStorage
 from .log_entry import LogEntry
 
 # Formatters
-from .formatters import JsonFormatter, TextFormatter, StreamlitFormatter
+from .formatters import JsonFormatter, TextFormatter
 
 # Storages
-from .storages import FileStorage, ConsoleStorage, StreamlitStorage, MemoryStorage, CompositeStorage
+from .storages import FileStorage, ConsoleStorage, MemoryStorage, CompositeStorage
 
 __all__ = [
     # Main API
@@ -61,12 +61,10 @@ __all__ = [
     # Formatters
     'JsonFormatter',
     'TextFormatter',
-    'StreamlitFormatter',
 
     # Storages
     'FileStorage',
     'ConsoleStorage',
-    'StreamlitStorage',
     'MemoryStorage',
     'CompositeStorage',
 

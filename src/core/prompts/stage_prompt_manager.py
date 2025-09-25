@@ -24,6 +24,7 @@ class StagePromptManager:
             stages_prompts_dir: Path to directory containing stage prompt files
         """
         self._stages_dir = Path(stages_prompts_dir)
+        self._prompt_management_service = None
 
     def get_prompt(self, stage_id: str, agent_type: str) -> Optional[str]:
         """
@@ -37,20 +38,20 @@ class StagePromptManager:
             Formatted stage prompt string or None if not found
         """
         try:
-            prompt_file = self._stages_dir / agent_type / f"{stage_id}.json"
+            # Lazy import to avoid circular dependency
+            if self._prompt_management_service is None:
+                from ..services.prompt_management_service import PromptManagementService
+                config_dir = self._stages_dir.parent.parent
+                self._prompt_management_service = PromptManagementService(str(config_dir))
 
-            if not prompt_file.exists():
+            # Use new PromptManagementService to get stage prompt
+            prompt_data = self._prompt_management_service.get_active_stage_prompt(stage_id, agent_type)
+
+            if not prompt_data:
                 return None
 
-            with open(prompt_file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-
-            if agent_type == "therapist":
-                return self._format_therapist_stage_prompt(data)
-            elif agent_type == "supervisor":
-                return self._format_supervisor_stage_prompt(data)
-            else:
-                return None
+            # Generate prompt text from new structured format
+            return self._prompt_management_service.generate_prompt_text(prompt_data, "stage")
 
         except Exception:
             return None
@@ -70,7 +71,7 @@ class StagePromptManager:
         if "prompt" in data:
             return data["prompt"]
 
-        # Legacy format: build from components
+        # Component-based format: build from components
         sections = []
 
         # Stage goals
@@ -125,7 +126,7 @@ class StagePromptManager:
         if "prompt" in data:
             return data["prompt"]
 
-        # Legacy format: build from components
+        # Component-based format: build from components
         sections = []
 
         # Stage info

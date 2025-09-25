@@ -6,8 +6,8 @@ from .interfaces.logger_interface import ILogger
 from .interfaces.formatter_interface import IFormatter
 from .interfaces.storage_interface import IStorage
 from .base_logger import BaseLogger
-from .formatters import JsonFormatter, TextFormatter, StreamlitFormatter
-from .storages import FileStorage, ConsoleStorage, StreamlitStorage, MemoryStorage, CompositeStorage, SessionStorage
+from .formatters import JsonFormatter, TextFormatter
+from .storages import FileStorage, ConsoleStorage, MemoryStorage, CompositeStorage, SessionStorage
 
 
 class LoggerFactory:
@@ -140,6 +140,10 @@ class LoggerFactory:
         Returns:
             Streamlit logger instance
         """
+        # Import UI components
+        from ...ui.logging.streamlit_formatter import StreamlitFormatter
+        from ...ui.logging.streamlit_storage import StreamlitStorage
+
         # Create formatter
         formatter = StreamlitFormatter(compact=compact)
 
@@ -160,7 +164,7 @@ class LoggerFactory:
             Memory logger instance
         """
         # Use JSON formatter for structured data
-        formatter = JsonFormatter(indent=None)  # Compact JSON
+        formatter = JsonFormatter(indent=0)  # Compact JSON
 
         # Create storage
         storage = MemoryStorage(max_entries=max_entries)
@@ -212,6 +216,7 @@ class LoggerFactory:
 
         # Add Streamlit storage if requested
         if use_streamlit:
+            from ...ui.logging.streamlit_storage import StreamlitStorage
             streamlit_storage = StreamlitStorage(max_entries=max_entries)
             composite_storage.add_storage("streamlit", streamlit_storage)
 

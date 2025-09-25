@@ -19,7 +19,7 @@ class StreamlitSessionState(ISessionState):
         current_stage = st.session_state.get('current_stage')
         if not current_stage:
             # Get first stage dynamically
-            from ..stages.stage_manager import StageManager
+            from .stages.stage_manager import StageManager
             from config import Config
             stage_manager = StageManager(Config.STAGES_DIR)
             first_stage = stage_manager.get_first_stage()

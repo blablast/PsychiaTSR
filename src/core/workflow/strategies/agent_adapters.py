@@ -1,12 +1,12 @@
 """Adapters for using agents directly in strategies."""
 
 from typing import List
-from ..workflow_result import WorkflowResult
-from ....utils.schemas import MessageData
+from src.core.workflow.workflow_result import WorkflowResult
+from src.core.models.schemas import MessageData
 
 
 class SupervisorAdapter:
-    """Adapter for supervisor agent to match old interface."""
+    """Adapter for supervisor agent to match old interfaces."""
 
     def __init__(self, agent_provider, prompt_manager, logger):
         self._agent_provider = agent_provider
@@ -56,7 +56,7 @@ class SupervisorAdapter:
 
 
 class TherapistAdapter:
-    """Adapter for therapist agent to match old interface."""
+    """Adapter for therapist agent to match old interfaces."""
 
     def __init__(self, agent_provider, prompt_manager, logger):
         self._agent_provider = agent_provider
@@ -158,9 +158,9 @@ class TherapistAdapter:
                     metadata = chunk
                     break
 
-            # Return final result with collected response
+            # Yield final result with collected response
             if full_response:
-                return WorkflowResult(
+                yield WorkflowResult(
                     success=True,
                     message="Streaming response generated successfully",
                     data={
@@ -171,7 +171,7 @@ class TherapistAdapter:
                 )
             else:
                 error_msg = metadata.get("error", "No response generated") if metadata else "Streaming failed"
-                return WorkflowResult(
+                yield WorkflowResult(
                     success=False,
                     message="Therapist streaming response generation failed",
                     error=error_msg

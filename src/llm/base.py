@@ -1,12 +1,6 @@
-import os
 from abc import ABC, abstractmethod
 from typing import Optional, AsyncGenerator, Dict, List, Any
-
-try:
-    import aiohttp
-    AIOHTTP_AVAILABLE = True
-except ImportError:
-    AIOHTTP_AVAILABLE = False
+import aiohttp
 
 
 class LLMProvider(ABC):
@@ -27,9 +21,6 @@ class LLMProvider(ABC):
 
     async def _get_session(self, headers: Optional[Dict[str, str]] = None) -> 'aiohttp.ClientSession':
         """Get or create aiohttp session."""
-        if not AIOHTTP_AVAILABLE:
-            raise ImportError("aiohttp package not installed. Install with: pip install aiohttp")
-
         if self._session is None or self._session.closed:
             timeout = aiohttp.ClientTimeout(total=60)
             session_headers = headers or {}

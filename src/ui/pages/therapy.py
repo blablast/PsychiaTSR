@@ -1,16 +1,36 @@
 """Main therapy page for Psychia TSR"""
 
 import streamlit as st
+
 from config import Config
 from src.core.session import load_stages
 from src.ui.chat import display_chat_interface
 from src.ui.technical_log_display import display_technical_log, copy_technical_logs
 
 
-def therapy_page():
-    """Main therapy page with chat interface"""
-    st.title(Config.APP_TITLE)
-    
+def therapy_page() -> None:
+    """Main therapy page with chat interface and session management."""
+    # Session controls at the top
+    col1, col2, col3 = st.columns([2, 1, 1])
+
+    with col1:
+        st.title(Config.APP_TITLE)
+
+    with col2:
+        if st.button("🆕 Nowa sesja", use_container_width=True, help="Rozpocznij nową sesję terapeutyczną"):
+            from src.core.session import create_new_session
+            create_new_session()
+            st.success("🎉 Utworzono nową sesję!")
+            st.rerun()
+
+    # Reset button removed - sessions now persist properly
+
+    # Session info
+    if st.session_state.get("session_id"):
+        st.info(f"🔗 **Sesja aktywna:** {st.session_state.session_id}")
+    else:
+        st.warning("⚠️ **Brak aktywnej sesji** - kliknij 'Nowa sesja' aby rozpocząć")
+
     # Agents will be initialized lazily when first message is sent
     
     # Load stages
@@ -40,7 +60,7 @@ def therapy_page():
     with chat_col:
         st.subheader("💬 Sesja terapii")
 
-        # Display chat interface (full page height)
+        # Display chat interfaces (full page height)
         display_chat_interface()
 
         # Stage control below chat
@@ -78,3 +98,6 @@ def therapy_page():
             }, 100);
             </script>
             """, unsafe_allow_html=True)
+
+
+# _reset_session function removed - sessions now persist properly without reset option

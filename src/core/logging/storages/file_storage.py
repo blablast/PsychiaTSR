@@ -1,7 +1,6 @@
 """File-based storage implementation."""
 
 import json
-import os
 from pathlib import Path
 from typing import List, Optional
 
@@ -47,7 +46,7 @@ class FileStorage(IStorage):
         try:
             with open(self._file_path, 'w', encoding='utf-8') as f:
                 json.dump(entries, f, ensure_ascii=False, indent=2)
-        except Exception as e:
+        except Exception:
             # Fallback: try to append as JSONL
             self._append_entry_jsonl(entries[-1] if entries else {})
 

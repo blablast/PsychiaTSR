@@ -32,14 +32,14 @@ class ConversationWorkflowStrategy(WorkflowStrategy):
         try:
             # Check if already processing and abort if needed
             if self._conversation_manager.is_processing():
-                self._logger.log_warning("ConversationManager stuck in processing state, aborting...")
+                # Remove excessive warning logging - this is expected behavior
                 self._conversation_manager.abort_processing()
 
             # Start processing - freeze current question
             committed_context, current_question = self._conversation_manager.start_processing()
 
-            # Step 1: Supervisor evaluation
-            self._logger.log_info("🔍 Rozpoczynam konsultację z supervisorem...")
+            # Step 1: Supervisor evaluation (simplified logging)
+            # Removed: "🔍 Rozpoczynam konsultację z supervisorem..." - too verbose
 
             supervisor_result = self._supervisor_evaluator.evaluate_stage(
                 context.current_stage, current_question, committed_context
@@ -51,13 +51,10 @@ class ConversationWorkflowStrategy(WorkflowStrategy):
 
             supervisor_decision = supervisor_result.data["decision"]
 
-            # Log supervisor decision
-            self._logger.log_info(
-                f"🔍 Supervisor decision: [{supervisor_decision.decision}] {supervisor_decision.reason}"
-            )
+            # Simplified supervisor decision logging (decision already logged by supervisor)
+            # Removed verbose info logging
 
-            # Step 2: Generate therapist response
-            self._logger.log_info("💬 Generuję odpowiedź terapeuty...")
+            # Step 2: Generate therapist response (removed verbose logging)
 
             therapist_result = self._therapist_responder.generate_response(
                 context.current_stage, current_question, committed_context
@@ -103,14 +100,14 @@ class ConversationWorkflowStrategy(WorkflowStrategy):
         try:
             # Check if already processing and abort if needed
             if self._conversation_manager.is_processing():
-                self._logger.log_warning("ConversationManager stuck in processing state, aborting...")
+                # Remove excessive warning logging - this is expected behavior
                 self._conversation_manager.abort_processing()
 
             # Start processing - freeze current question
             committed_context, current_question = self._conversation_manager.start_processing()
 
-            # Step 1: Supervisor evaluation (non-streaming)
-            self._logger.log_info("🔍 Rozpoczynam konsultację z supervisorem...")
+            # Step 1: Supervisor evaluation (non-streaming, simplified logging)
+            # Removed verbose logging
 
             supervisor_result = self._supervisor_evaluator.evaluate_stage(
                 context.current_stage, current_question, committed_context
@@ -123,13 +120,10 @@ class ConversationWorkflowStrategy(WorkflowStrategy):
 
             supervisor_decision = supervisor_result.data["decision"]
 
-            # Log supervisor decision
-            self._logger.log_info(
-                f"🔍 Supervisor decision: [{supervisor_decision.decision}] {supervisor_decision.reason}"
-            )
+            # Simplified supervisor decision logging (decision already logged by supervisor)
+            # Removed verbose info logging
 
-            # Step 2: Generate streaming therapist response
-            self._logger.log_info("💬 Generuję odpowiedź terapeuty...")
+            # Step 2: Generate streaming therapist response (removed verbose logging)
 
             full_response = ""
             therapist_result = None

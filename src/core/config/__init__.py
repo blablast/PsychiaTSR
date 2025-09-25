@@ -1,4 +1,4 @@
-"""Configuration management package."""
+"""Configuration management package - Clean architecture facade."""
 
 from .config_manager import ConfigManager
 

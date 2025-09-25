@@ -2,7 +2,6 @@
 
 import os
 import json
-import asyncio
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 from pathlib import Path
@@ -20,14 +19,14 @@ try:
 except ImportError:
     AIOHTTP_AVAILABLE = False
 
-from .openai_provider import OpenAIProvider, OPENAI_AVAILABLE
-from .gemini_provider import GeminiProvider, GEMINI_AVAILABLE
+from .openai_provider import OpenAIProvider
+from .gemini_provider import GeminiProvider
 
 
 class ModelDiscovery:
     """Dynamic model discovery with intelligent JSON caching."""
 
-    CACHE_FILE = Path("config/json/models_cache.json")
+    CACHE_FILE = Path("config/models_cache.json")
     DEFAULT_CACHE_DURATION_DAYS = 7
 
 
@@ -56,7 +55,19 @@ class ModelDiscovery:
 
     @classmethod
     def _get_empty_cache(cls) -> Dict[str, Any]:
-        """Get empty cache structure."""
+        """Get empty cache structure from template file."""
+        try:
+            template_path = Path("config/templates/defaults/models_cache_default.json")
+            if template_path.exists():
+                with open(template_path, 'r', encoding='utf-8') as f:
+                    cache_template = json.load(f)
+                    # Override cache duration from class constant
+                    cache_template["cache_duration_days"] = cls.DEFAULT_CACHE_DURATION_DAYS
+                    return cache_template
+        except Exception:
+            pass
+
+        # Fallback to hardcoded structure
         return {
             "cache_version": "1.0",
             "last_updated": None,
@@ -96,9 +107,6 @@ class ModelDiscovery:
     @classmethod
     async def _fetch_openai_models(cls) -> List[Dict[str, Any]]:
         """Fetch available models from OpenAI API."""
-        if not AIOHTTP_AVAILABLE or not OPENAI_AVAILABLE or not cls._has_api_key("openai"):
-            return []
-
         try:
             headers = {
                 "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
@@ -153,9 +161,6 @@ class ModelDiscovery:
     @classmethod
     async def _fetch_gemini_models(cls) -> List[Dict[str, Any]]:
         """Fetch available models from Gemini API."""
-        if not AIOHTTP_AVAILABLE or not GEMINI_AVAILABLE or not cls._has_api_key("gemini"):
-            return []
-
         try:
             api_key = os.getenv('GOOGLE_API_KEY')
             url = "https://generativelanguage.googleapis.com/v1beta/models"
@@ -303,17 +308,15 @@ class ModelDiscovery:
 
         return cls.get_models_from_cache()
 
-    # Legacy methods for backward compatibility
-
     @staticmethod
     def get_openai_models() -> List[Dict[str, Any]]:
-        """Get available OpenAI models (legacy method)."""
+        """Get available OpenAI models."""
         cache_models = ModelDiscovery.get_models_from_cache()
         return cache_models.get("openai", [])
 
     @staticmethod
     def get_gemini_models() -> List[Dict[str, Any]]:
-        """Get available Gemini models (legacy method)."""
+        """Get available Gemini models."""
         cache_models = ModelDiscovery.get_models_from_cache()
         return cache_models.get("gemini", [])
 
@@ -357,11 +360,11 @@ class ModelDiscovery:
             return False
 
     @classmethod
-    def get_recommended_models(cls) -> Dict[str, str]:
+    def get_recommended_models(cls) -> Dict[str, Optional[str]]:
         """Get recommended models for different roles."""
         available_models = cls.get_models_from_cache()
 
-        recommendations = {
+        recommendations: Dict[str, Optional[str]] = {
             'therapist': None,
             'supervisor': None
         }

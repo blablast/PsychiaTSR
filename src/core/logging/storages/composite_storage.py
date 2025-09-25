@@ -22,7 +22,7 @@ class CompositeStorage(IStorage):
             storage: Storage backend to add
 
         Returns:
-            Self for fluent interface
+            Self for fluent interfaces
         """
         self._storages[name] = storage
         return self
@@ -60,7 +60,8 @@ class CompositeStorage(IStorage):
         """
         return list(self._storages.keys())
 
-    def _handle_storage_error(self, storage_name: str, storage: IStorage, error: Exception) -> None:
+    @staticmethod
+    def _handle_storage_error(storage_name: str, storage: IStorage, error: Exception) -> None:
         """Handle individual storage failures."""
         # Log error but don't raise - one storage failure shouldn't break others
         print(f"Storage '{storage_name}' ({type(storage).__name__}) failed: {error}")

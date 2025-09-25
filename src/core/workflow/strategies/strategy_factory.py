@@ -1,7 +1,6 @@
 """Factory for creating workflow strategies."""
 
 from .workflow_strategy import WorkflowStrategy
-from .legacy_workflow_strategy import LegacyWorkflowStrategy
 from .conversation_workflow_strategy import ConversationWorkflowStrategy
 from .workflow_request import WorkflowType
 from .agent_adapters import SupervisorAdapter, TherapistAdapter
@@ -15,7 +14,7 @@ class WorkflowStrategyFactory:
         Initialize strategy factory with dependencies.
 
         Args:
-            agent_provider: Agent provider interface
+            agent_provider: Agent provider interfaces
             prompt_manager: Prompt management service
             session_manager: Session state manager
             conversation_manager: Conversation state manager
@@ -44,14 +43,7 @@ class WorkflowStrategyFactory:
         Raises:
             ValueError: If workflow_type is not supported
         """
-        if workflow_type == WorkflowType.LEGACY:
-            return LegacyWorkflowStrategy(
-                supervisor_evaluator=self._supervisor_adapter,
-                therapist_responder=self._therapist_adapter,
-                session_manager=self._session_manager,
-                logger=self._logger
-            )
-        elif workflow_type == WorkflowType.CONVERSATION:
+        if workflow_type == WorkflowType.CONVERSATION:
             return ConversationWorkflowStrategy(
                 supervisor_evaluator=self._supervisor_adapter,
                 therapist_responder=self._therapist_adapter,

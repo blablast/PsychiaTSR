@@ -1,6 +1,5 @@
 """Dedicated stage progression handling logic."""
 
-from typing import Dict, Any
 from dataclasses import dataclass
 
 
@@ -28,7 +27,8 @@ class StageProgressionHandler:
         self._session_manager = session_manager
         self._logger = logger
 
-    def should_advance_stage(self, supervisor_decision) -> bool:
+    @staticmethod
+    def should_advance_stage(supervisor_decision) -> bool:
         """
         Determine if stage should advance based on supervisor decision.
 

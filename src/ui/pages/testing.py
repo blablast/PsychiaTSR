@@ -12,7 +12,7 @@ from src.ui.technical_log_display import add_technical_log, display_technical_lo
 
 def load_test_scenarios():
     """Load test scenarios from JSON file"""
-    test_file = Path("config/json/tests/test_scenarios.json")
+    test_file = Path("config/test_scenarios.json")
     try:
         with open(test_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -278,7 +278,7 @@ def run_automated_test(test_params):
     # Clear conversation history if requested (default for clean tests)
     if clear_history:
         st.session_state.messages = []
-        from src.core.stages import StageManager
+        from src.core.session.stages.stage_manager import StageManager
         from config import Config
         stage_manager = StageManager(Config.STAGES_DIR)
         first_stage = stage_manager.get_first_stage()
@@ -321,7 +321,7 @@ def run_automated_test(test_params):
         # Update progress
         progress_container.progress(
             (i + 1) / len(responses_list), 
-            text=f"Przetwarzanie odpowiedzi {i + 1}/{len(responses_list)}: {response[:50]}..."
+            text=f"Przetwarzanie odpowiedzi {i + 1}/{len(responses_list)}: {response}"
         )
         
         status_container.info(f"Wysyłanie: {response}")
