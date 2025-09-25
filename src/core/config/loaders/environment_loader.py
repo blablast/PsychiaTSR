@@ -3,6 +3,12 @@
 import os
 from typing import Dict
 
+try:
+    import streamlit as st
+    STREAMLIT_AVAILABLE = True
+except ImportError:
+    STREAMLIT_AVAILABLE = False
+
 
 class EnvironmentLoader:
     """Handles environment variable configuration."""
@@ -13,13 +19,32 @@ class EnvironmentLoader:
 
     @staticmethod
     def _load_api_keys() -> Dict[str, str]:
-        """Load API keys from environment variables."""
+        """Load API keys from environment variables or Streamlit secrets."""
+        def get_key(key_name: str) -> str:
+            """Get API key from environment variables or Streamlit secrets."""
+            # First try environment variables
+            env_value = os.getenv(key_name, "")
+            if env_value:
+                return env_value
+
+            # If running in Streamlit Cloud, try st.secrets
+            if STREAMLIT_AVAILABLE:
+                try:
+                    # Check if we're actually running in Streamlit context
+                    if hasattr(st, 'secrets') and hasattr(st.secrets, '_file_path'):
+                        return st.secrets.get(key_name, "")
+                except (AttributeError, KeyError, Exception):
+                    # Silently fail if secrets are not available
+                    pass
+
+            return ""
+
         return {
-            "openai": os.getenv("OPENAI_API_KEY", ""),
-            "google": os.getenv("GOOGLE_API_KEY", ""),
-            "anthropic": os.getenv("ANTHROPIC_API_KEY", ""),
-            "azure": os.getenv("AZURE_API_KEY", ""),
-            "elevenlabs": os.getenv("ELEVENLABS_API_KEY", "")
+            "openai": get_key("OPENAI_API_KEY"),
+            "google": get_key("GOOGLE_API_KEY"),
+            "anthropic": get_key("ANTHROPIC_API_KEY"),
+            "azure": get_key("AZURE_API_KEY"),
+            "elevenlabs": get_key("ELEVENLABS_API_KEY")
         }
 
     def get_api_key(self, provider: str) -> str:
