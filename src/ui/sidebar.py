@@ -49,7 +49,7 @@ def display_sidebar():
 
         st.divider()
         st.markdown("**Psychia TSR v1.0**")
-        st.markdown("*System wsparcia terapeutycznego*")
+        # st.markdown("*System wsparcia terapeutycznego*")
 
 
 def _display_audio_status_sidebar():

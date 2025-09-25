@@ -18,7 +18,8 @@ class EnvironmentLoader:
             "openai": os.getenv("OPENAI_API_KEY", ""),
             "google": os.getenv("GOOGLE_API_KEY", ""),
             "anthropic": os.getenv("ANTHROPIC_API_KEY", ""),
-            "azure": os.getenv("AZURE_API_KEY", "")
+            "azure": os.getenv("AZURE_API_KEY", ""),
+            "elevenlabs": os.getenv("ELEVENLABS_API_KEY", "")
         }
 
     def get_api_key(self, provider: str) -> str:
