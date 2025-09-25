@@ -15,7 +15,7 @@ def display_sidebar():
         # Navigation options
         page = st.radio(
             "Wybierz stronę:",
-            options=["💬 Konwersacja", "📝 Prompty", "⚙️ Ustawienia", "📊 Raporty", "🔬 Testy"],
+            options=["💬 Konwersacja", "📝 Prompty"], #"⚙️ Ustawienia", "📊 Raporty", "🔬 Testy"],
             index=0,  # Default to conversation
             key="navigation_page"
         )
@@ -24,9 +24,9 @@ def display_sidebar():
         page_mapping = {
             "💬 Konwersacja": "conversation",
             "📝 Prompty": "prompts",
-            "⚙️ Ustawienia": "settings",
-            "📊 Raporty": "reports",
-            "🔬 Testy": "tests"
+            #"⚙️ Ustawienia": "settings",
+            #"📊 Raporty": "reports",
+            #"🔬 Testy": "tests"
         }
 
         # Set current page in session state
@@ -48,7 +48,7 @@ def display_sidebar():
         _display_audio_status_sidebar()
 
         st.divider()
-        st.markdown("**Psychia TSR v2.0**")
+        st.markdown("**Psychia TSR v1.0**")
         st.markdown("*System wsparcia terapeutycznego*")
 
 

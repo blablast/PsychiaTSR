@@ -1,8 +1,7 @@
 # PsychiaTSR - Clean Architecture Therapy Assistant
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.28+-red.svg)](https://streamlit.io/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.50+-red.svg)](https://streamlit.io/)
 [![Code Quality](https://img.shields.io/badge/refactored-2024-brightgreen.svg)](refactor.md)
 [![Architecture](https://img.shields.io/badge/architecture-clean-blue.svg)](docs/architecture.md)
 

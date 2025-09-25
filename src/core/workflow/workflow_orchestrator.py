@@ -46,28 +46,17 @@ class WorkflowOrchestrator:
             WorkflowResult with execution results
         """
         try:
-            # Log workflow start
             self._logger.log_info(f"🔄 Starting {request.type.value} workflow")
 
-            # Select and execute appropriate strategy
-            strategy = self._strategy_factory.create_strategy(request.type)
-            result = strategy.execute(request.context)
-
+            result = self._execute_strategy(request)
             if not result.success:
                 return result
 
-            # Check for crisis situation
-            supervisor_decision = result.data.get("supervisor_decision")
-            if supervisor_decision and supervisor_decision.safety_risk:
-                self._logger.log_error("🚨 KRYZYS: Wykryto zagrożenie bezpieczeństwa!")
-                return self._crisis_handler.handle_crisis(
-                    request.context.user_message,
-                    supervisor_decision
-                )
+            result = self._handle_crisis_check(result, request)
+            if not result.success:
+                return result
 
-            # Finalize session state (stage progression, conversation update)
-            self._session_orchestrator.finalize_exchange(result, request.context.user_message)
-
+            self._finalize_session(result, request)
             self._logger.log_info(f"✅ {request.type.value} workflow completed successfully")
             return result
 
@@ -78,6 +67,49 @@ class WorkflowOrchestrator:
                 message="Workflow orchestration failed",
                 error=str(e)
             )
+
+    def _execute_strategy(self, request: WorkflowRequest) -> WorkflowResult:
+        """
+        Execute the appropriate workflow strategy.
+
+        Args:
+            request: WorkflowRequest containing type and context
+
+        Returns:
+            WorkflowResult from strategy execution
+        """
+        strategy = self._strategy_factory.create_strategy(request.type)
+        return strategy.execute(request.context)
+
+    def _handle_crisis_check(self, result: WorkflowResult, request: WorkflowRequest) -> WorkflowResult:
+        """
+        Check for and handle crisis situations.
+
+        Args:
+            result: WorkflowResult from strategy execution
+            request: Original workflow request
+
+        Returns:
+            WorkflowResult - original result or crisis handling result
+        """
+        supervisor_decision = result.data.get("supervisor_decision")
+        if supervisor_decision and supervisor_decision.safety_risk:
+            self._logger.log_error("🚨 KRYZYS: Wykryto zagrożenie bezpieczeństwa!")
+            return self._crisis_handler.handle_crisis(
+                request.context.user_message,
+                supervisor_decision
+            )
+        return result
+
+    def _finalize_session(self, result: WorkflowResult, request: WorkflowRequest) -> None:
+        """
+        Finalize session state after successful processing.
+
+        Args:
+            result: WorkflowResult from successful execution
+            request: Original workflow request
+        """
+        self._session_orchestrator.finalize_exchange(result, request.context.user_message)
 
 
     def process_conversation_message(self, user_message: str, current_stage: str, conversation_history, session_id: str) -> WorkflowResult:

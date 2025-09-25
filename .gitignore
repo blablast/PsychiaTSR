@@ -39,6 +39,8 @@ ENV/
 # Data and logs
 data/
 logs/
+tests/
+tests/helpers
 *.log
 
 # OS
