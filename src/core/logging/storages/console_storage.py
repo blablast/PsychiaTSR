@@ -35,16 +35,16 @@ class ConsoleStorage(IStorage):
             try:
                 formatted = self._formatter.format(entry)
                 # Remove or replace Unicode characters that can't be displayed
-                safe_formatted = formatted.encode('ascii', errors='replace').decode('ascii')
+                safe_formatted = formatted.encode("ascii", errors="replace").decode("ascii")
                 print(safe_formatted)
             except Exception:
                 # Final fallback to basic print with safe encoding
-                safe_message = entry.message.encode('ascii', errors='replace').decode('ascii')
+                safe_message = entry.message.encode("ascii", errors="replace").decode("ascii")
                 print(f"[{entry.timestamp}] {entry.event_type}: {safe_message}")
         except Exception:
             # Fallback to basic print
             try:
-                safe_message = entry.message.encode('ascii', errors='replace').decode('ascii')
+                safe_message = entry.message.encode("ascii", errors="replace").decode("ascii")
                 print(f"[{entry.timestamp}] {entry.event_type}: {safe_message}")
             except Exception:
                 print(f"[{entry.timestamp}] {entry.event_type}: [message encoding error]")
@@ -53,7 +53,7 @@ class ConsoleStorage(IStorage):
         if self._keep_in_memory:
             self._entries.append(entry)
             if len(self._entries) > self._max_entries:
-                self._entries = self._entries[-self._max_entries:]
+                self._entries = self._entries[-self._max_entries :]
 
     def store_batch(self, entries: List[LogEntry]) -> None:
         """Store (print) multiple log entries."""
@@ -68,7 +68,7 @@ class ConsoleStorage(IStorage):
             # Handle Unicode encoding issues
             try:
                 formatted = self._formatter.format_batch(entries)
-                safe_formatted = formatted.encode('ascii', errors='replace').decode('ascii')
+                safe_formatted = formatted.encode("ascii", errors="replace").decode("ascii")
                 print(safe_formatted)
             except Exception:
                 # Fallback: print each entry individually
@@ -85,7 +85,7 @@ class ConsoleStorage(IStorage):
         if self._keep_in_memory:
             self._entries.extend(entries)
             if len(self._entries) > self._max_entries:
-                self._entries = self._entries[-self._max_entries:]
+                self._entries = self._entries[-self._max_entries :]
 
     def retrieve(self, limit: Optional[int] = None) -> List[LogEntry]:
         """Retrieve log entries from memory."""

@@ -17,7 +17,7 @@ class Config:
     - Single responsibility delegated to ConfigurationManager
     """
 
-    _instance: Optional['Config'] = None
+    _instance: Optional["Config"] = None
     _config_manager: Optional[ConfigurationManager] = None
 
     def __new__(cls):
@@ -32,7 +32,7 @@ class Config:
             self._config_manager = ConfigurationManager()
 
     @classmethod
-    def initialize(cls, config_file_path: Optional[str] = None) -> 'Config':
+    def initialize(cls, config_file_path: Optional[str] = None) -> "Config":
         """
         Initialize configuration with custom file path.
 
@@ -48,7 +48,7 @@ class Config:
         return instance
 
     @classmethod
-    def get_instance(cls) -> 'Config':
+    def get_instance(cls) -> "Config":
         """Get configuration instance (creates with defaults if not exists)."""
         if cls._instance is None or cls._instance._config_manager is None:
             return cls.initialize()
@@ -178,7 +178,7 @@ class Config:
         return {
             "valid": validation_result.valid,
             "warnings": validation_result.warnings,
-            "errors": validation_result.errors
+            "errors": validation_result.errors,
         }
 
     def to_dict(self) -> Dict[str, Any]:

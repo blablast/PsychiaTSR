@@ -24,7 +24,7 @@ class StreamlitFormatter(IFormatter):
     def _format_timestamp(timestamp: str) -> str:
         """Format timestamp for Streamlit display."""
         try:
-            dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+            dt = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
             return dt.strftime("%H:%M:%S")
         except Exception:
             return timestamp
@@ -40,7 +40,7 @@ class StreamlitFormatter(IFormatter):
             ("stage_transition", "system"): "🔄",
             ("model_info", "system"): "🤖",
             ("error", "system"): "❌",
-            ("info", "system"): "ℹ️"
+            ("info", "system"): "ℹ️",
         }
         return emoji_map.get((event_type, agent_type or "system"), "📝")
 

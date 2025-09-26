@@ -138,7 +138,7 @@ class ConversationManager(IConversationManager):
             role="user",
             text=self._current_question,
             timestamp=datetime.now().isoformat(),
-            prompt_used=""
+            prompt_used="",
         )
 
         # Create therapist message
@@ -146,7 +146,7 @@ class ConversationManager(IConversationManager):
             role="therapist",
             text=therapist_response,
             timestamp=datetime.now().isoformat(),
-            prompt_used=""
+            prompt_used="",
         )
 
         # Commit both messages atomically
@@ -181,7 +181,7 @@ class ConversationManager(IConversationManager):
                 role="user",
                 text=self._current_question,
                 timestamp=datetime.now().isoformat(),
-                prompt_used=""
+                prompt_used="",
             )
             # Add pending marker as attribute after creation
             pending_msg.is_pending = True
@@ -203,7 +203,7 @@ class ConversationManager(IConversationManager):
             "total_committed_messages": len(self._committed_context),
             "has_pending_question": self.has_pending_question(),
             "current_question_length": len(self._current_question),
-            "is_processing": self._is_processing
+            "is_processing": self._is_processing,
         }
 
     def is_processing(self) -> bool:

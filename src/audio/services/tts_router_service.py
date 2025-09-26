@@ -15,11 +15,7 @@ class TTSRouterService(ITTSRouter):
     Handles sentence splitting and routes complete sentences to TTS provider.
     """
 
-    def __init__(
-        self,
-        tts_provider: ElevenLabsTTSProvider,
-        pcm_buffer: IAudioBuffer
-    ):
+    def __init__(self, tts_provider: ElevenLabsTTSProvider, pcm_buffer: IAudioBuffer):
         """
         Initialize TTS router.
 

@@ -39,7 +39,7 @@ class AudioConfigWidget:
                     "ELEVENLABS_API_KEY",
                     type="password",
                     placeholder="Wklej swój klucz API z ElevenLabs...",
-                    help="Klucz API z ElevenLabs (lub ustaw zmienną środowiskową ELEVENLABS_API_KEY)"
+                    help="Klucz API z ElevenLabs (lub ustaw zmienną środowiskową ELEVENLABS_API_KEY)",
                 )
 
             # Voice ID input
@@ -47,7 +47,7 @@ class AudioConfigWidget:
             voice_id = st.text_input(
                 "ElevenLabs Voice ID",
                 value=default_voice_id,
-                help="ID głosu z ElevenLabs (domyślny: Sarah)"
+                help="ID głosu z ElevenLabs (domyślny: Sarah)",
             )
 
             # Voice configuration info
@@ -68,13 +68,9 @@ class AudioConfigWidget:
                 if st.button("🔧 Diagnostyka", help="Sprawdź konfigurację WebRTC"):
                     self._show_webrtc_diagnostics()
 
-
         # Return config if valid
         if api_key and voice_id:
-            return {
-                "api_key": api_key,
-                "voice_id": voice_id
-            }
+            return {"api_key": api_key, "voice_id": voice_id}
 
         return None
 
@@ -107,26 +103,31 @@ class AudioConfigWidget:
         try:
             # Check if streamlit-webrtc is available
             import streamlit_webrtc
+
             st.success(f"✓ streamlit-webrtc zainstalowane (v{streamlit_webrtc.__version__})")
 
             # Check if aiortc is available
             import aiortc
+
             st.success("✓ aiortc dostępne")
 
             # Check if av is available
             import av
+
             st.success("✓ PyAV dostępne")
 
             # Show browser info
-            st.info("""**Informacje o przeglądarce:**
+            st.info(
+                """**Informacje o przeglądarce:**
 • Sprawdź konsolę przeglądarki (F12) pod kątem błędów WebRTC
 • Upewnij się, że przeglądarka ma dostęp do urządzeń audio
 • Chrome: Przejdź do chrome://webrtc-internals/ dla szczegółów
 • Firefox: about:webrtc dla diagnostyki
-            """)
+            """
+            )
 
             # Check session state
-            if hasattr(st.session_state, 'pcm_buffer'):
+            if hasattr(st.session_state, "pcm_buffer"):
                 st.success("✓ PCM buffer utworzony")
             else:
                 st.warning("⚠️ Brak PCM buffer - zostanie utworzony przy użyciu")

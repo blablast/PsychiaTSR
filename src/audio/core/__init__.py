@@ -9,5 +9,5 @@ __all__ = [
     "PcmChunk",
     "resample_to_48k_mono_int16",
     "wav_iterable_to_pcm48",
-    "SentenceSplitter"
+    "SentenceSplitter",
 ]

@@ -19,10 +19,12 @@ class SessionService:
     - ISessionProvider: Session storage
     """
 
-    def __init__(self,
-                 session_context: ISessionContext,
-                 ui_notifier: IUINotifier,
-                 session_provider: ISessionProvider = None):
+    def __init__(
+        self,
+        session_context: ISessionContext,
+        ui_notifier: IUINotifier,
+        session_provider: ISessionProvider = None,
+    ):
         """Initialize service with injected dependencies."""
         self.session_context = session_context
         self.ui_notifier = ui_notifier
@@ -43,16 +45,18 @@ class SessionService:
                 "therapist_config": therapist_config,
                 "supervisor_config": supervisor_config,
                 "created_at": datetime.now().isoformat(),
-                "messages": []
+                "messages": [],
             }
 
             # Add initial user message if provided
             if user_message:
-                session_data["messages"] = [{
-                    "role": "user",
-                    "content": user_message,
-                    "timestamp": datetime.now().isoformat()
-                }]
+                session_data["messages"] = [
+                    {
+                        "role": "user",
+                        "content": user_message,
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ]
 
             # Save session
             session_id = self.session_provider.create_session(session_data)
@@ -65,7 +69,7 @@ class SessionService:
                 initial_message = {
                     "role": "user",
                     "content": user_message,
-                    "timestamp": datetime.now().isoformat()
+                    "timestamp": datetime.now().isoformat(),
                 }
                 self.session_context.add_message(initial_message)
 
@@ -104,7 +108,7 @@ class SessionService:
             session_data = {
                 "messages": messages,
                 "current_stage": current_stage,
-                "last_updated": datetime.now().isoformat()
+                "last_updated": datetime.now().isoformat(),
             }
 
             # Save through session provider
@@ -152,7 +156,7 @@ class SessionService:
                     "role": "system",
                     "content": f"Przejście do etapu: {stage_info.get('name', current_stage)}",
                     "timestamp": datetime.now().isoformat(),
-                    "stage": current_stage
+                    "stage": current_stage,
                 }
 
                 # Add to beginning of messages
@@ -165,13 +169,13 @@ class SessionService:
 
     def get_audio_configuration(self) -> Dict[str, Any]:
         """Get audio configuration for current session."""
-        audio_enabled = self.session_context.get_session_value('audio_enabled', False)
-        tts_config = self.session_context.get_session_value('_tts_cfg', {})
+        audio_enabled = self.session_context.get_session_value("audio_enabled", False)
+        tts_config = self.session_context.get_session_value("_tts_cfg", {})
 
         return {
             "audio_enabled": audio_enabled,
             "tts_config": tts_config,
-            "has_valid_config": bool(tts_config.get("api_key") and tts_config.get("voice_id"))
+            "has_valid_config": bool(tts_config.get("api_key") and tts_config.get("voice_id")),
         }
 
     def clear_technical_logs(self) -> None:
@@ -197,7 +201,7 @@ class SessionService:
                     message_data = MessageData(
                         role=msg["role"],
                         text=msg["content"],
-                        timestamp=msg.get("timestamp", datetime.now().isoformat())
+                        timestamp=msg.get("timestamp", datetime.now().isoformat()),
                     )
                     message_data_list.append(message_data)
 

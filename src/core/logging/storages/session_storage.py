@@ -17,6 +17,7 @@ class SessionStorage(IStorage):
         if self._storage_provider is None:
             from src.infrastructure.storage import StorageProvider
             from config import Config
+
             config = Config.get_instance()
             self._storage_provider = StorageProvider(config.LOGS_DIR)
         return self._storage_provider
@@ -24,7 +25,7 @@ class SessionStorage(IStorage):
     @staticmethod
     def _get_current_session_id() -> Optional[str]:
         """Get current session ID from Streamlit session state."""
-        return st.session_state.get('session_id')
+        return st.session_state.get("session_id")
 
     def store(self, entry: LogEntry) -> None:
         """Store log entry in session data."""
@@ -42,7 +43,7 @@ class SessionStorage(IStorage):
                 "message": entry.message,
                 "data": entry.data,
                 "response_time_ms": entry.response_time_ms,
-                "agent_type": entry.agent_type
+                "agent_type": entry.agent_type,
             }
 
             storage.add_technical_log(session_id, log_entry)

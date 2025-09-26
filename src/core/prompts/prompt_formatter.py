@@ -25,8 +25,8 @@ class PromptFormatter:
 
         # Get metadata
         metadata = prompt_data.get("metadata", {})
-        prompt_id = metadata.get('id', 'unknown')
-        agent = metadata.get('agent', 'unknown')
+        prompt_id = metadata.get("id", "unknown")
+        agent = metadata.get("agent", "unknown")
 
         # Header with metadata
         prompt_parts.append(f"# {prompt_type.upper()} PROMPT - {agent.upper()} - ID {prompt_id}")
@@ -87,7 +87,7 @@ class PromptFormatter:
             f"{agent}",
             f"{status}",
             f"{section_count} sections",
-            f"~{total_chars} chars"
+            f"~{total_chars} chars",
         ]
 
         return " | ".join(summary_parts)
@@ -115,7 +115,7 @@ class PromptFormatter:
             return cleaned
 
         # Truncate and add ellipsis
-        return cleaned[:max_length-3] + "..."
+        return cleaned[: max_length - 3] + "..."
 
     @staticmethod
     def format_metadata_display(metadata: Dict[str, Any]) -> Dict[str, str]:
@@ -147,18 +147,14 @@ class PromptFormatter:
                 3: "Scaling",
                 4: "Small Steps",
                 5: "Summary",
-                6: "Rest/Safety"
+                6: "Rest/Safety",
             }
             stage_name = stage_names.get(stage, f"Stage {stage}")
             display_metadata["Stage"] = f"{stage} ({stage_name})"
 
         # Format status
         status = metadata.get("status", "unknown")
-        status_display = {
-            "active": "🟢 Active",
-            "inactive": "⚪ Inactive",
-            "draft": "🟡 Draft"
-        }
+        status_display = {"active": "🟢 Active", "inactive": "⚪ Inactive", "draft": "🟡 Draft"}
         display_metadata["Status"] = status_display.get(status, status.title())
 
         # Format dates
@@ -182,9 +178,10 @@ class PromptFormatter:
         """Format ISO datetime string for display."""
         try:
             from datetime import datetime
-            dt = datetime.fromisoformat(datetime_str.replace('Z', '+00:00'))
+
+            dt = datetime.fromisoformat(datetime_str.replace("Z", "+00:00"))
             return dt.strftime("%Y-%m-%d %H:%M")
-        except:
+        except Exception:
             return datetime_str
 
     @staticmethod
@@ -201,6 +198,7 @@ class PromptFormatter:
         """
         if format_type.lower() == "json":
             import json
+
             return json.dumps(prompt_data, indent=2, ensure_ascii=False)
 
         elif format_type.lower() == "txt":

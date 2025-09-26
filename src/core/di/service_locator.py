@@ -4,7 +4,7 @@ from typing import TypeVar, Type, Optional
 from .container_interface import IDependencyContainer
 from .service_registry import ServiceRegistry
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class ServiceLocator:

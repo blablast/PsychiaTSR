@@ -14,34 +14,41 @@ class MemoryService:
     def setup_system_prompt(self, llm_provider, system_prompt: str, agent_type: str) -> bool:
         """Set up system prompt for LLM provider."""
         try:
-            if hasattr(llm_provider, 'start_conversation'):
+            if hasattr(llm_provider, "start_conversation"):
                 llm_provider.start_conversation(system_prompt)
                 if self._logger:
                     # Log detailed system prompt for technical logs
-                    self._logger.log_system_prompt(agent_type, system_prompt, "Set once per session")
+                    self._logger.log_system_prompt(
+                        agent_type, system_prompt, "Set once per session"
+                    )
 
                     # Also log summary info
-                    self._logger.log_info(f"System prompt set for {agent_type}", {
-                        "description": "Set once per session"
-                    })
+                    self._logger.log_info(
+                        f"System prompt set for {agent_type}",
+                        {"description": "Set once per session"},
+                    )
                 return True
             else:
                 # For providers without memory, system prompt will be included per request
                 if self._logger:
-                    self._logger.log_info(f"Provider doesn't support memory - system prompt will be included per message", {
-                        "agent_type": agent_type,
-                        "provider_type": "traditional"
-                    })
+                    self._logger.log_info(
+                        f"Provider doesn't support memory - system prompt will be included per message",
+                        {"agent_type": agent_type, "provider_type": "traditional"},
+                    )
                 return False
         except Exception as e:
             if self._logger:
                 self._logger.log_error(f"Failed to set system prompt for {agent_type}: {str(e)}")
             return False
 
-    def setup_stage_prompt(self, llm_provider, stage_prompt: str, stage_id: str, agent_type: str) -> bool:
+    def setup_stage_prompt(
+        self, llm_provider, stage_prompt: str, stage_id: str, agent_type: str
+    ) -> bool:
         """Set up stage-specific prompt for memory-optimized providers."""
         try:
-            if hasattr(llm_provider, 'conversation_messages') or hasattr(llm_provider, 'chat_session'):
+            if hasattr(llm_provider, "conversation_messages") or hasattr(
+                llm_provider, "chat_session"
+            ):
                 stage_instruction = ""
                 confirmation = ""
 
@@ -54,18 +61,23 @@ class MemoryService:
                 else:
                     ValueError(f"Unknown agent type: {agent_type}")
 
-                if hasattr(llm_provider, 'add_user_message') and hasattr(llm_provider, 'add_assistant_message'):
+                if hasattr(llm_provider, "add_user_message") and hasattr(
+                    llm_provider, "add_assistant_message"
+                ):
                     llm_provider.add_user_message(stage_instruction)
                     llm_provider.add_assistant_message(confirmation)
 
                 if self._logger:
                     # Log detailed stage prompt for technical logs
-                    self._logger.log_stage_prompt(agent_type, stage_id, stage_prompt, f"Stage prompt for {agent_type}")
+                    self._logger.log_stage_prompt(
+                        agent_type, stage_id, stage_prompt, f"Stage prompt for {agent_type}"
+                    )
 
                     # Also log summary info
-                    self._logger.log_info(f"Stage prompt set for {agent_type} - {stage_id}", {
-                        "description": f"Setting stage prompt for {agent_type}"
-                    })
+                    self._logger.log_info(
+                        f"Stage prompt set for {agent_type} - {stage_id}",
+                        {"description": f"Setting stage prompt for {agent_type}"},
+                    )
                 return True
             else:
                 # Provider doesn't support memory - stage prompt will be included per request
@@ -78,16 +90,22 @@ class MemoryService:
     @staticmethod
     def supports_memory(llm_provider) -> bool:
         """Check if LLM provider supports conversation memory."""
-        return hasattr(llm_provider, 'conversation_messages') or hasattr(llm_provider, 'chat_session')
+        return hasattr(llm_provider, "conversation_messages") or hasattr(
+            llm_provider, "chat_session"
+        )
 
     @staticmethod
-    def build_conversation_context(conversation_history: List[MessageData], max_messages: int = None) -> str:
+    def build_conversation_context(
+        conversation_history: List[MessageData], max_messages: int = None
+    ) -> str:
         """Build conversation context string from message history."""
         if not conversation_history:
             return "Początek rozmowy."
 
         # Apply message limit if specified
-        filtered_history = conversation_history if not max_messages else conversation_history[-max_messages:]
+        filtered_history = (
+            conversation_history if not max_messages else conversation_history[-max_messages:]
+        )
 
         if not filtered_history:
             return "Brak dostępnej historii rozmowy."
@@ -97,7 +115,7 @@ class MemoryService:
         role_display_map = {
             "user": "Użytkownik",
             "therapist": "Terapeuta",
-            "supervisor": "Nadzorca"
+            "supervisor": "Nadzorca",
         }
 
         for msg in filtered_history:
@@ -107,9 +125,11 @@ class MemoryService:
         return "\n".join(context_lines)
 
     @staticmethod
-    def build_optimized_conversation_context(conversation_history: List[MessageData],
-                                           max_messages: int = None,
-                                           enable_summarization: bool = True) -> str:
+    def build_optimized_conversation_context(
+        conversation_history: List[MessageData],
+        max_messages: int = None,
+        enable_summarization: bool = True,
+    ) -> str:
         """
         Build optimized conversation context with summarization for older messages.
 
@@ -148,7 +168,7 @@ class MemoryService:
         role_display_map = {
             "user": "Użytkownik",
             "therapist": "Terapeuta",
-            "supervisor": "Nadzorca"
+            "supervisor": "Nadzorca",
         }
 
         for msg in recent_messages:
@@ -176,7 +196,9 @@ class MemoryService:
         therapist_messages = [msg for msg in messages if msg.role == "therapist"]
 
         # Extract key themes (simple keyword extraction)
-        all_text = " ".join(msg.text.lower() for msg in messages if msg.role in ["user", "therapist"])
+        all_text = " ".join(
+            msg.text.lower() for msg in messages if msg.role in ["user", "therapist"]
+        )
 
         # Common therapy-related keywords to look for
         key_themes = []
@@ -185,7 +207,7 @@ class MemoryService:
             "emocje": ["czuję", "smutny", "szczęśliwy", "zły", "zmartwiony", "lęk", "stres"],
             "zasoby": ["umiem", "potrafię", "radzę sobie", "mocna strona", "sukces"],
             "skale": ["skala", "od 1 do 10", "oceniam", "punktów"],
-            "działania": ["zrobię", "planuję", "spróbuję", "krok", "działanie"]
+            "działania": ["zrobię", "planuję", "spróbuję", "krok", "działanie"],
         }
 
         for theme, keywords in theme_keywords.items():
@@ -195,7 +217,9 @@ class MemoryService:
         # Build summary
         summary_parts = []
         if user_messages and therapist_messages:
-            summary_parts.append(f"{len(user_messages)} wypowiedzi użytkownika, {len(therapist_messages)} odpowiedzi terapeuty")
+            summary_parts.append(
+                f"{len(user_messages)} wypowiedzi użytkownika, {len(therapist_messages)} odpowiedzi terapeuty"
+            )
 
         if key_themes:
             summary_parts.append(f"Tematy: {', '.join(key_themes)}")

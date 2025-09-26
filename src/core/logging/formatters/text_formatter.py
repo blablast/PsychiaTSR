@@ -24,14 +24,14 @@ class TextFormatter(IFormatter):
 
         # ANSI color codes
         self._colors = {
-            'reset': '\033[0m',
-            'red': '\033[91m',
-            'green': '\033[92m',
-            'yellow': '\033[93m',
-            'blue': '\033[94m',
-            'magenta': '\033[95m',
-            'cyan': '\033[96m',
-            'white': '\033[97m'
+            "reset": "\033[0m",
+            "red": "\033[91m",
+            "green": "\033[92m",
+            "yellow": "\033[93m",
+            "blue": "\033[94m",
+            "magenta": "\033[95m",
+            "cyan": "\033[96m",
+            "white": "\033[97m",
         }
 
     def _colorize(self, text: str, color: str) -> str:
@@ -44,7 +44,7 @@ class TextFormatter(IFormatter):
     def _format_timestamp(timestamp: str) -> str:
         """Format timestamp for display."""
         try:
-            dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+            dt = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
             return dt.strftime("%H:%M:%S")
         except Exception:
             return timestamp
@@ -59,18 +59,14 @@ class TextFormatter(IFormatter):
             "supervisor_request": "blue",
             "supervisor_response": "blue",
             "therapist_request": "green",
-            "therapist_response": "green"
+            "therapist_response": "green",
         }
         return color_map.get(event_type, "white")
 
     @staticmethod
     def _get_agent_color(agent_type: str) -> str:
         """Get color for agent type."""
-        color_map = {
-            "supervisor": "blue",
-            "therapist": "green",
-            "system": "cyan"
-        }
+        color_map = {"supervisor": "blue", "therapist": "green", "system": "cyan"}
         return color_map.get(agent_type, "white")
 
     def format(self, entry: LogEntry) -> str:
@@ -93,7 +89,7 @@ class TextFormatter(IFormatter):
 
         # Add data if enabled and present
         if self._include_data and entry.data and len(str(entry.data)) < 200:
-            data_str = json.dumps(entry.data, ensure_ascii=False, separators=(',', ':'))
+            data_str = json.dumps(entry.data, ensure_ascii=False, separators=(",", ":"))
             formatted += f"\n    {self._colorize('Data:', 'yellow')} {data_str}"
 
         return formatted

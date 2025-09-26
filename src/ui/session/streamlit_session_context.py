@@ -52,16 +52,16 @@ class StreamlitSessionContext(ISessionContext):
         agent_defaults = config.get_agent_defaults()
 
         # Get from session state with fallbacks to Config
-        model_key = f'selected_{agent_type}_model'
-        provider_key = f'selected_{agent_type}_provider'
+        model_key = f"selected_{agent_type}_model"
+        provider_key = f"selected_{agent_type}_provider"
 
-        model = st.session_state.get(model_key, agent_defaults[agent_type]['model'])
-        provider = st.session_state.get(provider_key, agent_defaults[agent_type]['provider'])
+        model = st.session_state.get(model_key, agent_defaults[agent_type]["model"])
+        provider = st.session_state.get(provider_key, agent_defaults[agent_type]["provider"])
 
         return {
-            'model': model,
-            'provider': provider,
-            'parameters': config.get_agent_parameters(agent_type)
+            "model": model,
+            "provider": provider,
+            "parameters": config.get_agent_parameters(agent_type),
         }
 
 

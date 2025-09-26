@@ -26,11 +26,7 @@ class AgentLoader:
         agent_params = agent_config.get("parameters", {})
 
         # Default parameters
-        defaults = {
-            "temperature": 0.7,
-            "max_tokens": 150,
-            "top_p": 0.9
-        }
+        defaults = {"temperature": 0.7, "max_tokens": 150, "top_p": 0.9}
 
         # Merge with agent-specific overrides
         return {**defaults, **agent_params}
@@ -40,14 +36,14 @@ class AgentLoader:
         return {
             "provider": self.get_agent_provider(agent_type),
             "model": self.get_agent_model(agent_type),
-            "parameters": self.get_agent_parameters(agent_type)
+            "parameters": self.get_agent_parameters(agent_type),
         }
 
     def get_all_agents_config(self) -> Dict[str, Dict[str, Any]]:
         """Get configuration for all agents."""
         return {
             "therapist": self.get_agent_config("therapist"),
-            "supervisor": self.get_agent_config("supervisor")
+            "supervisor": self.get_agent_config("supervisor"),
         }
 
     @staticmethod
@@ -59,17 +55,14 @@ class AgentLoader:
         try:
             template_path = Path("config/templates/defaults/agents_config_default.json")
             if template_path.exists():
-                with open(template_path, 'r', encoding='utf-8') as f:
+                with open(template_path, "r", encoding="utf-8") as f:
                     defaults = json.load(f)
                     return defaults.get("agents", {}).get(agent_type, {}).get("provider", "openai")
         except Exception:
             pass
 
         # Fallback defaults
-        defaults = {
-            "therapist": "openai",
-            "supervisor": "gemini"
-        }
+        defaults = {"therapist": "openai", "supervisor": "gemini"}
         return defaults.get(agent_type, "openai")
 
     @staticmethod
@@ -81,15 +74,14 @@ class AgentLoader:
         try:
             template_path = Path("config/templates/defaults/agents_config_default.json")
             if template_path.exists():
-                with open(template_path, 'r', encoding='utf-8') as f:
+                with open(template_path, "r", encoding="utf-8") as f:
                     defaults = json.load(f)
-                    return defaults.get("agents", {}).get(agent_type, {}).get("model", "gpt-4o-mini")
+                    return (
+                        defaults.get("agents", {}).get(agent_type, {}).get("model", "gpt-4o-mini")
+                    )
         except Exception:
             pass
 
         # Fallback defaults
-        defaults = {
-            "therapist": "gpt-4o-mini",
-            "supervisor": "gemini-2.5-flash"
-        }
+        defaults = {"therapist": "gpt-4o-mini", "supervisor": "gemini-2.5-flash"}
         return defaults.get(agent_type, "gpt-4o-mini")

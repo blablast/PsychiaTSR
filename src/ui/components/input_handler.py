@@ -20,7 +20,6 @@ class InputHandler:
         InputHandler._add_user_message(prompt)
         InputHandler._trigger_response_generation(prompt)
 
-
     @staticmethod
     def handle_post_streaming_refresh() -> bool:
         """Handle refresh after streaming completes.
@@ -28,7 +27,7 @@ class InputHandler:
         Returns:
             True if rerun was triggered, False otherwise
         """
-        if st.session_state.pop('stream_refresh_pending', False):
+        if st.session_state.pop("stream_refresh_pending", False):
             st.rerun()
             return True
         return False
@@ -51,14 +50,14 @@ class InputHandler:
     def _has_pending_message() -> bool:
         """Check if there's a pending user message to process."""
         return (
-            hasattr(st.session_state, 'pending_user_message') and
-            st.session_state.pending_user_message
+            hasattr(st.session_state, "pending_user_message")
+            and st.session_state.pending_user_message
         )
 
     @staticmethod
     def _add_user_message(prompt: str) -> None:
         """Add user message to conversation manager."""
-        if 'conversation_manager' in st.session_state:
+        if "conversation_manager" in st.session_state:
             st.session_state.conversation_manager.accept_user_input(prompt)
 
     @staticmethod
@@ -66,9 +65,10 @@ class InputHandler:
         """Trigger therapist response generation."""
         try:
 
-            if st.session_state.get('therapist_agent') is None:
+            if st.session_state.get("therapist_agent") is None:
                 with st.spinner("🤖 Inicjalizuję agentów terapii..."):
                     from src.core.workflow import initialize_agents
+
                     init_result = initialize_agents()
                     if not init_result:
                         add_technical_log("error", "❌ Nie można zainicjować agentów terapii")
@@ -94,16 +94,20 @@ class InputHandler:
     @staticmethod
     def _initialize_session_if_needed() -> None:
         """Initialize session if none exists."""
-        if not st.session_state.get('session_id'):
+        if not st.session_state.get("session_id"):
             from src.core.session import create_new_session
+
             create_new_session()
-            add_technical_log("info", f"🆕 Nowa sesja utworzona automatycznie: {st.session_state.session_id}")
+            add_technical_log(
+                "info", f"🆕 Nowa sesja utworzona automatycznie: {st.session_state.session_id}"
+            )
 
     @staticmethod
     def _initialize_conversation_manager_if_needed() -> None:
         """Initialize ConversationManager if needed."""
-        if 'conversation_manager' not in st.session_state:
+        if "conversation_manager" not in st.session_state:
             from src.core.conversation import ConversationManager
+
             st.session_state.conversation_manager = ConversationManager()
 
     @staticmethod
@@ -117,5 +121,5 @@ class InputHandler:
     @staticmethod
     def cleanup_streaming_state() -> None:
         """Clean up streaming-related state after completion."""
-        st.session_state.pop('processing_message', None)
-        st.session_state.pop('stream_generator', None)
+        st.session_state.pop("processing_message", None)
+        st.session_state.pop("stream_generator", None)

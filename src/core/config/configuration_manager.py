@@ -15,6 +15,7 @@ from .loaders.environment_loader import EnvironmentLoader
 @dataclass
 class ConfigurationValidationResult:
     """Configuration validation result."""
+
     valid: bool
     warnings: List[str]
     errors: List[str]
@@ -57,7 +58,7 @@ class ConfigurationManager:
         """
         try:
             if self._config_file.exists():
-                with open(self._config_file, 'r', encoding='utf-8') as f:
+                with open(self._config_file, "r", encoding="utf-8") as f:
                     self._config_data = json.load(f)
             else:
                 # Use default configuration
@@ -91,7 +92,7 @@ class ConfigurationManager:
             # Ensure parent directory exists
             self._config_file.parent.mkdir(parents=True, exist_ok=True)
 
-            with open(self._config_file, 'w', encoding='utf-8') as f:
+            with open(self._config_file, "w", encoding="utf-8") as f:
                 json.dump(data_to_save, f, indent=2, ensure_ascii=False)
 
             # Always reload after saving to ensure consistency
@@ -111,11 +112,7 @@ class ConfigurationManager:
         if not self._is_loaded:
             self.load_configuration()
 
-        result = ConfigurationValidationResult(
-            valid=True,
-            warnings=[],
-            errors=[]
-        )
+        result = ConfigurationValidationResult(valid=True, warnings=[], errors=[])
 
         # Validate API keys
         if not self.get_api_key("openai") and not self.get_api_key("google"):
@@ -168,7 +165,11 @@ class ConfigurationManager:
     def get_app_title(self) -> str:
         """Get application title."""
         self._ensure_loaded()
-        return self._app_loader.get_app_title() if self._app_loader else "Psychia - TSR Therapy Assistant"
+        return (
+            self._app_loader.get_app_title()
+            if self._app_loader
+            else "Psychia - TSR Therapy Assistant"
+        )
 
     def get_app_icon(self) -> str:
         """Get application icon."""
@@ -202,30 +203,32 @@ class ConfigurationManager:
     def get_agent_model(self, agent_type: str) -> str:
         """Get model for agent."""
         self._ensure_loaded()
-        return self._agent_loader.get_agent_model(agent_type) if self._agent_loader else "gpt-4o-mini"
+        return (
+            self._agent_loader.get_agent_model(agent_type) if self._agent_loader else "gpt-4o-mini"
+        )
 
     def get_agent_parameters(self, agent_type: str) -> Dict[str, Any]:
         """Get parameters for agent."""
         self._ensure_loaded()
-        return self._agent_loader.get_agent_parameters(agent_type) if self._agent_loader else {
-            "temperature": 0.7,
-            "max_tokens": 150,
-            "top_p": 0.9
-        }
+        return (
+            self._agent_loader.get_agent_parameters(agent_type)
+            if self._agent_loader
+            else {"temperature": 0.7, "max_tokens": 150, "top_p": 0.9}
+        )
 
     def get_agent_config(self, agent_type: str) -> Dict[str, Any]:
         """Get complete configuration for agent."""
         return {
             "provider": self.get_agent_provider(agent_type),
             "model": self.get_agent_model(agent_type),
-            "parameters": self.get_agent_parameters(agent_type)
+            "parameters": self.get_agent_parameters(agent_type),
         }
 
     def get_all_agents_config(self) -> Dict[str, Dict[str, Any]]:
         """Get configuration for all agents."""
         return {
             "therapist": self.get_agent_config("therapist"),
-            "supervisor": self.get_agent_config("supervisor")
+            "supervisor": self.get_agent_config("supervisor"),
         }
 
     # =====================================================================================
@@ -268,7 +271,9 @@ class ConfigurationManager:
     def get_configured_providers(self) -> List[str]:
         """Get list of providers with API keys."""
         self._ensure_loaded()
-        return self._environment_loader.get_configured_providers() if self._environment_loader else []
+        return (
+            self._environment_loader.get_configured_providers() if self._environment_loader else []
+        )
 
     # =====================================================================================
     # LLM CONFIGURATION
@@ -282,11 +287,7 @@ class ConfigurationManager:
             config.update(self.get_agent_parameters(agent_type))
         else:
             # Use default parameters
-            config.update({
-                "temperature": 0.7,
-                "max_tokens": 150,
-                "top_p": 0.9
-            })
+            config.update({"temperature": 0.7, "max_tokens": 150, "top_p": 0.9})
 
         return config
 
@@ -325,21 +326,21 @@ class ConfigurationManager:
             "app": {
                 "title": self.get_app_title(),
                 "icon": self.get_app_icon(),
-                "language": self.get_app_language()
+                "language": self.get_app_language(),
             },
             "agents": self.get_all_agents_config(),
             "directories": {
                 "logs_dir": self.get_logs_dir(),
                 "prompt_dir": self.get_prompt_dir(),
-                "stages_dir": self.get_stages_dir()
+                "stages_dir": self.get_stages_dir(),
             },
             "memory": {
                 "max_therapist_messages": self.get_max_therapist_context_messages(),
                 "max_supervisor_messages": self.get_max_supervisor_context_messages(),
                 "enable_summary": self.is_conversation_summary_enabled(),
-                "compression_threshold": self.get_context_compression_threshold()
+                "compression_threshold": self.get_context_compression_threshold(),
             },
-            "providers": self.get_configured_providers()
+            "providers": self.get_configured_providers(),
         }
 
     # =====================================================================================
@@ -370,52 +371,31 @@ class ConfigurationManager:
     def _get_default_configuration(self) -> Dict[str, Any]:
         """Get default configuration structure."""
         return {
-            "app": {
-                "title": "Psychia - TSR Therapy Assistant",
-                "icon": "🧠",
-                "language": "pl"
-            },
+            "app": {"title": "Psychia - TSR Therapy Assistant", "icon": "🧠", "language": "pl"},
             "agents": {
                 "therapist": {
                     "provider": "openai",
                     "model": "gpt-4o-mini",
-                    "parameters": {
-                        "temperature": 0.7,
-                        "max_tokens": 150,
-                        "top_p": 0.9
-                    }
+                    "parameters": {"temperature": 0.7, "max_tokens": 150, "top_p": 0.9},
                 },
                 "supervisor": {
                     "provider": "gemini",
                     "model": "gemini-1.5-flash",
-                    "parameters": {
-                        "temperature": 0.7,
-                        "max_tokens": 150,
-                        "top_p": 0.9
-                    }
-                }
+                    "parameters": {"temperature": 0.7, "max_tokens": 150, "top_p": 0.9},
+                },
             },
             "directories": {
                 "logs_dir": "./logs",
                 "prompt_dir": "./config",
-                "stages_dir": "./config"
+                "stages_dir": "./config",
             },
             "memory": {
                 "max_therapist_messages": 20,
                 "max_supervisor_messages": 15,
                 "enable_summary": True,
-                "compression_threshold": 100
+                "compression_threshold": 100,
             },
-            "session": {
-                "timeout": 3600,
-                "max_history": 50
-            },
-            "safety": {
-                "enable_checks": True,
-                "strict_mode": False
-            },
-            "logging": {
-                "level": "INFO",
-                "detailed": True
-            }
+            "session": {"timeout": 3600, "max_history": 50},
+            "safety": {"enable_checks": True, "strict_mode": False},
+            "logging": {"level": "INFO", "detailed": True},
         }

@@ -13,10 +13,9 @@ class PromptQueryService:
         self.system_repo = system_repo
         self.stage_repo = stage_repo
 
-    def search_prompts(self,
-                      query: str,
-                      search_in: List[str] = None,
-                      prompt_types: List[str] = None) -> List[Dict[str, Any]]:
+    def search_prompts(
+        self, query: str, search_in: List[str] = None, prompt_types: List[str] = None
+    ) -> List[Dict[str, Any]]:
         """
         Search prompts by text content.
 
@@ -46,7 +45,7 @@ class PromptQueryService:
                     result["search_metadata"] = {
                         "type": "system",
                         "matches": matches,
-                        "relevance_score": len(matches)
+                        "relevance_score": len(matches),
                     }
                     results.append(result)
 
@@ -60,7 +59,7 @@ class PromptQueryService:
                     result["search_metadata"] = {
                         "type": "stage",
                         "matches": matches,
-                        "relevance_score": len(matches)
+                        "relevance_score": len(matches),
                     }
                     results.append(result)
 
@@ -79,31 +78,27 @@ class PromptQueryService:
         Returns:
             Dictionary with system and stage prompts
         """
-        result = {
-            "system": [],
-            "stage": []
-        }
+        result = {"system": [], "stage": []}
 
         # Get system prompts with status
         system_prompts = self.system_repo.list_all_prompts()
         result["system"] = [
-            prompt for prompt in system_prompts
+            prompt
+            for prompt in system_prompts
             if prompt.get("metadata", {}).get("status") == status
         ]
 
         # Get stage prompts with status
         stage_prompts = self.stage_repo.list_all_prompts()
         result["stage"] = [
-            prompt for prompt in stage_prompts
-            if prompt.get("metadata", {}).get("status") == status
+            prompt for prompt in stage_prompts if prompt.get("metadata", {}).get("status") == status
         ]
 
         return result
 
-    def get_prompts_by_date_range(self,
-                                 start_date: str,
-                                 end_date: str,
-                                 date_field: str = "created_at") -> List[Dict[str, Any]]:
+    def get_prompts_by_date_range(
+        self, start_date: str, end_date: str, date_field: str = "created_at"
+    ) -> List[Dict[str, Any]]:
         """
         Get prompts created/updated within date range.
 
@@ -116,8 +111,8 @@ class PromptQueryService:
             List of prompts within date range
         """
         try:
-            start_dt = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
-            end_dt = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
+            start_dt = datetime.fromisoformat(start_date.replace("Z", "+00:00"))
+            end_dt = datetime.fromisoformat(end_date.replace("Z", "+00:00"))
         except ValueError:
             return []
 
@@ -142,10 +137,7 @@ class PromptQueryService:
                 results.append(prompt_with_type)
 
         # Sort by date (newest first)
-        results.sort(
-            key=lambda x: x.get("metadata", {}).get(date_field, ""),
-            reverse=True
-        )
+        results.sort(key=lambda x: x.get("metadata", {}).get(date_field, ""), reverse=True)
 
         return results
 
@@ -161,23 +153,14 @@ class PromptQueryService:
         """
         summary = {
             "agent": agent_type,
-            "system_prompts": {
-                "total": 0,
-                "active": 0,
-                "inactive": 0,
-                "latest": None
-            },
-            "stage_prompts": {
-                "total": 0,
-                "active": 0,
-                "inactive": 0,
-                "by_stage": {}
-            }
+            "system_prompts": {"total": 0, "active": 0, "inactive": 0, "latest": None},
+            "stage_prompts": {"total": 0, "active": 0, "inactive": 0, "by_stage": {}},
         }
 
         # System prompts summary
         system_prompts = [
-            p for p in self.system_repo.list_all_prompts()
+            p
+            for p in self.system_repo.list_all_prompts()
             if p.get("metadata", {}).get("agent") == agent_type
         ]
 
@@ -209,7 +192,7 @@ class PromptQueryService:
                 summary["stage_prompts"]["by_stage"][stage] = {
                     "total": 0,
                     "active": 0,
-                    "inactive": 0
+                    "inactive": 0,
                 }
 
             summary["stage_prompts"]["by_stage"][stage]["total"] += 1
@@ -254,7 +237,7 @@ class PromptQueryService:
             similar_group = [prompt1]
             content1 = self._get_prompt_content(prompt1)
 
-            for j, prompt2 in enumerate(all_prompts[i+1:], i+1):
+            for j, prompt2 in enumerate(all_prompts[i + 1 :], i + 1):
                 if j in checked:
                     continue
 
@@ -266,17 +249,21 @@ class PromptQueryService:
                     checked.add(j)
 
             if len(similar_group) > 1:
-                duplicates.append({
-                    "group_size": len(similar_group),
-                    "similarity_score": similarity_threshold,
-                    "prompts": similar_group
-                })
+                duplicates.append(
+                    {
+                        "group_size": len(similar_group),
+                        "similarity_score": similarity_threshold,
+                        "prompts": similar_group,
+                    }
+                )
 
             checked.add(i)
 
         return duplicates
 
-    def _search_in_prompt(self, prompt: Dict[str, Any], query: str, search_in: List[str]) -> List[str]:
+    def _search_in_prompt(
+        self, prompt: Dict[str, Any], query: str, search_in: List[str]
+    ) -> List[str]:
         """Search for query in prompt and return list of matches."""
         matches = []
 
@@ -307,7 +294,7 @@ class PromptQueryService:
     def _is_in_date_range(self, date_str: str, start_dt: datetime, end_dt: datetime) -> bool:
         """Check if date string falls within date range."""
         try:
-            prompt_dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+            prompt_dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
             return start_dt <= prompt_dt <= end_dt
         except ValueError:
             return False

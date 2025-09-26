@@ -17,7 +17,7 @@ class PageRouter:
         "📝 Prompty": prompts_management_page,
         "🧪 Testowanie": testing_page,
         "🤖 Test Modeli": model_test_page,
-        "📦 Eksport Projektu": export_project_page
+        "📦 Eksport Projektu": export_project_page,
     }
 
     DEFAULT_PAGE = "🏠 Terapia"
@@ -26,9 +26,7 @@ class PageRouter:
     def display_page_selector(cls):
         """Display the page selection dropdown in sidebar."""
         return st.sidebar.selectbox(
-            "🔄 Wybierz stronę:",
-            list(cls.PAGES.keys()),
-            key="page_selector"
+            "🔄 Wybierz stronę:", list(cls.PAGES.keys()), key="page_selector"
         )
 
     @classmethod

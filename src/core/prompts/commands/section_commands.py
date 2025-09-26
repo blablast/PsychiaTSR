@@ -94,10 +94,11 @@ class DuplicateSectionCommand:
     prompt_id: str
     section_id: str
     new_title: Optional[str] = None  # If None, will append "(Copy)" to original
-    position: Optional[int] = None   # If None, will add after original
+    position: Optional[int] = None  # If None, will add after original
 
 
 # Command Result objects for responses
+
 
 @dataclass(frozen=True)
 class CommandResult:
@@ -110,7 +111,7 @@ class CommandResult:
 
     def __post_init__(self):
         if self.timestamp is None:
-            object.__setattr__(self, 'timestamp', datetime.now())
+            object.__setattr__(self, "timestamp", datetime.now())
 
 
 @dataclass(frozen=True)

@@ -120,7 +120,9 @@ class PromptManagementService:
             self.logger.warning(f"No active stage prompt found for {stage_id}/{agent_type}")
         return self._create_fallback_stage_prompt(stage_id, agent_type)
 
-    def save_stage_prompt(self, stage_id: str, agent_type: str, prompt_data: Dict[str, Any]) -> bool:
+    def save_stage_prompt(
+        self, stage_id: str, agent_type: str, prompt_data: Dict[str, Any]
+    ) -> bool:
         """Save stage prompt with validation."""
         # Validate inputs
         is_valid, error = self.validator.validate_agent_type(agent_type)
@@ -208,6 +210,7 @@ class PromptManagementService:
     def _create_fallback_system_prompt(self, agent_type: str) -> Dict[str, Any]:
         """Create fallback system prompt."""
         from datetime import datetime
+
         return {
             "metadata": {
                 "id": 999,
@@ -215,21 +218,22 @@ class PromptManagementService:
                 "created_at": datetime.now().isoformat(),
                 "updated_at": datetime.now().isoformat(),
                 "status": "active",
-                "note": f"Fallback {agent_type} system prompt"
+                "note": f"Fallback {agent_type} system prompt",
             },
             "configuration": {
                 "sections": {
                     "ai_role": {
                         "title": "1. Rola AI",
-                        "content": f"System prompt dla {agent_type} - skonfiguruj w bazie danych"
+                        "content": f"System prompt dla {agent_type} - skonfiguruj w bazie danych",
                     }
                 }
-            }
+            },
         }
 
     def _create_fallback_stage_prompt(self, stage_id: str, agent_type: str) -> Dict[str, Any]:
         """Create fallback stage prompt."""
         from datetime import datetime
+
         return {
             "metadata": {
                 "id": 998,
@@ -238,14 +242,14 @@ class PromptManagementService:
                 "created_at": datetime.now().isoformat(),
                 "updated_at": datetime.now().isoformat(),
                 "status": "active",
-                "note": f"Fallback {agent_type} stage {stage_id} prompt"
+                "note": f"Fallback {agent_type} stage {stage_id} prompt",
             },
             "configuration": {
                 "sections": {
                     "placeholder": {
                         "title": f"Etap {stage_id} - {agent_type}",
-                        "content": f"Prompt etapowy - skonfiguruj w bazie danych"
+                        "content": f"Prompt etapowy - skonfiguruj w bazie danych",
                     }
                 }
-            }
+            },
         }

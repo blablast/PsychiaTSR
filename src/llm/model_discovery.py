@@ -9,12 +9,14 @@ from pathlib import Path
 # Load environment variables from .env file
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     pass  # dotenv not available, use system environment
 
 try:
     import aiohttp
+
     AIOHTTP_AVAILABLE = True
 except ImportError:
     AIOHTTP_AVAILABLE = False
@@ -29,13 +31,12 @@ class ModelDiscovery:
     CACHE_FILE = Path("config/models_cache.json")
     DEFAULT_CACHE_DURATION_DAYS = 7
 
-
     @classmethod
     def load_cache(cls) -> Dict[str, Any]:
         """Load models cache from JSON file."""
         try:
             if cls.CACHE_FILE.exists():
-                with open(cls.CACHE_FILE, 'r', encoding='utf-8') as f:
+                with open(cls.CACHE_FILE, "r", encoding="utf-8") as f:
                     return json.load(f)
         except Exception:
             pass
@@ -48,7 +49,7 @@ class ModelDiscovery:
         """Save models cache to JSON file."""
         try:
             cls.CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
-            with open(cls.CACHE_FILE, 'w', encoding='utf-8') as f:
+            with open(cls.CACHE_FILE, "w", encoding="utf-8") as f:
                 json.dump(cache_data, f, indent=2, ensure_ascii=False)
         except Exception as e:
             print(f"Warning: Failed to save models cache: {e}")
@@ -59,7 +60,7 @@ class ModelDiscovery:
         try:
             template_path = Path("config/templates/defaults/models_cache_default.json")
             if template_path.exists():
-                with open(template_path, 'r', encoding='utf-8') as f:
+                with open(template_path, "r", encoding="utf-8") as f:
                     cache_template = json.load(f)
                     # Override cache duration from class constant
                     cache_template["cache_duration_days"] = cls.DEFAULT_CACHE_DURATION_DAYS
@@ -74,13 +75,20 @@ class ModelDiscovery:
             "expires_at": None,
             "cache_duration_days": cls.DEFAULT_CACHE_DURATION_DAYS,
             "providers": {
-                "openai": {"models": [], "last_fetched": None, "status": "not_fetched", "error": None},
-                "gemini": {"models": [], "last_fetched": None, "status": "not_fetched", "error": None}
+                "openai": {
+                    "models": [],
+                    "last_fetched": None,
+                    "status": "not_fetched",
+                    "error": None,
+                },
+                "gemini": {
+                    "models": [],
+                    "last_fetched": None,
+                    "status": "not_fetched",
+                    "error": None,
+                },
             },
-            "fallback_models": {
-                "openai": [],
-                "gemini": []
-            }
+            "fallback_models": {"openai": [], "gemini": []},
         }
 
     @classmethod
@@ -90,7 +98,7 @@ class ModelDiscovery:
             return True
 
         try:
-            expires_at = datetime.fromisoformat(cache_data["expires_at"].replace('Z', '+00:00'))
+            expires_at = datetime.fromisoformat(cache_data["expires_at"].replace("Z", "+00:00"))
             return datetime.now().astimezone() > expires_at
         except Exception:
             return True
@@ -99,9 +107,9 @@ class ModelDiscovery:
     def _has_api_key(cls, provider: str) -> bool:
         """Check if API key is available for provider."""
         if provider == "openai":
-            return bool(os.getenv('OPENAI_API_KEY'))
+            return bool(os.getenv("OPENAI_API_KEY"))
         elif provider == "gemini":
-            return bool(os.getenv('GOOGLE_API_KEY'))
+            return bool(os.getenv("GOOGLE_API_KEY"))
         return False
 
     @classmethod
@@ -110,11 +118,13 @@ class ModelDiscovery:
         try:
             headers = {
                 "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             }
 
             async with aiohttp.ClientSession() as session:
-                async with session.get("https://api.openai.com/v1/models", headers=headers) as response:
+                async with session.get(
+                    "https://api.openai.com/v1/models", headers=headers
+                ) as response:
                     if response.status == 200:
                         data = await response.json()
                         models = []
@@ -124,14 +134,16 @@ class ModelDiscovery:
 
                             # Filter for chat completion models
                             if any(prefix in model_id for prefix in ["gpt-", "o1-"]):
-                                models.append({
-                                    "id": model_id,
-                                    "name": model_id.upper().replace("-", " ").title(),
-                                    "provider": "openai",
-                                    "context_length": cls._get_openai_context_length(model_id),
-                                    "description": f"OpenAI {model_id} model",
-                                    "available": True
-                                })
+                                models.append(
+                                    {
+                                        "id": model_id,
+                                        "name": model_id.upper().replace("-", " ").title(),
+                                        "provider": "openai",
+                                        "context_length": cls._get_openai_context_length(model_id),
+                                        "description": f"OpenAI {model_id} model",
+                                        "available": True,
+                                    }
+                                )
 
                         return models
         except Exception as e:
@@ -149,7 +161,7 @@ class ModelDiscovery:
             "gpt-4-turbo": 128000,
             "gpt-3.5-turbo": 16385,
             "o1-preview": 128000,
-            "o1-mini": 128000
+            "o1-mini": 128000,
         }
 
         for pattern, length in context_map.items():
@@ -162,7 +174,7 @@ class ModelDiscovery:
     async def _fetch_gemini_models(cls) -> List[Dict[str, Any]]:
         """Fetch available models from Gemini API."""
         try:
-            api_key = os.getenv('GOOGLE_API_KEY')
+            api_key = os.getenv("GOOGLE_API_KEY")
             url = "https://generativelanguage.googleapis.com/v1beta/models"
 
             async with aiohttp.ClientSession() as session:
@@ -177,15 +189,23 @@ class ModelDiscovery:
                                 model_id = model_name.split("models/")[-1]
 
                                 # Filter for text generation models
-                                if "gemini" in model_id and "generateContent" in model.get("supportedGenerationMethods", []):
-                                    models.append({
-                                        "id": model_id,
-                                        "name": model.get("displayName", model_id.title()),
-                                        "provider": "gemini",
-                                        "context_length": cls._get_gemini_context_length(model_id),
-                                        "description": model.get("description", f"Google {model_id} model"),
-                                        "available": True
-                                    })
+                                if "gemini" in model_id and "generateContent" in model.get(
+                                    "supportedGenerationMethods", []
+                                ):
+                                    models.append(
+                                        {
+                                            "id": model_id,
+                                            "name": model.get("displayName", model_id.title()),
+                                            "provider": "gemini",
+                                            "context_length": cls._get_gemini_context_length(
+                                                model_id
+                                            ),
+                                            "description": model.get(
+                                                "description", f"Google {model_id} model"
+                                            ),
+                                            "available": True,
+                                        }
+                                    )
 
                         return models
         except Exception as e:
@@ -200,7 +220,7 @@ class ModelDiscovery:
             "gemini-2.0": 2000000,
             "gemini-1.5-pro": 2000000,
             "gemini-1.5-flash": 1000000,
-            "gemini-pro": 32768
+            "gemini-pro": 32768,
         }
 
         for pattern, length in context_map.items():
@@ -240,21 +260,22 @@ class ModelDiscovery:
             # Update cache with fetched models
             for provider, models in fetched_models.items():
                 if provider in cache_data["providers"]:
-                    cache_data["providers"][provider].update({
-                        "models": models,
-                        "last_fetched": current_time,
-                        "status": "success" if models else "empty",
-                        "error": None
-                    })
+                    cache_data["providers"][provider].update(
+                        {
+                            "models": models,
+                            "last_fetched": current_time,
+                            "status": "success" if models else "empty",
+                            "error": None,
+                        }
+                    )
 
             # Update cache metadata
             cache_duration = cache_data.get("cache_duration_days", cls.DEFAULT_CACHE_DURATION_DAYS)
             expires_at = datetime.now() + timedelta(days=cache_duration)
 
-            cache_data.update({
-                "last_updated": current_time,
-                "expires_at": expires_at.isoformat() + "Z"
-            })
+            cache_data.update(
+                {"last_updated": current_time, "expires_at": expires_at.isoformat() + "Z"}
+            )
 
             # Save updated cache
             cls.save_cache(cache_data)
@@ -277,7 +298,9 @@ class ModelDiscovery:
             if cached_models:
                 # Add availability status based on API key
                 for model in cached_models:
-                    model["available"] = cls._has_api_key(provider) if provider in ["openai", "gemini"] else True
+                    model["available"] = (
+                        cls._has_api_key(provider) if provider in ["openai", "gemini"] else True
+                    )
 
                 models[provider] = cached_models
             elif use_fallback and provider in cache_data.get("fallback_models", {}):
@@ -330,10 +353,10 @@ class ModelDiscovery:
             for model in models:
                 # Add consistent fields for UI
                 model_info = {
-                    'model_id': model['id'],
-                    'name': model['name'],
-                    'provider': provider_name,
-                    'available': model.get('available', False)
+                    "model_id": model["id"],
+                    "name": model["name"],
+                    "provider": provider_name,
+                    "available": model.get("available", False),
                 }
                 all_models.append(model_info)
 
@@ -348,11 +371,11 @@ class ModelDiscovery:
     def test_model_availability(cls, provider: str, model_id: str) -> bool:
         """Test if a specific model is available and working."""
         try:
-            if provider == 'openai':
-                llm = OpenAIProvider(model_id, api_key=os.getenv('OPENAI_API_KEY'))
+            if provider == "openai":
+                llm = OpenAIProvider(model_id, api_key=os.getenv("OPENAI_API_KEY"))
                 return llm.is_available()
-            elif provider == 'gemini':
-                llm = GeminiProvider(model_id, api_key=os.getenv('GOOGLE_API_KEY'))
+            elif provider == "gemini":
+                llm = GeminiProvider(model_id, api_key=os.getenv("GOOGLE_API_KEY"))
                 return llm.is_available()
             else:
                 return False
@@ -364,31 +387,30 @@ class ModelDiscovery:
         """Get recommended models for different roles."""
         available_models = cls.get_models_from_cache()
 
-        recommendations: Dict[str, Optional[str]] = {
-            'therapist': None,
-            'supervisor': None
-        }
+        recommendations: Dict[str, Optional[str]] = {"therapist": None, "supervisor": None}
 
         # Priority order for recommendations
         priority_models = [
-            ('openai', 'gpt-4o-mini'),
-            ('openai', 'gpt-4o'),
-            ('gemini', 'gemini-2.5-flash'),
-            ('gemini', 'gemini-2.5-pro'),
+            ("openai", "gpt-4o-mini"),
+            ("openai", "gpt-4o"),
+            ("gemini", "gemini-2.5-flash"),
+            ("gemini", "gemini-2.5-pro"),
         ]
 
         for provider, model_id in priority_models:
             provider_models = available_models.get(provider, [])
-            matching_model = next((m for m in provider_models if m['id'] == model_id and m.get('available')), None)
+            matching_model = next(
+                (m for m in provider_models if m["id"] == model_id and m.get("available")), None
+            )
 
             if matching_model:
-                if not recommendations['therapist']:
-                    recommendations['therapist'] = f"{provider}:{model_id}"
-                if not recommendations['supervisor']:
-                    recommendations['supervisor'] = f"{provider}:{model_id}"
+                if not recommendations["therapist"]:
+                    recommendations["therapist"] = f"{provider}:{model_id}"
+                if not recommendations["supervisor"]:
+                    recommendations["supervisor"] = f"{provider}:{model_id}"
 
                 # Both roles filled
-                if recommendations['therapist'] and recommendations['supervisor']:
+                if recommendations["therapist"] and recommendations["supervisor"]:
                     break
 
         return recommendations

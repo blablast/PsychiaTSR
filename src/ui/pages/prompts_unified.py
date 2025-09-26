@@ -21,8 +21,6 @@ from ...core.prompts.domain.prompt_section import PromptSection
 from ...core.prompts.domain.prompt_template import PromptTemplate
 
 
-
-
 def prompts_unified_page():
     """New unified prompts management page with dialog editing."""
     st.title("📝 Prompts Management")
@@ -42,7 +40,6 @@ def prompts_unified_page():
         # Main content area
         render_prompt_list(service, prompt_ids)
 
-
         # Footer with quick actions
         render_footer_actions(service, prompt_ids)
 
@@ -57,10 +54,14 @@ def render_prompt_list(service: PromptSectionService, prompt_ids: List[str]):
 
     # Categorize prompts - system prompts take precedence over stage prompts
     system_prompts = [pid for pid in prompt_ids if "system" in pid.lower()]
-    stage_prompts = [pid for pid in prompt_ids if "stage" in pid.lower() and "system" not in pid.lower()]
+    stage_prompts = [
+        pid for pid in prompt_ids if "stage" in pid.lower() and "system" not in pid.lower()
+    ]
 
     # Add any remaining prompts that don't fit either category to stage prompts
-    remaining_prompts = [pid for pid in prompt_ids if pid not in system_prompts and pid not in stage_prompts]
+    remaining_prompts = [
+        pid for pid in prompt_ids if pid not in system_prompts and pid not in stage_prompts
+    ]
     if remaining_prompts:
         stage_prompts.extend(remaining_prompts)
 
@@ -85,7 +86,9 @@ def render_prompt_list(service: PromptSectionService, prompt_ids: List[str]):
         st.info("No stage prompts found")
 
 
-def render_prompt_card(service: PromptSectionService, prompt_id: str, prompt_type: str, card_index: int):
+def render_prompt_card(
+    service: PromptSectionService, prompt_id: str, prompt_type: str, card_index: int
+):
     """Render individual prompt card with action buttons."""
 
     # Get prompt info for display
@@ -119,7 +122,11 @@ def render_prompt_card(service: PromptSectionService, prompt_id: str, prompt_typ
         col1, col2, col3, col4, col5 = st.columns([4, 1, 1, 1, 1])
 
         with col1:
-            icon = "🩺" if "therapist" in prompt_id.lower() else "👥" if "supervisor" in prompt_id.lower() else "🎯"
+            icon = (
+                "🩺"
+                if "therapist" in prompt_id.lower()
+                else "👥" if "supervisor" in prompt_id.lower() else "🎯"
+            )
             st.markdown(f"### {icon} {prompt_id}")
 
             # Stats row
@@ -142,7 +149,9 @@ def render_prompt_card(service: PromptSectionService, prompt_id: str, prompt_typ
                 st.session_state[f"show_preview_dialog_{prompt_id}"] = True
 
         with col4:
-            if st.button("📊 Stats", key=f"stats_{key_base}", help=f"Show statistics for {prompt_id}"):
+            if st.button(
+                "📊 Stats", key=f"stats_{key_base}", help=f"Show statistics for {prompt_id}"
+            ):
                 show_prompt_stats(service, prompt_id)
 
         with col5:
@@ -167,21 +176,31 @@ def render_prompt_dialogs(service: PromptSectionService, prompt_id: str):
 
     # Only allow one dialog at a time across all prompts
     # Check if any dialog is currently open
-    any_edit_open = any(st.session_state.get(f"show_edit_dialog_{pid}", False) for pid in get_all_prompt_ids(service))
-    any_preview_open = any(st.session_state.get(f"show_preview_dialog_{pid}", False) for pid in get_all_prompt_ids(service))
+    any_edit_open = any(
+        st.session_state.get(f"show_edit_dialog_{pid}", False)
+        for pid in get_all_prompt_ids(service)
+    )
+    any_preview_open = any(
+        st.session_state.get(f"show_preview_dialog_{pid}", False)
+        for pid in get_all_prompt_ids(service)
+    )
 
     # Edit dialog for this specific prompt
     if st.session_state.get(f"show_edit_dialog_{prompt_id}") and not any_preview_open:
+
         @st.dialog(f"✏️ Edit {prompt_id}", width="large")
         def edit_dialog():
             render_edit_dialog_content(service, prompt_id)
+
         edit_dialog()
 
     # Preview dialog for this specific prompt
     elif st.session_state.get(f"show_preview_dialog_{prompt_id}") and not any_edit_open:
+
         @st.dialog(f"👀 Preview {prompt_id}", width="large")
         def preview_dialog():
             render_preview_dialog_content(service, prompt_id)
+
         preview_dialog()
 
 
@@ -189,7 +208,7 @@ def get_all_prompt_ids(service: PromptSectionService):
     """Get all prompt IDs for dialog conflict checking."""
     try:
         return service.repository.list_prompt_ids()
-    except:
+    except Exception:
         return []
 
 
@@ -230,11 +249,9 @@ def render_edit_dialog_content(service: PromptSectionService, prompt_id: str):
     sections = sections_result.sections
 
     # Editor tabs
-    tab_edit, tab_reorder, tab_preview = st.tabs([
-        "✏️ Edit Sections",
-        "🔄 Reorder",
-        "👀 Live Preview"
-    ])
+    tab_edit, tab_reorder, tab_preview = st.tabs(
+        ["✏️ Edit Sections", "🔄 Reorder", "👀 Live Preview"]
+    )
 
     with tab_edit:
         render_section_crud_dialog(service, prompt_id, sections)
@@ -258,7 +275,9 @@ def render_preview_dialog_content(service: PromptSectionService, prompt_id: str)
     render_live_preview_dialog(service, prompt_id)
 
 
-def render_section_crud_dialog(service: PromptSectionService, prompt_id: str, sections: List[PromptSection]):
+def render_section_crud_dialog(
+    service: PromptSectionService, prompt_id: str, sections: List[PromptSection]
+):
     """Render section CRUD interface optimized for dialog."""
 
     st.markdown("### ➕ Add New Section")
@@ -278,7 +297,7 @@ def render_section_crud_dialog(service: PromptSectionService, prompt_id: str, se
             "Content",
             height=150,
             placeholder="Enter section content...",
-            help="Use markdown formatting if needed"
+            help="Use markdown formatting if needed",
         )
 
         if st.form_submit_button("➕ Add Section", type="primary"):
@@ -292,7 +311,10 @@ def render_section_crud_dialog(service: PromptSectionService, prompt_id: str, se
                     else:
                         # Find position after specific section
                         section_title = position.replace("After: ", "")
-                        pos_index = next((i + 1 for i, s in enumerate(sections) if s.title == section_title), None)
+                        pos_index = next(
+                            (i + 1 for i, s in enumerate(sections) if s.title == section_title),
+                            None,
+                        )
 
                     result = service.create_section(prompt_id, new_title, new_content, pos_index)
                     if result.success:
@@ -323,7 +345,9 @@ def render_section_crud_dialog(service: PromptSectionService, prompt_id: str, se
                     with col1:
                         if st.form_submit_button("💾 Update", type="primary"):
                             try:
-                                result = service.update_section(prompt_id, section.id, edited_title, edited_content)
+                                result = service.update_section(
+                                    prompt_id, section.id, edited_title, edited_content
+                                )
                                 if result.success:
                                     st.success("✅ Section updated!")
                                     time.sleep(1)
@@ -375,8 +399,15 @@ def render_section_crud_dialog(service: PromptSectionService, prompt_id: str, se
                                 st.error(f"❌ Error moving down: {str(e)}")
 
                 # Separate delete button for safety
-                if st.button(f"🗑️ Delete Section", key=f"delete_dialog_{prompt_id}_{section.id}", type="secondary"):
-                    if st.button(f"⚠️ Confirm Delete '{section.title}'?", key=f"confirm_delete_dialog_{prompt_id}_{section.id}"):
+                if st.button(
+                    f"🗑️ Delete Section",
+                    key=f"delete_dialog_{prompt_id}_{section.id}",
+                    type="secondary",
+                ):
+                    if st.button(
+                        f"⚠️ Confirm Delete '{section.title}'?",
+                        key=f"confirm_delete_dialog_{prompt_id}_{section.id}",
+                    ):
                         try:
                             result = service.delete_section(prompt_id, section.id)
                             if result.success:
@@ -391,7 +422,9 @@ def render_section_crud_dialog(service: PromptSectionService, prompt_id: str, se
         st.info("No sections found. Add your first section above!")
 
 
-def render_section_reorder_dialog(service: PromptSectionService, prompt_id: str, sections: List[PromptSection]):
+def render_section_reorder_dialog(
+    service: PromptSectionService, prompt_id: str, sections: List[PromptSection]
+):
     """Render section reorder interface for dialog."""
     st.markdown("### 🔄 Reorder Sections")
 
@@ -413,7 +446,11 @@ def render_section_reorder_dialog(service: PromptSectionService, prompt_id: str,
 
         with col3:
             if i > 0:
-                if st.button("⬆️", key=f"reorder_dialog_up_{prompt_id}_{section.id}_{i}", help=f"Move {section.title} up"):
+                if st.button(
+                    "⬆️",
+                    key=f"reorder_dialog_up_{prompt_id}_{section.id}_{i}",
+                    help=f"Move {section.title} up",
+                ):
                     try:
                         # Move section up by one position
                         result = service.move_section(prompt_id, section.id, i - 1)
@@ -428,7 +465,11 @@ def render_section_reorder_dialog(service: PromptSectionService, prompt_id: str,
 
         with col4:
             if i < len(sections) - 1:
-                if st.button("⬇️", key=f"reorder_dialog_down_{prompt_id}_{section.id}_{i}", help=f"Move {section.title} down"):
+                if st.button(
+                    "⬇️",
+                    key=f"reorder_dialog_down_{prompt_id}_{section.id}_{i}",
+                    help=f"Move {section.title} down",
+                ):
                     try:
                         # Move section down by one position
                         result = service.move_section(prompt_id, section.id, i + 1)
@@ -490,10 +531,6 @@ def render_live_preview_dialog(service: PromptSectionService, prompt_id: str):
 
     except Exception as e:
         st.error(f"Error generating preview: {e}")
-
-
-
-
 
 
 def format_prompt_for_preview(template: PromptTemplate) -> str:

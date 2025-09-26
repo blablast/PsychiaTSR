@@ -16,8 +16,7 @@ class SimpleRealtimeAudioService:
         """Initialize with TTS configuration."""
         self.tts_config = tts_config
         self.tts_provider = ElevenLabsTTSProvider(
-            api_key=tts_config.get("api_key"),
-            voice_id=tts_config.get("voice_id")
+            api_key=tts_config.get("api_key"), voice_id=tts_config.get("voice_id")
         )
         self.audio_container = audio_container  # Global container for audio
         self.audio_placeholder = None
@@ -26,7 +25,7 @@ class SimpleRealtimeAudioService:
         self.chunk_count = 0
         self.audio_count = 0
         self.min_sentence_length = 100  # Minimum characters for complete sentences
-        self.max_buffer_length = 400   # Maximum buffer before forced generation
+        self.max_buffer_length = 400  # Maximum buffer before forced generation
 
     def is_available(self) -> bool:
         """Check if TTS is available."""
@@ -39,14 +38,22 @@ class SimpleRealtimeAudioService:
             with self.audio_container:
                 self.audio_placeholder = st.empty()
                 with self.audio_placeholder.container():
-                    st.info("🎵 **Realtime Audio aktywne** - odpowiedź będzie odtwarzana podczas pisania!")
-                    st.caption("Audio fragmenty będą automatycznie odtwarzane z autoplay. Po zakończeniu dostępny będzie pełny plik 🔊")
+                    st.info(
+                        "🎵 **Realtime Audio aktywne** - odpowiedź będzie odtwarzana podczas pisania!"
+                    )
+                    st.caption(
+                        "Audio fragmenty będą automatycznie odtwarzane z autoplay. Po zakończeniu dostępny będzie pełny plik 🔊"
+                    )
         else:
             # Fallback to creating own placeholder
             self.audio_placeholder = st.empty()
             with self.audio_placeholder.container():
-                st.info("🎵 **Realtime Audio aktywne** - odpowiedź będzie odtwarzana podczas pisania!")
-                st.caption("Audio fragmenty będą automatycznie odtwarzane z autoplay. Po zakończeniu dostępny będzie pełny plik 🔊")
+                st.info(
+                    "🎵 **Realtime Audio aktywne** - odpowiedź będzie odtwarzana podczas pisania!"
+                )
+                st.caption(
+                    "Audio fragmenty będą automatycznie odtwarzane z autoplay. Po zakończeniu dostępny będzie pełny plik 🔊"
+                )
 
     def process_text_chunk(self, chunk: str):
         """Process a text chunk and potentially generate audio for natural segments."""
@@ -59,8 +66,8 @@ class SimpleRealtimeAudioService:
         self.chunk_count += 1
 
         # Check for natural sentence endings
-        has_sentence_end = any(chunk.endswith(marker) for marker in ['.', '!', '?', ':', ';'])
-        has_pause_marker = any(chunk.endswith(marker) for marker in [',', ' - ', '...'])
+        has_sentence_end = any(chunk.endswith(marker) for marker in [".", "!", "?", ":", ";"])
+        has_pause_marker = any(chunk.endswith(marker) for marker in [",", " - ", "..."])
 
         # Generate conditions (more conservative for better flow)
         buffer_ready = len(self.sentence_buffer.strip()) >= self.min_sentence_length
@@ -90,7 +97,9 @@ class SimpleRealtimeAudioService:
         if self.audio_placeholder:
             with self.audio_placeholder.container():
                 st.success("🎵 **Audio zakończone** - wszystkie fragmenty wygenerowane")
-                st.info("💡 Audio fragmenty zostały odtworzone automatycznie. Pełne nagranie będzie dostępne za przyciskiem 🔊 obok wiadomości.")
+                st.info(
+                    "💡 Audio fragmenty zostały odtworzone automatycznie. Pełne nagranie będzie dostępne za przyciskiem 🔊 obok wiadomości."
+                )
 
     def _generate_and_play_streaming_audio(self, text: str):
         """Generate and display streaming audio with HTML5 progressive loading."""
@@ -104,24 +113,27 @@ class SimpleRealtimeAudioService:
             if self.audio_placeholder:
                 with self.audio_placeholder.container():
                     # Create expandable section for each audio segment
-                    with st.expander(f"🎵 Segment {self.audio_count + 1}: {text[:60]}{'...' if len(text) > 60 else ''}", expanded=True):
+                    with st.expander(
+                        f"🎵 Segment {self.audio_count + 1}: {text[:60]}{'...' if len(text) > 60 else ''}",
+                        expanded=True,
+                    ):
                         # Use HTML5 streaming with preload and autoplay
-                        st.audio(
-                            audio_data,
-                            format='audio/mp3',
-                            start_time=0,
-                            autoplay=True
-                        )
+                        st.audio(audio_data, format="audio/mp3", start_time=0, autoplay=True)
 
                         # Show text for reference
                         st.caption(f"**Tekst:** {text}")
 
                     # Log success
                     from src.ui.technical_log_display import add_technical_log
-                    add_technical_log("realtime_audio", f"🎵 Segment {self.audio_count + 1}: {len(text)} znaków, {len(audio_data)} bajtów")
+
+                    add_technical_log(
+                        "realtime_audio",
+                        f"🎵 Segment {self.audio_count + 1}: {len(text)} znaków, {len(audio_data)} bajtów",
+                    )
 
         except Exception as e:
             from src.ui.technical_log_display import add_technical_log
+
             add_technical_log("audio_error", f"❌ Błąd realtime audio: {str(e)}")
 
     def _generate_and_play_audio(self, text: str):
@@ -139,21 +151,30 @@ class SimpleRealtimeAudioService:
             if self.audio_placeholder:
                 with self.audio_placeholder.container():
                     st.success(f"🎵 **Odtwarzam:** {text[:50]}{'...' if len(text) > 50 else ''}")
-                    st.audio(audio_data, format='audio/mp3', start_time=0, autoplay=True)
+                    st.audio(audio_data, format="audio/mp3", start_time=0, autoplay=True)
 
                     # Log success
                     from src.ui.technical_log_display import add_technical_log
-                    add_technical_log("realtime_audio", f"🎵 Wygenerowano audio: {len(text)} znaków, {len(audio_data)} bajtów")
+
+                    add_technical_log(
+                        "realtime_audio",
+                        f"🎵 Wygenerowano audio: {len(text)} znaków, {len(audio_data)} bajtów",
+                    )
 
         except Exception as e:
             from src.ui.technical_log_display import add_technical_log
+
             add_technical_log("audio_error", f"❌ Błąd realtime audio: {str(e)}")
 
 
 class RealtimeTextWrapper:
     """Wrapper for text iterator that generates audio in real-time."""
 
-    def __init__(self, text_iterator: Iterator[str], audio_service: Optional[SimpleRealtimeAudioService] = None):
+    def __init__(
+        self,
+        text_iterator: Iterator[str],
+        audio_service: Optional[SimpleRealtimeAudioService] = None,
+    ):
         self.text_iterator = text_iterator
         self.audio_service = audio_service
         self._initialized = False
@@ -185,9 +206,7 @@ class RealtimeTextWrapper:
 
 
 def create_realtime_audio_wrapper(
-    text_iterator: Iterator[str],
-    tts_config: Optional[dict] = None,
-    audio_container=None
+    text_iterator: Iterator[str], tts_config: Optional[dict] = None, audio_container=None
 ) -> Iterator[str]:
     """
     Create a text iterator wrapper that generates audio in real-time.
@@ -203,19 +222,23 @@ def create_realtime_audio_wrapper(
     audio_service = None
 
     # Only create audio service if enabled and configured
-    if (tts_config and
-        st.session_state.get("audio_enabled", False) and
-        st.session_state.get("fallback_mode", True)):
+    if (
+        tts_config
+        and st.session_state.get("audio_enabled", False)
+        and st.session_state.get("fallback_mode", True)
+    ):
 
         try:
             audio_service = SimpleRealtimeAudioService(tts_config, audio_container)
             if audio_service.is_available():
                 from src.ui.technical_log_display import add_technical_log
+
                 add_technical_log("realtime_audio", "🎵 Realtime audio service zainicjalizowany")
             else:
                 audio_service = None
         except Exception as e:
             from src.ui.technical_log_display import add_technical_log
+
             add_technical_log("audio_error", f"❌ Błąd inicjalizacji realtime audio: {str(e)}")
             audio_service = None
 

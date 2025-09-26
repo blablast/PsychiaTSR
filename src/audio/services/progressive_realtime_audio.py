@@ -16,8 +16,7 @@ class ProgressiveRealtimeAudioService:
         """Initialize with TTS configuration."""
         self.tts_config = tts_config
         self.tts_provider = ElevenLabsTTSProvider(
-            api_key=tts_config.get("api_key"),
-            voice_id=tts_config.get("voice_id")
+            api_key=tts_config.get("api_key"), voice_id=tts_config.get("voice_id")
         )
         self.audio_container = audio_container
         self.audio_placeholder = None
@@ -29,7 +28,7 @@ class ProgressiveRealtimeAudioService:
 
         # Audio generation thresholds
         self.min_segment_length = 150  # Generate audio for segments of 150+ chars
-        self.sentence_endings = ['.', '!', '?', ':', ';']
+        self.sentence_endings = [".", "!", "?", ":", ";"]
 
         # Audio segments
         self.audio_segments = []
@@ -89,21 +88,23 @@ class ProgressiveRealtimeAudioService:
                 return
 
             self.segment_count += 1
-            self.audio_segments.append({
-                'text': text,
-                'audio_data': audio_data,
-                'segment_id': self.segment_count
-            })
+            self.audio_segments.append(
+                {"text": text, "audio_data": audio_data, "segment_id": self.segment_count}
+            )
 
             # Update the display with new segment
             self._update_progressive_display()
 
             # Log success
             from src.ui.technical_log_display import add_technical_log
-            add_technical_log("progressive_audio", f"🎵 Generated segment {self.segment_count}: {len(text)} chars")
+
+            add_technical_log(
+                "progressive_audio", f"🎵 Generated segment {self.segment_count}: {len(text)} chars"
+            )
 
         except Exception as e:
             from src.ui.technical_log_display import add_technical_log
+
             add_technical_log("audio_error", f"❌ Progressive audio error: {str(e)}")
 
     def _update_progressive_display(self):
@@ -118,13 +119,17 @@ class ProgressiveRealtimeAudioService:
             recent_segments = self.audio_segments[-3:]  # Last 3 segments
 
             for segment in recent_segments:
-                segment_id = segment['segment_id']
-                text = segment['text']
-                audio_data = segment['audio_data']
+                segment_id = segment["segment_id"]
+                text = segment["text"]
+                audio_data = segment["audio_data"]
 
                 # Create compact display for each segment
-                st.markdown(f"**Segment {segment_id}:** *{text[:80]}{'...' if len(text) > 80 else ''}*")
-                st.audio(audio_data, format='audio/mp3', autoplay=(segment_id == self.segment_count))
+                st.markdown(
+                    f"**Segment {segment_id}:** *{text[:80]}{'...' if len(text) > 80 else ''}*"
+                )
+                st.audio(
+                    audio_data, format="audio/mp3", autoplay=(segment_id == self.segment_count)
+                )
 
             if len(self.audio_segments) > 3:
                 st.caption(f"+ {len(self.audio_segments) - 3} wcześniejszych segmentów")
@@ -142,11 +147,17 @@ class ProgressiveRealtimeAudioService:
         """Show completion status."""
         if self.audio_placeholder:
             with self.audio_placeholder.container():
-                st.success(f"🎵 **Audio kompletne** - {self.segment_count} segmentów wygenerowanych")
-                st.info("💡 Wszystkie segmenty audio zostały automatycznie odtworzone. Pełne nagranie dostępne za przyciskiem 🔊")
+                st.success(
+                    f"🎵 **Audio kompletne** - {self.segment_count} segmentów wygenerowanych"
+                )
+                st.info(
+                    "💡 Wszystkie segmenty audio zostały automatycznie odtworzone. Pełne nagranie dostępne za przyciskiem 🔊"
+                )
 
                 # Optionally show all segments in collapsed form
-                with st.expander(f"📋 Zobacz wszystkie {self.segment_count} segmentów", expanded=False):
+                with st.expander(
+                    f"📋 Zobacz wszystkie {self.segment_count} segmentów", expanded=False
+                ):
                     for i, segment in enumerate(self.audio_segments, 1):
                         st.markdown(f"**{i}.** {segment['text']}")
 
@@ -154,7 +165,11 @@ class ProgressiveRealtimeAudioService:
 class ProgressiveTextWrapper:
     """Wrapper for progressive audio processing."""
 
-    def __init__(self, text_iterator: Iterator[str], audio_service: Optional[ProgressiveRealtimeAudioService] = None):
+    def __init__(
+        self,
+        text_iterator: Iterator[str],
+        audio_service: Optional[ProgressiveRealtimeAudioService] = None,
+    ):
         self.text_iterator = text_iterator
         self.audio_service = audio_service
         self._initialized = False
@@ -186,9 +201,7 @@ class ProgressiveTextWrapper:
 
 
 def create_progressive_audio_wrapper(
-    text_iterator: Iterator[str],
-    tts_config: Optional[dict] = None,
-    audio_container=None
+    text_iterator: Iterator[str], tts_config: Optional[dict] = None, audio_container=None
 ) -> Iterator[str]:
     """
     Create a progressive audio wrapper that builds audio naturally.
@@ -203,19 +216,23 @@ def create_progressive_audio_wrapper(
     """
     audio_service = None
 
-    if (tts_config and
-        st.session_state.get("audio_enabled", False) and
-        st.session_state.get("fallback_mode", True)):
+    if (
+        tts_config
+        and st.session_state.get("audio_enabled", False)
+        and st.session_state.get("fallback_mode", True)
+    ):
 
         try:
             audio_service = ProgressiveRealtimeAudioService(tts_config, audio_container)
             if audio_service.is_available():
                 from src.ui.technical_log_display import add_technical_log
+
                 add_technical_log("progressive_audio", "🎵 Progressive audio service initialized")
             else:
                 audio_service = None
         except Exception as e:
             from src.ui.technical_log_display import add_technical_log
+
             add_technical_log("audio_error", f"❌ Progressive audio init error: {str(e)}")
             audio_service = None
 

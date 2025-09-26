@@ -27,8 +27,12 @@ class UnifiedPromptManager:
         # Adjust paths - our files are directly in config/ not config/prompts/
         config_dir = prompts_base_dir.replace("/prompts", "").replace("\\prompts", "")
 
-        self._system_manager = SystemPromptManager(config_dir)  # SystemPromptManager handles system_prompts.json directly
-        self._stage_manager = StagePromptManager(config_dir)   # StagePromptManager handles stage_prompts.json directly
+        self._system_manager = SystemPromptManager(
+            config_dir
+        )  # SystemPromptManager handles system_prompts.json directly
+        self._stage_manager = StagePromptManager(
+            config_dir
+        )  # StagePromptManager handles stage_prompts.json directly
 
     def get_full_prompt(self, stage_id: str, agent_type: str) -> Optional[str]:
         """
@@ -91,7 +95,6 @@ class UnifiedPromptManager:
         Returns:
             True if both system and stage prompts are available
         """
-        return (
-            self._system_manager.is_available(agent_type) and
-            self._stage_manager.is_available(stage_id, agent_type)
+        return self._system_manager.is_available(agent_type) and self._stage_manager.is_available(
+            stage_id, agent_type
         )

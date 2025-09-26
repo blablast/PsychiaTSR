@@ -34,10 +34,12 @@ class SectionReorderWidget:
         """Initialize reorder widget."""
         self.config = config or ReorderConfig()
 
-    def render(self,
-               sections: List[PromptSection],
-               on_reorder: Callable[[List[str]], Any],
-               widget_key: str = "reorder_widget") -> None:
+    def render(
+        self,
+        sections: List[PromptSection],
+        on_reorder: Callable[[List[str]], Any],
+        widget_key: str = "reorder_widget",
+    ) -> None:
         """
         Render the section reordering interface.
 
@@ -55,7 +57,7 @@ class SectionReorderWidget:
         if state_key not in st.session_state:
             st.session_state[state_key] = {
                 "current_order": [s.id for s in sections],
-                "has_changes": False
+                "has_changes": False,
             }
 
         state = st.session_state[state_key]
@@ -89,11 +91,13 @@ class SectionReorderWidget:
             else:
                 st.success("✅ No changes")
 
-    def _render_reorder_list(self,
-                           sections: List[PromptSection],
-                           state: Dict[str, Any],
-                           widget_key: str,
-                           on_reorder: Callable[[List[str]], Any]) -> None:
+    def _render_reorder_list(
+        self,
+        sections: List[PromptSection],
+        state: Dict[str, Any],
+        widget_key: str,
+        on_reorder: Callable[[List[str]], Any],
+    ) -> None:
         """Render the main reordering list."""
 
         st.markdown("**Drag sections to reorder:**")
@@ -109,16 +113,16 @@ class SectionReorderWidget:
                 continue  # Skip missing sections
 
             section = sections_dict[section_id]
-            self._render_reorderable_item(
-                section, i, len(current_order), state, widget_key
-            )
+            self._render_reorderable_item(section, i, len(current_order), state, widget_key)
 
-    def _render_reorderable_item(self,
-                               section: PromptSection,
-                               position: int,
-                               total_count: int,
-                               state: Dict[str, Any],
-                               widget_key: str) -> None:
+    def _render_reorderable_item(
+        self,
+        section: PromptSection,
+        position: int,
+        total_count: int,
+        state: Dict[str, Any],
+        widget_key: str,
+    ) -> None:
         """Render individual reorderable section item."""
 
         item_key = f"{widget_key}_item_{section.id}"
@@ -136,13 +140,15 @@ class SectionReorderWidget:
             with col2:
                 title_display = section.title
                 if len(title_display) > self.config.max_title_display:
-                    title_display = title_display[:self.config.max_title_display] + "..."
+                    title_display = title_display[: self.config.max_title_display] + "..."
 
                 if self.config.compact_mode:
                     st.markdown(f"**{title_display}**")
                 else:
                     st.markdown(f"**{title_display}**")
-                    st.caption(f"Content: {len(section.content)} chars | Type: {section.section_type}")
+                    st.caption(
+                        f"Content: {len(section.content)} chars | Type: {section.section_type}"
+                    )
 
             # Move up button
             with col3:
@@ -168,11 +174,13 @@ class SectionReorderWidget:
             with col5:
                 st.markdown("⋮⋮")
 
-    def _render_control_buttons(self,
-                              sections: List[PromptSection],
-                              state: Dict[str, Any],
-                              widget_key: str,
-                              on_reorder: Callable[[List[str]], Any]) -> None:
+    def _render_control_buttons(
+        self,
+        sections: List[PromptSection],
+        state: Dict[str, Any],
+        widget_key: str,
+        on_reorder: Callable[[List[str]], Any],
+    ) -> None:
         """Render control buttons for reordering operations."""
 
         st.markdown("---")
@@ -181,9 +189,9 @@ class SectionReorderWidget:
 
         # Apply changes
         with col1:
-            if st.button("✅ Apply Order",
-                        key=f"{widget_key}_apply",
-                        disabled=not state["has_changes"]):
+            if st.button(
+                "✅ Apply Order", key=f"{widget_key}_apply", disabled=not state["has_changes"]
+            ):
                 if on_reorder:
                     on_reorder(state["current_order"])
                 state["has_changes"] = False
@@ -192,9 +200,7 @@ class SectionReorderWidget:
 
         # Reset changes
         with col2:
-            if st.button("🔄 Reset",
-                        key=f"{widget_key}_reset",
-                        disabled=not state["has_changes"]):
+            if st.button("🔄 Reset", key=f"{widget_key}_reset", disabled=not state["has_changes"]):
                 state["current_order"] = [s.id for s in sections]
                 state["has_changes"] = False
                 st.info("Order reset to original")
@@ -210,6 +216,7 @@ class SectionReorderWidget:
         with col4:
             if st.button("🎲 Shuffle", key=f"{widget_key}_shuffle"):
                 import random
+
                 state["current_order"] = state["current_order"].copy()
                 random.shuffle(state["current_order"])
                 state["has_changes"] = True
@@ -225,10 +232,9 @@ class SectionReorderWidget:
         if st.session_state.get(f"{widget_key}_show_manual", False):
             self._render_manual_reorder(sections, state, widget_key)
 
-    def _render_manual_reorder(self,
-                             sections: List[PromptSection],
-                             state: Dict[str, Any],
-                             widget_key: str) -> None:
+    def _render_manual_reorder(
+        self, sections: List[PromptSection], state: Dict[str, Any], widget_key: str
+    ) -> None:
         """Render manual position input interface."""
 
         st.markdown("---")
@@ -259,7 +265,7 @@ class SectionReorderWidget:
                         max_value=len(sections),
                         value=i + 1,
                         key=f"{widget_key}_pos_{section_id}",
-                        label_visibility="collapsed"
+                        label_visibility="collapsed",
                     )
                     new_positions[section_id] = pos - 1  # Convert to 0-based
 
@@ -279,7 +285,9 @@ class SectionReorderWidget:
                     st.session_state[f"{widget_key}_show_manual"] = False
                     st.rerun()
 
-    def _move_section(self, state: Dict[str, Any], section_id: str, from_pos: int, to_pos: int) -> None:
+    def _move_section(
+        self, state: Dict[str, Any], section_id: str, from_pos: int, to_pos: int
+    ) -> None:
         """Move section from one position to another."""
         current_order = state["current_order"].copy()
 
@@ -293,10 +301,12 @@ class SectionReorderWidget:
         state["current_order"] = current_order
         state["has_changes"] = True
 
-    def render_compact_reorder(self,
-                             sections: List[PromptSection],
-                             on_reorder: Callable[[List[str]], Any],
-                             widget_key: str = "compact_reorder") -> None:
+    def render_compact_reorder(
+        self,
+        sections: List[PromptSection],
+        on_reorder: Callable[[List[str]], Any],
+        widget_key: str = "compact_reorder",
+    ) -> None:
         """
         Render compact version for smaller spaces.
 
@@ -321,7 +331,7 @@ class SectionReorderWidget:
                 if i > 0 and st.button("⬆️", key=f"{widget_key}_up_{section.id}"):
                     # Create new order with this section moved up
                     new_order = [s.id for s in sections]
-                    new_order[i], new_order[i-1] = new_order[i-1], new_order[i]
+                    new_order[i], new_order[i - 1] = new_order[i - 1], new_order[i]
                     on_reorder(new_order)
                     st.rerun()
 
@@ -329,6 +339,6 @@ class SectionReorderWidget:
                 if i < len(sections) - 1 and st.button("⬇️", key=f"{widget_key}_down_{section.id}"):
                     # Create new order with this section moved down
                     new_order = [s.id for s in sections]
-                    new_order[i], new_order[i+1] = new_order[i+1], new_order[i]
+                    new_order[i], new_order[i + 1] = new_order[i + 1], new_order[i]
                     on_reorder(new_order)
                     st.rerun()

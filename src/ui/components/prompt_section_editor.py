@@ -49,11 +49,9 @@ class PromptSectionEditor:
         sections = sections_result.sections
 
         # Editor tabs
-        tab_crud, tab_reorder, tab_preview = st.tabs([
-            "✏️ Edit Sections",
-            "🔄 Reorder",
-            "👀 Preview"
-        ])
+        tab_crud, tab_reorder, tab_preview = st.tabs(
+            ["✏️ Edit Sections", "🔄 Reorder", "👀 Preview"]
+        )
 
         with tab_crud:
             self._render_crud_tab(prompt_id, sections, editor_key)
@@ -64,7 +62,9 @@ class PromptSectionEditor:
         with tab_preview:
             self._render_preview_tab(prompt_id, sections, editor_key)
 
-    def _render_crud_tab(self, prompt_id: str, sections: List[PromptSection], editor_key: str) -> None:
+    def _render_crud_tab(
+        self, prompt_id: str, sections: List[PromptSection], editor_key: str
+    ) -> None:
         """Render CRUD operations tab."""
         st.markdown("### ✏️ Section Management")
 
@@ -83,7 +83,7 @@ class PromptSectionEditor:
             ),
             on_move_down=lambda section_id: self._handle_move_section(
                 prompt_id, section_id, sections, "down"
-            )
+            ),
         )
 
         # Configure CRUD widget
@@ -93,14 +93,16 @@ class PromptSectionEditor:
             show_delete_button=True,
             show_duplicate_button=True,
             show_move_buttons=True,
-            confirm_delete=True
+            confirm_delete=True,
         )
 
         # Render CRUD widget (pure UI)
         self.crud_widget = SectionCRUDWidget(config)
         self.crud_widget.render(sections, callbacks, f"{editor_key}_crud")
 
-    def _render_reorder_tab(self, prompt_id: str, sections: List[PromptSection], editor_key: str) -> None:
+    def _render_reorder_tab(
+        self, prompt_id: str, sections: List[PromptSection], editor_key: str
+    ) -> None:
         """Render reordering tab."""
         st.markdown("### 🔄 Section Reordering")
 
@@ -109,17 +111,15 @@ class PromptSectionEditor:
             self._handle_reorder_sections(prompt_id, new_section_ids)
 
         # Configure reorder widget
-        config = ReorderConfig(
-            show_preview=True,
-            show_positions=True,
-            compact_mode=False
-        )
+        config = ReorderConfig(show_preview=True, show_positions=True, compact_mode=False)
 
         # Render reorder widget (pure UI)
         self.reorder_widget = SectionReorderWidget(config)
         self.reorder_widget.render(sections, handle_reorder, f"{editor_key}_reorder")
 
-    def _render_preview_tab(self, prompt_id: str, sections: List[PromptSection], editor_key: str) -> None:
+    def _render_preview_tab(
+        self, prompt_id: str, sections: List[PromptSection], editor_key: str
+    ) -> None:
         """Render preview and statistics tab."""
         st.markdown("### 👀 Preview & Statistics")
 
@@ -157,7 +157,9 @@ class PromptSectionEditor:
 
                     # Show first 500 characters as preview
                     preview_text = prompt_text[:500] + ("..." if len(prompt_text) > 500 else "")
-                    st.text_area("Preview (first 500 chars)", preview_text, height=200, disabled=True)
+                    st.text_area(
+                        "Preview (first 500 chars)", preview_text, height=200, disabled=True
+                    )
                 else:
                     st.info("No content to preview")
 
@@ -171,7 +173,9 @@ class PromptSectionEditor:
     # BUSINESS LOGIC DELEGATION METHODS
     # =====================================================================================
 
-    def _handle_create_section(self, prompt_id: str, title: str, content: str, position: Optional[int]) -> None:
+    def _handle_create_section(
+        self, prompt_id: str, title: str, content: str, position: Optional[int]
+    ) -> None:
         """Handle section creation by delegating to business service."""
         try:
             result = self.service.create_section(prompt_id, title, content, position)
@@ -184,7 +188,9 @@ class PromptSectionEditor:
         except Exception as e:
             st.error(f"❌ Error creating section: {e}")
 
-    def _handle_update_section(self, prompt_id: str, section_id: str, title: str, content: str) -> None:
+    def _handle_update_section(
+        self, prompt_id: str, section_id: str, title: str, content: str
+    ) -> None:
         """Handle section update by delegating to business service."""
         try:
             result = self.service.update_section(prompt_id, section_id, title, content)
@@ -223,7 +229,9 @@ class PromptSectionEditor:
         except Exception as e:
             st.error(f"❌ Error duplicating section: {e}")
 
-    def _handle_move_section(self, prompt_id: str, section_id: str, sections: List[PromptSection], direction: str) -> None:
+    def _handle_move_section(
+        self, prompt_id: str, section_id: str, sections: List[PromptSection], direction: str
+    ) -> None:
         """Handle section movement by delegating to business service."""
         try:
             # Find current position
@@ -301,6 +309,7 @@ class PromptSectionEditor:
             self.crud_widget.render_compact(sections, callbacks, f"{editor_key}_compact_crud")
 
         elif mode == "Reorder":
+
             def handle_compact_reorder(new_order: List[str]) -> None:
                 self._handle_reorder_sections(prompt_id, new_order)
 
@@ -323,8 +332,16 @@ class PromptSectionEditor:
 
         return {
             "success": stats_result.success and sections_result.success,
-            "section_count": stats_result.statistics.get("section_count", 0) if stats_result.success else 0,
-            "total_chars": stats_result.statistics.get("total_characters", 0) if stats_result.success else 0,
-            "has_empty": stats_result.statistics.get("empty_sections", 0) > 0 if stats_result.success else False,
-            "error": stats_result.error if not stats_result.success else sections_result.error
+            "section_count": (
+                stats_result.statistics.get("section_count", 0) if stats_result.success else 0
+            ),
+            "total_chars": (
+                stats_result.statistics.get("total_characters", 0) if stats_result.success else 0
+            ),
+            "has_empty": (
+                stats_result.statistics.get("empty_sections", 0) > 0
+                if stats_result.success
+                else False
+            ),
+            "error": stats_result.error if not stats_result.success else sections_result.error,
         }

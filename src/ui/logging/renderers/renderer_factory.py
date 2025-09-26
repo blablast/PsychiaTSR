@@ -20,7 +20,7 @@ class RendererFactory:
         self.renderers: List[BaseRenderer] = [
             PromptRenderer(),
             JsonRenderer(),
-            StandardRenderer()  # Fallback - always returns True
+            StandardRenderer(),  # Fallback - always returns True
         ]
 
     def get_renderer(self, log_entry: Dict[str, Any]) -> BaseRenderer:

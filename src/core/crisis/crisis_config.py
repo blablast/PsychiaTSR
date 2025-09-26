@@ -14,7 +14,7 @@ class CrisisConfig:
         try:
             template_path = Path("config/templates/defaults/crisis_config_default.json")
             if template_path.exists():
-                with open(template_path, 'r', encoding='utf-8') as f:
+                with open(template_path, "r", encoding="utf-8") as f:
                     return json.load(f)
         except Exception:
             pass
@@ -28,25 +28,25 @@ class CrisisConfig:
                 "telefon_zaufania": {
                     "number": "116 123",
                     "description": "Bezpłatny, całodobowy",
-                    "type": "emotional_support"
+                    "type": "emotional_support",
                 },
                 "pogotowie": {
                     "number": "112",
                     "description": "Pogotowie Ratunkowe",
-                    "type": "emergency"
+                    "type": "emergency",
                 },
                 "sor": {
                     "number": None,
                     "description": "Najbliższy Szpitalny Oddział Ratunkowy",
-                    "type": "medical_emergency"
-                }
+                    "type": "medical_emergency",
+                },
             },
             "crisis_protocols": {
                 "immediate_response": "crisis_protocol_v1",
                 "followup_required": True,
                 "escalation_threshold": "high",
-                "log_level": "critical"
-            }
+                "log_level": "critical",
+            },
         }
 
     @staticmethod

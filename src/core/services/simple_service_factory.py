@@ -14,7 +14,7 @@ from ..safety.safety import SafetyChecker
 from ..session.stages.stage_manager import StageManager
 from ..session.session_state import StreamlitSessionState
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class SimpleServiceFactory:
@@ -37,6 +37,7 @@ class SimpleServiceFactory:
     def get_config():
         """Get Config instance - import here to avoid circular dependency."""
         from config import Config
+
         return Config.get_instance()
 
     # =====================================================================================
@@ -83,6 +84,7 @@ class SimpleServiceFactory:
     def create_prompt_management_service():
         """Create prompt management service (singleton)."""
         from ..prompts.prompt_management_service import PromptManagementService
+
         config = SimpleServiceFactory.get_config()
         logger = SimpleServiceFactory.create_logger()
         return PromptManagementService(config.PROMPT_DIR, logger)
@@ -96,6 +98,7 @@ class SimpleServiceFactory:
         """Create prompt service (transient)."""
         from ..services.prompt_service import PromptService
         from ..prompts.unified_prompt_manager import UnifiedPromptManager
+
         config = SimpleServiceFactory.get_config()
         prompt_manager = UnifiedPromptManager(config.PROMPT_DIR)
         return PromptService(prompt_manager)
@@ -104,6 +107,7 @@ class SimpleServiceFactory:
     def create_parsing_service():
         """Create parsing service (transient)."""
         from ..services.parsing_service import ParsingService
+
         logger = SimpleServiceFactory.create_logger()
         return ParsingService(logger)
 
@@ -111,6 +115,7 @@ class SimpleServiceFactory:
     def create_safety_service():
         """Create safety service (transient)."""
         from ..services.safety_service import SafetyService
+
         safety_checker = SimpleServiceFactory.create_safety_checker()
         return SafetyService(safety_checker)
 
@@ -118,6 +123,7 @@ class SimpleServiceFactory:
     def create_memory_service():
         """Create memory service (transient)."""
         from ..services.memory_service import MemoryService
+
         logger = SimpleServiceFactory.create_logger()
         return MemoryService(logger)
 
@@ -129,6 +135,7 @@ class SimpleServiceFactory:
     def create_session_manager():
         """Create session manager (transient - per session)."""
         from ..session.session_manager import SessionManager
+
         storage = SimpleServiceFactory.create_storage_provider()
         logger = SimpleServiceFactory.create_logger()
         return SessionManager(storage, logger)
@@ -137,6 +144,7 @@ class SimpleServiceFactory:
     def create_conversation_manager():
         """Create conversation manager (transient - per session)."""
         from ..conversation.conversation_manager import ConversationManager
+
         logger = SimpleServiceFactory.create_logger()
         return ConversationManager(logger)
 
@@ -148,6 +156,7 @@ class SimpleServiceFactory:
     def create_workflow_manager():
         """Create workflow manager (transient - per session)."""
         from ..workflow.workflow_manager import WorkflowManager
+
         logger = SimpleServiceFactory.create_logger()
         return WorkflowManager(logger)
 
@@ -174,6 +183,7 @@ class SimpleServiceFactory:
         """Create audio service (singleton)."""
         try:
             from ...audio.services.audio_service import AudioService
+
             return AudioService()
         except ImportError:
             return None
@@ -183,6 +193,7 @@ class SimpleServiceFactory:
         """Create ElevenLabs TTS provider (transient)."""
         try:
             from ...audio.providers.elevenlabs_provider import ElevenLabsTTSProvider
+
             return ElevenLabsTTSProvider()
         except ImportError:
             return None
@@ -193,6 +204,7 @@ class SimpleServiceFactory:
         """Create audio streaming manager (singleton)."""
         try:
             from ...audio.webrtc.streaming_manager import AudioStreamingManager
+
             return AudioStreamingManager()
         except ImportError:
             return None
@@ -205,24 +217,24 @@ class SimpleServiceFactory:
     def create_agent_services() -> Dict[str, Any]:
         """Create a complete set of agent services for a session."""
         return {
-            'prompt_service': SimpleServiceFactory.create_prompt_service(),
-            'parsing_service': SimpleServiceFactory.create_parsing_service(),
-            'safety_service': SimpleServiceFactory.create_safety_service(),
-            'memory_service': SimpleServiceFactory.create_memory_service(),
-            'logger': SimpleServiceFactory.create_logger()
+            "prompt_service": SimpleServiceFactory.create_prompt_service(),
+            "parsing_service": SimpleServiceFactory.create_parsing_service(),
+            "safety_service": SimpleServiceFactory.create_safety_service(),
+            "memory_service": SimpleServiceFactory.create_memory_service(),
+            "logger": SimpleServiceFactory.create_logger(),
         }
 
     @staticmethod
     def create_session_services() -> Dict[str, Any]:
         """Create a complete set of session services."""
         return {
-            'session_manager': SimpleServiceFactory.create_session_manager(),
-            'conversation_manager': SimpleServiceFactory.create_conversation_manager(),
-            'workflow_manager': SimpleServiceFactory.create_workflow_manager(),
-            'storage': SimpleServiceFactory.create_storage_provider(),
-            'safety_checker': SimpleServiceFactory.create_safety_checker(),
-            'stage_manager': SimpleServiceFactory.create_stage_manager(),
-            'logger': SimpleServiceFactory.create_logger()
+            "session_manager": SimpleServiceFactory.create_session_manager(),
+            "conversation_manager": SimpleServiceFactory.create_conversation_manager(),
+            "workflow_manager": SimpleServiceFactory.create_workflow_manager(),
+            "storage": SimpleServiceFactory.create_storage_provider(),
+            "safety_checker": SimpleServiceFactory.create_safety_checker(),
+            "stage_manager": SimpleServiceFactory.create_stage_manager(),
+            "logger": SimpleServiceFactory.create_logger(),
         }
 
     @staticmethod
@@ -236,9 +248,9 @@ class SimpleServiceFactory:
         SimpleServiceFactory.create_prompt_management_service.cache_clear()
 
         # Clear audio services cache if they exist
-        if hasattr(SimpleServiceFactory.create_audio_service, 'cache_clear'):
+        if hasattr(SimpleServiceFactory.create_audio_service, "cache_clear"):
             SimpleServiceFactory.create_audio_service.cache_clear()
-        if hasattr(SimpleServiceFactory.create_audio_streaming_manager, 'cache_clear'):
+        if hasattr(SimpleServiceFactory.create_audio_streaming_manager, "cache_clear"):
             SimpleServiceFactory.create_audio_streaming_manager.cache_clear()
 
     @staticmethod
@@ -247,13 +259,17 @@ class SimpleServiceFactory:
         validation_results = {}
 
         core_services = [
-            'config', 'logger', 'storage_provider', 'safety_checker',
-            'stage_manager', 'prompt_management_service'
+            "config",
+            "logger",
+            "storage_provider",
+            "safety_checker",
+            "stage_manager",
+            "prompt_management_service",
         ]
 
         for service_name in core_services:
             try:
-                method_name = f'create_{service_name}' if service_name != 'config' else 'get_config'
+                method_name = f"create_{service_name}" if service_name != "config" else "get_config"
                 method = getattr(SimpleServiceFactory, method_name)
                 instance = method()
                 validation_results[service_name] = instance is not None
@@ -267,6 +283,7 @@ class SimpleServiceFactory:
 # BACKWARDS COMPATIBILITY - ServiceLocator-like interface
 # =====================================================================================
 
+
 class ServiceLocator:
     """
     Backwards compatibility facade for existing ServiceLocator usage.
@@ -276,20 +293,20 @@ class ServiceLocator:
 
     # Mapping from type/class to factory method
     _service_map = {
-        'Config': 'get_config',
-        'ILogger': 'create_logger',
-        'StorageProvider': 'create_storage_provider',
-        'SafetyChecker': 'create_safety_checker',
-        'StageManager': 'create_stage_manager',
-        'StreamlitSessionState': 'create_session_state',
-        'PromptService': 'create_prompt_service',
-        'ParsingService': 'create_parsing_service',
-        'SafetyService': 'create_safety_service',
-        'MemoryService': 'create_memory_service',
-        'SessionManager': 'create_session_manager',
-        'ConversationManager': 'create_conversation_manager',
-        'WorkflowManager': 'create_workflow_manager',
-        'AsyncWorkflowManager': 'create_async_workflow_manager'
+        "Config": "get_config",
+        "ILogger": "create_logger",
+        "StorageProvider": "create_storage_provider",
+        "SafetyChecker": "create_safety_checker",
+        "StageManager": "create_stage_manager",
+        "StreamlitSessionState": "create_session_state",
+        "PromptService": "create_prompt_service",
+        "ParsingService": "create_parsing_service",
+        "SafetyService": "create_safety_service",
+        "MemoryService": "create_memory_service",
+        "SessionManager": "create_session_manager",
+        "ConversationManager": "create_conversation_manager",
+        "WorkflowManager": "create_workflow_manager",
+        "AsyncWorkflowManager": "create_async_workflow_manager",
     }
 
     @classmethod

@@ -46,7 +46,7 @@ class StreamlitStorage(IStorage):
 
             # Rotate if necessary
             if len(entries_data) > self._max_entries:
-                entries_data = entries_data[-self._max_entries:]
+                entries_data = entries_data[-self._max_entries :]
 
             self._set_entries_data(entries_data)
 
@@ -68,7 +68,7 @@ class StreamlitStorage(IStorage):
 
             # Rotate if necessary
             if len(all_entries_data) > self._max_entries:
-                all_entries_data = all_entries_data[-self._max_entries:]
+                all_entries_data = all_entries_data[-self._max_entries :]
 
             self._set_entries_data(all_entries_data)
 

@@ -16,14 +16,15 @@ class ParsingService:
         """Parse supervisor response into structured data."""
         try:
             response = response.strip()
-            start_idx = response.find('{')
-            end_idx = response.rfind('}') + 1
+            start_idx = response.find("{")
+            end_idx = response.rfind("}") + 1
 
             if start_idx == -1 or end_idx == 0:
                 if self._logger:
-                    self._logger.log_error("No JSON structure detected in supervisor response", {
-                        "response_preview": response
-                    })
+                    self._logger.log_error(
+                        "No JSON structure detected in supervisor response",
+                        {"response_preview": response},
+                    )
                 raise ValueError("No JSON found in response")
 
             json_str = response[start_idx:end_idx]
@@ -36,21 +37,24 @@ class ParsingService:
 
             # Single consolidated parsing log
             if self._logger:
-                self._logger.log_info("Supervisor JSON parsed successfully", {
-                    "response_length": len(response),
-                    "json_length": len(json_str),
-                    "field_count": len(data),
-                    "fields": list(data.keys())
-                })
+                self._logger.log_info(
+                    "Supervisor JSON parsed successfully",
+                    {
+                        "response_length": len(response),
+                        "json_length": len(json_str),
+                        "field_count": len(data),
+                        "fields": list(data.keys()),
+                    },
+                )
 
             return data
 
         except (json.JSONDecodeError, ValueError) as e:
             if self._logger:
-                self._logger.log_error(f"JSON parsing failed: {str(e)}", {
-                    "fallback": "regex parsing",
-                    "error_type": type(e).__name__
-                })
+                self._logger.log_error(
+                    f"JSON parsing failed: {str(e)}",
+                    {"fallback": "regex parsing", "error_type": type(e).__name__},
+                )
             return self._fallback_parse(response)
 
     @staticmethod
@@ -63,7 +67,7 @@ class ParsingService:
             reason=parsed_data.get("reason", ""),
             handoff=parsed_data.get("handoff", {}),
             safety_risk=parsed_data.get("safety_risk", False),
-            safety_message=parsed_data.get("safety_message", "")
+            safety_message=parsed_data.get("safety_message", ""),
         )
 
     @staticmethod
@@ -103,5 +107,5 @@ class ParsingService:
             "reason": reason,
             "handoff": {"parsing_error": True, "original_response": response},
             "safety_risk": False,
-            "safety_message": ""
+            "safety_message": "",
         }

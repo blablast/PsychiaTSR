@@ -13,7 +13,9 @@ class AsyncSupervisorAdapter:
         self._prompt_manager = prompt_manager
         self._logger = logger
 
-    async def evaluate_stage_async(self, current_stage: str, user_message: str, conversation_history: List[MessageData]) -> WorkflowResult:
+    async def evaluate_stage_async(
+        self, current_stage: str, user_message: str, conversation_history: List[MessageData]
+    ) -> WorkflowResult:
         """Evaluate stage using supervisor agent asynchronously."""
         try:
             supervisor_agent = self._agent_provider.get_supervisor_agent()
@@ -21,7 +23,7 @@ class AsyncSupervisorAdapter:
                 return WorkflowResult(
                     success=False,
                     message="Supervisor agent not available",
-                    error="SUPERVISOR_NOT_AVAILABLE"
+                    error="SUPERVISOR_NOT_AVAILABLE",
                 )
 
             # Get stage prompt
@@ -30,20 +32,18 @@ class AsyncSupervisorAdapter:
                 return WorkflowResult(
                     success=False,
                     message=f"No stage prompt available for stage: {current_stage}",
-                    error="STAGE_PROMPT_NOT_FOUND"
+                    error="STAGE_PROMPT_NOT_FOUND",
                 )
 
             # Call supervisor agent asynchronously
             decision = await supervisor_agent.evaluate_stage_completion_async(
-                stage=current_stage,
-                history=conversation_history,
-                stage_prompt=stage_prompt
+                stage=current_stage, history=conversation_history, stage_prompt=stage_prompt
             )
 
             return WorkflowResult(
                 success=True,
                 message="Async stage evaluation completed",
-                data={"decision": decision}
+                data={"decision": decision},
             )
 
         except Exception as e:
@@ -53,7 +53,7 @@ class AsyncSupervisorAdapter:
             return WorkflowResult(
                 success=False,
                 message=f"Async supervisor evaluation failed: {str(e)}",
-                error="ASYNC_SUPERVISOR_ERROR"
+                error="ASYNC_SUPERVISOR_ERROR",
             )
 
 
@@ -65,7 +65,9 @@ class AsyncTherapistAdapter:
         self._prompt_manager = prompt_manager
         self._logger = logger
 
-    async def generate_response_async(self, current_stage: str, user_message: str, conversation_history: List[MessageData]) -> WorkflowResult:
+    async def generate_response_async(
+        self, current_stage: str, user_message: str, conversation_history: List[MessageData]
+    ) -> WorkflowResult:
         """Generate therapist response using agent asynchronously."""
         try:
             therapist_agent = self._agent_provider.get_therapist_agent()
@@ -73,7 +75,7 @@ class AsyncTherapistAdapter:
                 return WorkflowResult(
                     success=False,
                     message="Therapist agent not available",
-                    error="THERAPIST_NOT_AVAILABLE"
+                    error="THERAPIST_NOT_AVAILABLE",
                 )
 
             # Get stage prompt
@@ -82,7 +84,7 @@ class AsyncTherapistAdapter:
                 return WorkflowResult(
                     success=False,
                     message=f"No stage prompt available for stage: {current_stage}",
-                    error="STAGE_PROMPT_NOT_FOUND"
+                    error="STAGE_PROMPT_NOT_FOUND",
                 )
 
             # Call therapist agent asynchronously
@@ -90,20 +92,20 @@ class AsyncTherapistAdapter:
                 user_message=user_message,
                 stage_prompt=stage_prompt,
                 conversation_history=conversation_history,
-                stage_id=current_stage
+                stage_id=current_stage,
             )
 
             if response_data.get("success", False):
                 return WorkflowResult(
                     success=True,
                     message="Async therapist response generated successfully",
-                    data=response_data
+                    data=response_data,
                 )
             else:
                 return WorkflowResult(
                     success=False,
                     message=f"Therapist response generation failed: {response_data.get('error', 'Unknown error')}",
-                    error="ASYNC_THERAPIST_ERROR"
+                    error="ASYNC_THERAPIST_ERROR",
                 )
 
         except Exception as e:
@@ -113,10 +115,12 @@ class AsyncTherapistAdapter:
             return WorkflowResult(
                 success=False,
                 message=f"Async therapist response generation failed: {str(e)}",
-                error="ASYNC_THERAPIST_ERROR"
+                error="ASYNC_THERAPIST_ERROR",
             )
 
-    async def generate_streaming_response_async(self, current_stage: str, user_message: str, conversation_history: List[MessageData]) -> AsyncGenerator[str, None]:
+    async def generate_streaming_response_async(
+        self, current_stage: str, user_message: str, conversation_history: List[MessageData]
+    ) -> AsyncGenerator[str, None]:
         """Generate streaming therapist response using agent asynchronously."""
         try:
             therapist_agent = self._agent_provider.get_therapist_agent()
@@ -135,7 +139,7 @@ class AsyncTherapistAdapter:
                 user_message=user_message,
                 stage_prompt=stage_prompt,
                 conversation_history=conversation_history,
-                stage_id=current_stage
+                stage_id=current_stage,
             ):
                 if isinstance(chunk, str):
                     yield chunk
@@ -148,7 +152,9 @@ class AsyncTherapistAdapter:
 
                         # Log completion - workflow will handle final result separately
                         if self._logger:
-                            self._logger.log_info(f"Async streaming completed for stage {current_stage}")
+                            self._logger.log_info(
+                                f"Async streaming completed for stage {current_stage}"
+                            )
                     else:
                         # Handle error metadata
                         error_msg = chunk.get("error", "Unknown error")

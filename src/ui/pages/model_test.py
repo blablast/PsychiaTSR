@@ -23,6 +23,7 @@ def get_openai_models():
     # If cache fails, try direct API as fallback
     try:
         import openai
+
         config = Config.get_instance()
         client = openai.OpenAI(api_key=config.OPENAI_API_KEY)
         models = client.models.list()
@@ -32,12 +33,14 @@ def get_openai_models():
         for model in models.data:
             model_id = model.id
             # Include GPT models and other chat models, exclude specific types
-            if (any(keyword in model_id.lower() for keyword in ['gpt', 'chatgpt']) and
-                not any(exclude in model_id.lower() for exclude in ['embedding', 'whisper', 'tts', 'davinci-002', 'babbage-002'])):
+            if any(keyword in model_id.lower() for keyword in ["gpt", "chatgpt"]) and not any(
+                exclude in model_id.lower()
+                for exclude in ["embedding", "whisper", "tts", "davinci-002", "babbage-002"]
+            ):
                 chat_models.append(model_id)
 
         # Sort models: put popular ones first, then alphabetically
-        priority_models = ['gpt-4o-mini', 'gpt-4o', 'gpt-4', 'gpt-3.5-turbo']
+        priority_models = ["gpt-4o-mini", "gpt-4o", "gpt-4", "gpt-3.5-turbo"]
         sorted_models = []
 
         # Add priority models first (if available)
@@ -58,7 +61,8 @@ def get_openai_models():
         # Check if it's an API key error
         if "401" in str(e) or "invalid_api_key" in str(e):
             st.warning("⚠️ **Problem z kluczem API OpenAI:**")
-            st.info("""
+            st.info(
+                """
             **Rozwiązania:**
             1. **Zrestartuj aplikację Streamlit** (może używać starego klucza)
                ```bash
@@ -69,7 +73,8 @@ def get_openai_models():
             3. Upewnij się, że klucz ma uprawnienia do modeli chat
             4. Sprawdź czy nie przekroczyłeś limitów API
             5. Użyj przycisku "🔧 Debug API" poniżej do diagnozy
-            """)
+            """
+            )
         else:
             st.info("Używana jest zapasowa lista modeli. Sprawdź połączenie internetowe.")
 
@@ -87,10 +92,14 @@ def get_models_from_discovery(provider: str):
         if provider.lower() == "openai":
             openai_models = all_models.get("openai", [])
             # Extract just model names and sort by popularity
-            model_names = [model.get("id", model.get("name", "")) for model in openai_models if model.get("id") or model.get("name")]
+            model_names = [
+                model.get("id", model.get("name", ""))
+                for model in openai_models
+                if model.get("id") or model.get("name")
+            ]
 
             # Priority sorting
-            priority_models = ['gpt-4o-mini', 'gpt-4o', 'gpt-4', 'gpt-3.5-turbo']
+            priority_models = ["gpt-4o-mini", "gpt-4o", "gpt-4", "gpt-3.5-turbo"]
             sorted_models = []
 
             for priority in priority_models:
@@ -99,12 +108,22 @@ def get_models_from_discovery(provider: str):
                     model_names.remove(priority)
 
             sorted_models.extend(sorted(model_names))
-            return sorted_models if sorted_models else ["gpt-4o-mini", "gpt-4o", "gpt-4", "gpt-3.5-turbo"]
+            return (
+                sorted_models
+                if sorted_models
+                else ["gpt-4o-mini", "gpt-4o", "gpt-4", "gpt-3.5-turbo"]
+            )
 
         elif provider.lower() == "gemini":
             gemini_models = all_models.get("gemini", [])
-            model_names = [model.get("name", model.get("id", "")) for model in gemini_models if model.get("name") or model.get("id")]
-            return model_names if model_names else ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
+            model_names = [
+                model.get("name", model.get("id", ""))
+                for model in gemini_models
+                if model.get("name") or model.get("id")
+            ]
+            return (
+                model_names if model_names else ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
+            )
 
     except Exception as e:
         st.info(f"💾 ModelDiscovery cache: {str(e)}... używam zapasowej listy")
@@ -131,15 +150,14 @@ def model_test_page():
 
     # Test mode selection
     test_mode = st.radio(
-        "Tryb testowania:",
-        ["💬 Chat Mode", "🧠 Memory Test Mode"],
-        horizontal=True
+        "Tryb testowania:", ["💬 Chat Mode", "🧠 Memory Test Mode"], horizontal=True
     )
 
     if test_mode == "🧠 Memory Test Mode":
         memory_test_interface()
     else:
         chat_test_interface()
+
 
 def chat_test_interface():
     """Simple chat testing interfaces."""
@@ -151,11 +169,7 @@ def chat_test_interface():
 
     with col1:
         # Provider selection
-        provider = st.selectbox(
-            "Provider:",
-            ["OpenAI", "Gemini"],
-            key="test_provider"
-        )
+        provider = st.selectbox("Provider:", ["OpenAI", "Gemini"], key="test_provider")
 
         # Model selection based on provider
         if provider == "OpenAI":
@@ -168,9 +182,7 @@ def chat_test_interface():
         col_model, col_refresh = st.columns([4, 1])
         with col_model:
             model = st.selectbox(
-                f"Model ({len(model_options)} dostępnych):",
-                model_options,
-                key="test_model"
+                f"Model ({len(model_options)} dostępnych):", model_options, key="test_model"
             )
         with col_refresh:
             st.write("")  # Space for alignment
@@ -195,15 +207,19 @@ def chat_test_interface():
                     with st.expander("🔍 Debug OpenAI API", expanded=True):
                         try:
                             import openai
+
                             config = Config.get_instance()
                             client = openai.OpenAI(api_key=config.OPENAI_API_KEY)
 
                             # Test basic connection
                             from openai.types.chat import ChatCompletionUserMessageParam
+
                             response = client.chat.completions.create(
-                                model='gpt-3.5-turbo',
-                                messages=[ChatCompletionUserMessageParam(role='user', content='test')],
-                                max_tokens=5
+                                model="gpt-3.5-turbo",
+                                messages=[
+                                    ChatCompletionUserMessageParam(role="user", content="test")
+                                ],
+                                max_tokens=5,
                             )
                             st.success("✅ Klucz API działa poprawnie!")
                             st.info(f"Test response: {response.choices[0].message.content}")
@@ -231,7 +247,7 @@ def chat_test_interface():
         if provider == "OpenAI":
             st.info(f"**Dostępne modele OpenAI:** {len(model_options)}")
             st.write("**Najpopularniejsze:**")
-            popular = ['gpt-4o-mini', 'gpt-4o', 'gpt-4', 'gpt-3.5-turbo']
+            popular = ["gpt-4o-mini", "gpt-4o", "gpt-4", "gpt-3.5-turbo"]
             for pop_model in popular:
                 if pop_model in model_options:
                     st.write(f"• `{pop_model}`")
@@ -251,9 +267,7 @@ def chat_test_interface():
         max_tokens = st.slider("Max tokens", 50, 2000, 500, 50)
 
         system_prompt = st.text_area(
-            "System prompt (opcjonalny):",
-            placeholder="Jesteś pomocnym asystentem...",
-            height=100
+            "System prompt (opcjonalny):", placeholder="Jesteś pomocnym asystentem...", height=100
         )
 
     # Initialize chat history
@@ -280,7 +294,9 @@ def chat_test_interface():
         with st.expander("📊 Statystyki sesji", expanded=False):
             total_messages = len(st.session_state.test_messages)
             user_messages = len([m for m in st.session_state.test_messages if m["role"] == "user"])
-            assistant_messages = len([m for m in st.session_state.test_messages if m["role"] == "assistant"])
+            assistant_messages = len(
+                [m for m in st.session_state.test_messages if m["role"] == "assistant"]
+            )
 
             col1, col2, col3 = st.columns(3)
             with col1:
@@ -344,11 +360,9 @@ def chat_test_interface():
 
     if prompt:
         # Add user message
-        st.session_state.test_messages.append({
-            "role": "user",
-            "content": prompt,
-            "timestamp": datetime.now().isoformat()
-        })
+        st.session_state.test_messages.append(
+            {"role": "user", "content": prompt, "timestamp": datetime.now().isoformat()}
+        )
 
         # Display user message
         with st.chat_message("user"):
@@ -381,14 +395,14 @@ def chat_test_interface():
                 # Generate response
                 start_time = datetime.now()
 
-                if use_streaming and hasattr(llm_provider, 'generate_stream'):
+                if use_streaming and hasattr(llm_provider, "generate_stream"):
                     # Streaming response
                     full_response = ""
                     for chunk in llm_provider.generate_stream(
                         prompt=prompt,
                         system_prompt=None,  # Already set above
                         temperature=temperature,
-                        max_tokens=max_tokens
+                        max_tokens=max_tokens,
                     ):
                         full_response += chunk
                         response_container.write(full_response + "▊")
@@ -401,28 +415,30 @@ def chat_test_interface():
                     # Non-streaming response
                     with st.spinner(f"Generuję odpowiedź ({provider} {model})..."):
                         response = llm_provider.generate_sync(
-                            prompt=prompt,
-                            temperature=temperature,
-                            max_tokens=max_tokens
+                            prompt=prompt, temperature=temperature, max_tokens=max_tokens
                         )
                     response_container.write(response)
 
                 end_time = datetime.now()
                 duration = (end_time - start_time).total_seconds()
 
-                debug_info.update({
-                    "response_length": len(response),
-                    "duration_seconds": round(duration, 2),
-                    "tokens_per_second": round(len(response.split()) / duration, 1) if duration > 0 else 0,
-                    "success": True
-                })
+                debug_info.update(
+                    {
+                        "response_length": len(response),
+                        "duration_seconds": round(duration, 2),
+                        "tokens_per_second": (
+                            round(len(response.split()) / duration, 1) if duration > 0 else 0
+                        ),
+                        "success": True,
+                    }
+                )
 
                 # Add assistant message
                 assistant_message = {
                     "role": "assistant",
                     "content": response,
                     "timestamp": end_time.isoformat(),
-                    "debug": debug_info
+                    "debug": debug_info,
                 }
                 st.session_state.test_messages.append(assistant_message)
 
@@ -440,17 +456,19 @@ def chat_test_interface():
                     "provider": provider,
                     "model": model,
                     "error": traceback.format_exc(),
-                    "prompt": prompt
+                    "prompt": prompt,
                 }
                 st.session_state.test_errors.append(error_details)
 
                 # Add error message to chat
-                st.session_state.test_messages.append({
-                    "role": "assistant",
-                    "content": f"❌ {error_msg}",
-                    "timestamp": datetime.now().isoformat(),
-                    "debug": {"error": True, "error_msg": str(e)}
-                })
+                st.session_state.test_messages.append(
+                    {
+                        "role": "assistant",
+                        "content": f"❌ {error_msg}",
+                        "timestamp": datetime.now().isoformat(),
+                        "debug": {"error": True, "error_msg": str(e)},
+                    }
+                )
 
         # Refresh to show new messages
         st.rerun()
@@ -467,11 +485,7 @@ def memory_test_interface():
 
         with col1:
             # Provider and model selection
-            provider = st.selectbox(
-                "Provider:",
-                ["OpenAI", "Gemini"],
-                key="memory_test_provider"
-            )
+            provider = st.selectbox("Provider:", ["OpenAI", "Gemini"], key="memory_test_provider")
 
             if provider == "OpenAI":
                 with st.spinner("Pobieranie listy modeli OpenAI..."):
@@ -480,9 +494,7 @@ def memory_test_interface():
                 model_options = get_gemini_models()
 
             model = st.selectbox(
-                f"Model ({len(model_options)} dostępnych):",
-                model_options,
-                key="memory_test_model"
+                f"Model ({len(model_options)} dostępnych):", model_options, key="memory_test_model"
             )
 
         with col2:
@@ -499,7 +511,7 @@ def memory_test_interface():
                 "System Prompt (globalne ustawienia):",
                 value="Jesteś profesjonalnym terapeutą. Zawsze odpowiadaj w języku polskim. Pamiętaj swoje ustawienia systemowe przez całą rozmowę.",
                 height=120,
-                key="memory_system_prompt"
+                key="memory_system_prompt",
             )
 
         with col2:
@@ -507,7 +519,7 @@ def memory_test_interface():
                 "Stage Prompt (etap 1 - powitanie):",
                 value="ETAP 1: POWITANIE\nTwoim zadaniem jest ciepłe powitanie klienta i nawiązanie kontaktu. Przedstaw się jako terapeuta i zapytaj jak się klient czuje.",
                 height=120,
-                key="memory_stage_prompt"
+                key="memory_stage_prompt",
             )
 
     # Test execution
@@ -517,7 +529,9 @@ def memory_test_interface():
     with col1:
         if st.button("▶️ Uruchom test", type="primary", use_container_width=True):
             with st.spinner("Uruchamianie testu..."):
-                run_memory_test(provider, model, system_prompt, stage_prompt, temperature, max_tokens)
+                run_memory_test(
+                    provider, model, system_prompt, stage_prompt, temperature, max_tokens
+                )
             st.rerun()
 
     with col2:
@@ -538,7 +552,14 @@ def memory_test_interface():
         display_memory_test_results()
 
 
-def run_memory_test(provider: str, model: str, system_prompt: str, stage_prompt: str, temperature: float, max_tokens: int):
+def run_memory_test(
+    provider: str,
+    model: str,
+    system_prompt: str,
+    stage_prompt: str,
+    temperature: float,
+    max_tokens: int,
+):
     """Execute memory test scenario using MemoryTestRunner."""
     try:
         # Import the refactored test runner
@@ -551,7 +572,7 @@ def run_memory_test(provider: str, model: str, system_prompt: str, stage_prompt:
             system_prompt=system_prompt,
             stage_prompt=stage_prompt,
             temperature=temperature,
-            max_tokens=max_tokens
+            max_tokens=max_tokens,
         )
 
         test_results = test_runner.run_test()
@@ -577,16 +598,16 @@ def display_memory_test_results():
         st.metric("Model", f"{results['provider']} {results['model']}")
 
     with col2:
-        memory_support = "✅ Tak" if results['supports_memory'] else "❌ Nie"
+        memory_support = "✅ Tak" if results["supports_memory"] else "❌ Nie"
         st.metric("Pamięć konwersacji", memory_support)
 
     with col3:
-        successful_steps = sum(1 for step in results['steps'] if step.get('success', False))
+        successful_steps = sum(1 for step in results["steps"] if step.get("success", False))
         st.metric("Udane kroki", f"{successful_steps}/{len(results['steps'])}")
 
     with col4:
-        if 'total_duration_seconds' in results:
-            duration_str = results['total_duration_seconds']
+        if "total_duration_seconds" in results:
+            duration_str = results["total_duration_seconds"]
             try:
                 duration = float(duration_str)
                 if duration < 10:
@@ -597,7 +618,7 @@ def display_memory_test_results():
             except (ValueError, TypeError):
                 st.metric("Czas trwania", f"{duration_str}s")
         else:
-            test_time = datetime.fromisoformat(results['timestamp']).strftime("%H:%M:%S")
+            test_time = datetime.fromisoformat(results["timestamp"]).strftime("%H:%M:%S")
             st.metric("Czas rozpoczęcia", test_time)
 
     # Detailed step results
@@ -608,35 +629,38 @@ def display_memory_test_results():
         2: "🎯 Stage Prompt",
         3: "💬 Test Message",
         4: "🔍 Historia konwersacji",
-        5: "🎯 Świadomość etapu"
+        5: "🎯 Świadomość etapu",
     }
 
-    for step in results['steps']:
-        step_num = step['step']
+    for step in results["steps"]:
+        step_num = step["step"]
         step_name = step_names.get(step_num, f"Krok {step_num}")
 
-        with st.expander(f"{step_name} - {'✅ Sukces' if step.get('success') else '❌ Błąd'}", expanded=step.get('success', False)):
+        with st.expander(
+            f"{step_name} - {'✅ Sukces' if step.get('success') else '❌ Błąd'}",
+            expanded=step.get("success", False),
+        ):
             col1, col2 = st.columns([1, 2])
 
             with col1:
-                st.write("**Status:**", "✅ Sukces" if step.get('success') else "❌ Błąd")
-                if 'method' in step:
-                    st.write("**Metoda:**", step['method'])
-                if 'duration_seconds' in step:
+                st.write("**Status:**", "✅ Sukces" if step.get("success") else "❌ Błąd")
+                if "method" in step:
+                    st.write("**Metoda:**", step["method"])
+                if "duration_seconds" in step:
                     st.write("**Czas:**", f"{step['duration_seconds']}s")
 
             with col2:
-                if 'message' in step:
+                if "message" in step:
                     st.write("**Wiadomość:**")
-                    st.code(step['message'], language='text')
+                    st.code(step["message"], language="text")
 
-                if 'response' in step:
+                if "response" in step:
                     st.write("**Odpowiedź:**")
-                    st.write(step['response'])
+                    st.write(step["response"])
 
-                if 'error' in step:
+                if "error" in step:
                     st.write("**Błąd:**")
-                    st.code(step['error'], language='text')
+                    st.code(step["error"], language="text")
 
 
 def analyze_memory_test_results():
@@ -651,7 +675,7 @@ def analyze_memory_test_results():
         st.subheader("📈 Analiza możliwości modelu")
 
         # Memory support analysis
-        if results['supports_memory']:
+        if results["supports_memory"]:
             st.success("✅ **Model wspiera pamięć konwersacji**")
             st.write("Model może zapamiętywać wcześniejsze wiadomości w sesji, co pozwala na:")
             st.write("- Ustawienie system prompt raz na początku")
@@ -667,28 +691,36 @@ def analyze_memory_test_results():
         # Step analysis
         st.subheader("🔍 Analiza kroków")
 
-        for step in results['steps']:
-            step_num = step['step']
+        for step in results["steps"]:
+            step_num = step["step"]
 
             if step_num == 1:  # System prompt
-                if step.get('success'):
+                if step.get("success"):
                     st.success(f"✅ **Krok {step_num}**: System prompt został ustawiony poprawnie")
                 else:
                     st.error(f"❌ **Krok {step_num}**: Nie udało się ustawić system prompt")
 
             elif step_num == 2:  # Stage prompt
-                if step.get('success'):
-                    st.success(f"✅ **Krok {step_num}**: Stage prompt został przekazany do pamięci konwersacji")
+                if step.get("success"):
+                    st.success(
+                        f"✅ **Krok {step_num}**: Stage prompt został przekazany do pamięci konwersacji"
+                    )
                 else:
-                    st.warning(f"⚠️ **Krok {step_num}**: Stage prompt nie został ustawiony w pamięci")
-                    if step.get('method') == 'no_memory_support':
-                        st.info("Model nie wspiera pamięci - stage prompt musi być dołączany do każdego zapytania")
+                    st.warning(
+                        f"⚠️ **Krok {step_num}**: Stage prompt nie został ustawiony w pamięci"
+                    )
+                    if step.get("method") == "no_memory_support":
+                        st.info(
+                            "Model nie wspiera pamięci - stage prompt musi być dołączany do każdego zapytania"
+                        )
 
             elif step_num == 3:  # Test message
-                if step.get('success'):
-                    st.success(f"✅ **Krok {step_num}**: Wiadomość testowa wysłana i odebrana odpowiedź")
-                    if 'duration_seconds' in step:
-                        duration = step['duration_seconds']
+                if step.get("success"):
+                    st.success(
+                        f"✅ **Krok {step_num}**: Wiadomość testowa wysłana i odebrana odpowiedź"
+                    )
+                    if "duration_seconds" in step:
+                        duration = step["duration_seconds"]
                         if duration < 2:
                             st.info(f"⚡ Szybka odpowiedź: {duration}s")
                         elif duration > 10:
@@ -697,19 +729,23 @@ def analyze_memory_test_results():
                     st.error(f"❌ **Krok {step_num}**: Błąd wysyłania wiadomości testowej")
 
             elif step_num == 4:  # Memory check
-                if step.get('success'):
-                    response = step.get('response', '').lower()
-                    if 'kacper' in response or 'cześć' in response:
-                        st.success(f"✅ **Krok {step_num}**: Model pamięta wcześniejszą konwersację")
+                if step.get("success"):
+                    response = step.get("response", "").lower()
+                    if "kacper" in response or "cześć" in response:
+                        st.success(
+                            f"✅ **Krok {step_num}**: Model pamięta wcześniejszą konwersację"
+                        )
                     else:
-                        st.warning(f"⚠️ **Krok {step_num}**: Model może nie pamiętać wcześniejszej konwersacji")
+                        st.warning(
+                            f"⚠️ **Krok {step_num}**: Model może nie pamiętać wcześniejszej konwersacji"
+                        )
                 else:
                     st.error(f"❌ **Krok {step_num}**: Błąd sprawdzania pamięci konwersacji")
 
             elif step_num == 5:  # Stage awareness
-                if step.get('success'):
-                    response = step.get('response', '').lower()
-                    if any(word in response for word in ['powitanie', 'etap', 'pierwsz', '1']):
+                if step.get("success"):
+                    response = step.get("response", "").lower()
+                    if any(word in response for word in ["powitanie", "etap", "pierwsz", "1"]):
                         st.success(f"✅ **Krok {step_num}**: Model ma świadomość aktualnego etapu")
                     else:
                         st.warning(f"⚠️ **Krok {step_num}**: Model może nie pamiętać stage prompt")
@@ -719,8 +755,8 @@ def analyze_memory_test_results():
         # Recommendations
         st.subheader("💡 Rekomendacje")
 
-        if results['supports_memory']:
-            successful_steps = sum(1 for step in results['steps'] if step.get('success', False))
+        if results["supports_memory"]:
+            successful_steps = sum(1 for step in results["steps"] if step.get("success", False))
             if successful_steps >= 4:
                 st.success("🎯 **Model nadaje się do użycia w systemie terapeutycznym**")
                 st.write("Model wspiera pamięć konwersacji i prawidłowo obsługuje prompty.")
@@ -729,7 +765,9 @@ def analyze_memory_test_results():
                 st.write("Model wspiera pamięć, ale ma problemy z niektórymi funkcjami.")
         else:
             st.info("📝 **Model może być używany z ograniczeniami**")
-            st.write("Model nie wspiera pamięci konwersacji - wymagane są modyfikacje w implementacji.")
+            st.write(
+                "Model nie wspiera pamięci konwersacji - wymagane są modyfikacje w implementacji."
+            )
             st.write("Rekomendacje:")
             st.write("- Dołączaj system prompt do każdego zapytania")
             st.write("- Dołączaj aktualny stage prompt do każdego zapytania")

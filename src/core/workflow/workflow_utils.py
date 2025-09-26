@@ -1,41 +1,43 @@
 """Workflow management for therapy sessions."""
+
 import os
 import streamlit as st
 from .workflow_manager import TherapyWorkflowManager
 from ...ui.session.streamlit_agent_provider import StreamlitAgentProvider
 from ..conversation import ConversationManager
 from ..logging import LoggerFactory
+
 # Agents now created via ServiceFactory with dependency injection
 from ...llm import OpenAIProvider, GeminiProvider
 from ...core.safety import SafetyChecker
+
 # Config import moved to functions to avoid circular dependency
 
 
 def _get_or_create_session_logger():
     """Get or create a single logger instance for the session to avoid duplicates."""
     # Use a session state key to store the logger instance
-    logger_key = 'therapy_session_logger'
+    logger_key = "therapy_session_logger"
 
     if logger_key not in st.session_state:
         # Create logger only once per session
         from config import Config
+
         config = Config.get_instance()
-        log_file = os.path.join(config.LOGS_DIR, "sessions", f"{st.session_state.get('session_id', 'unknown')}.json")
+        log_file = os.path.join(
+            config.LOGS_DIR, "sessions", f"{st.session_state.get('session_id', 'unknown')}.json"
+        )
         st.session_state[logger_key] = LoggerFactory.create_multi_logger(
-            file_path=log_file,
-            use_console=False,
-            use_streamlit=True,
-            max_entries=50
+            file_path=log_file, use_console=False, use_streamlit=True, max_entries=50
         )
 
     return st.session_state[logger_key]
 
 
-
 def send_supervisor_request(user_message: str):
     """Accept user message into ConversationManager and process if ready."""
     # Get or create ConversationManager from session state
-    if 'conversation_manager' not in st.session_state:
+    if "conversation_manager" not in st.session_state:
         st.session_state.conversation_manager = ConversationManager()
 
     conversation_manager = st.session_state.conversation_manager
@@ -51,6 +53,7 @@ def send_supervisor_request(user_message: str):
 
         agent_provider = StreamlitAgentProvider()
         from config import Config
+
         config = Config.get_instance()
         prompt_manager = UnifiedPromptManager(config.PROMPT_DIR)
 
@@ -63,6 +66,7 @@ def send_supervisor_request(user_message: str):
 
         # Initialize workflow orchestrator with session manager
         from ..session import create_streamlit_session_manager
+
         session_manager = create_streamlit_session_manager()
         workflow_manager.set_session_manager(session_manager)
 
@@ -80,34 +84,34 @@ def initialize_agents():
     """Initialize therapy agents with default configuration."""
 
     def assign_llm(provider_name, model_name, keys):
-        if provider_name == 'openai':
-            return OpenAIProvider(model_name, api_key=keys['openai'])
-        elif provider_name == 'gemini':
-            return GeminiProvider(model_name, api_key=keys['gemini'])
+        if provider_name == "openai":
+            return OpenAIProvider(model_name, api_key=keys["openai"])
+        elif provider_name == "gemini":
+            return GeminiProvider(model_name, api_key=keys["gemini"])
         else:
             raise ValueError(f"Unknown provider: {provider_name}")
 
     try:
         # Initialize LLM providers based on configuration
         from config import Config
+
         config = Config.get_instance()
         agent_defaults = config.get_agent_defaults()
 
         # Prepare API keys
-        api_keys = {
-            'openai': config.OPENAI_API_KEY,
-            'gemini': config.GOOGLE_API_KEY
-        }
+        api_keys = {"openai": config.OPENAI_API_KEY, "gemini": config.GOOGLE_API_KEY}
 
         # Initialize therapist LLM
-        therapist_llm = assign_llm(agent_defaults['therapist']['provider'],
-                                   agent_defaults['therapist']['model'],
-                                   api_keys)
+        therapist_llm = assign_llm(
+            agent_defaults["therapist"]["provider"], agent_defaults["therapist"]["model"], api_keys
+        )
 
         # Initialize supervisor LLM
-        supervisor_llm = assign_llm(agent_defaults['supervisor']['provider'],
-                                      agent_defaults['supervisor']['model'],
-                                     api_keys)
+        supervisor_llm = assign_llm(
+            agent_defaults["supervisor"]["provider"],
+            agent_defaults["supervisor"]["model"],
+            api_keys,
+        )
 
         # Reuse logger from session state if available, otherwise create new one
         logger = _get_or_create_session_logger()
@@ -124,14 +128,14 @@ def initialize_agents():
             llm_provider=therapist_llm,
             prompt_manager=prompt_manager,
             safety_checker=safety_checker,
-            logger=logger
+            logger=logger,
         )
 
         st.session_state.supervisor_agent = ServiceFactory.create_supervisor_agent(
             llm_provider=supervisor_llm,
             prompt_manager=prompt_manager,
             safety_checker=safety_checker,
-            logger=logger
+            logger=logger,
         )
 
         # Check availability in background (non-blocking)
@@ -148,7 +152,7 @@ def initialize_agents():
 def send_supervisor_request_stream(user_message: str):
     """Accept user message into ConversationManager and process with streaming if ready."""
     # Get or create ConversationManager from session state
-    if 'conversation_manager' not in st.session_state:
+    if "conversation_manager" not in st.session_state:
         st.session_state.conversation_manager = ConversationManager()
 
     conversation_manager = st.session_state.conversation_manager
@@ -164,6 +168,7 @@ def send_supervisor_request_stream(user_message: str):
 
         agent_provider = StreamlitAgentProvider()
         from config import Config
+
         config = Config.get_instance()
         prompt_manager = UnifiedPromptManager(config.PROMPT_DIR)
 
@@ -176,6 +181,7 @@ def send_supervisor_request_stream(user_message: str):
 
         # Initialize workflow orchestrator with session manager
         from ..session import create_streamlit_session_manager
+
         session_manager = create_streamlit_session_manager()
         workflow_manager.set_session_manager(session_manager)
 
@@ -183,8 +189,4 @@ def send_supervisor_request_stream(user_message: str):
         yield from workflow_manager.process_pending_question_stream()
 
 
-__all__ = [
-    'send_supervisor_request',
-    'send_supervisor_request_stream',
-    'initialize_agents'
-]
+__all__ = ["send_supervisor_request", "send_supervisor_request_stream", "initialize_agents"]

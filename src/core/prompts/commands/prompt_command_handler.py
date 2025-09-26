@@ -4,9 +4,13 @@ from typing import Protocol, runtime_checkable
 from ..domain.prompt_template import PromptTemplate
 from ..domain.section_order import SectionOrder
 from .section_commands import (
-    CreateSectionCommand, UpdateSectionCommand, DeleteSectionCommand,
-    ReorderSectionsCommand, MoveSectionCommand, DuplicateSectionCommand,
-    SectionCommandResult
+    CreateSectionCommand,
+    UpdateSectionCommand,
+    DeleteSectionCommand,
+    ReorderSectionsCommand,
+    MoveSectionCommand,
+    DuplicateSectionCommand,
+    SectionCommandResult,
 )
 
 
@@ -70,7 +74,7 @@ class PromptCommandHandler:
                 success=True,
                 message="Section created successfully",
                 section_id=section.id,
-                prompt_id=command.prompt_id
+                prompt_id=command.prompt_id,
             )
 
         except Exception as e:
@@ -78,7 +82,7 @@ class PromptCommandHandler:
                 success=False,
                 message="Failed to create section",
                 error=str(e),
-                prompt_id=command.prompt_id
+                prompt_id=command.prompt_id,
             )
 
     def handle_update_section(self, command: UpdateSectionCommand) -> SectionCommandResult:
@@ -96,9 +100,7 @@ class PromptCommandHandler:
 
             # Update section
             updated_section = template.update_section(
-                command.section_id,
-                command.title,
-                command.content
+                command.section_id, command.title, command.content
             )
 
             self._repository.save_template(template)
@@ -107,7 +109,7 @@ class PromptCommandHandler:
                 success=True,
                 message="Section updated successfully",
                 section_id=command.section_id,
-                prompt_id=command.prompt_id
+                prompt_id=command.prompt_id,
             )
 
         except Exception as e:
@@ -116,7 +118,7 @@ class PromptCommandHandler:
                 message="Failed to update section",
                 error=str(e),
                 section_id=command.section_id,
-                prompt_id=command.prompt_id
+                prompt_id=command.prompt_id,
             )
 
     def handle_delete_section(self, command: DeleteSectionCommand) -> SectionCommandResult:
@@ -139,7 +141,7 @@ class PromptCommandHandler:
                     success=False,
                     message="Section not found",
                     section_id=command.section_id,
-                    prompt_id=command.prompt_id
+                    prompt_id=command.prompt_id,
                 )
 
             self._repository.save_template(template)
@@ -148,7 +150,7 @@ class PromptCommandHandler:
                 success=True,
                 message="Section deleted successfully",
                 section_id=command.section_id,
-                prompt_id=command.prompt_id
+                prompt_id=command.prompt_id,
             )
 
         except Exception as e:
@@ -157,7 +159,7 @@ class PromptCommandHandler:
                 message="Failed to delete section",
                 error=str(e),
                 section_id=command.section_id,
-                prompt_id=command.prompt_id
+                prompt_id=command.prompt_id,
             )
 
     def handle_reorder_sections(self, command: ReorderSectionsCommand) -> SectionCommandResult:
@@ -185,7 +187,7 @@ class PromptCommandHandler:
                 success=True,
                 message="Sections reordered successfully",
                 prompt_id=command.prompt_id,
-                affected_sections=command.section_ids
+                affected_sections=command.section_ids,
             )
 
         except Exception as e:
@@ -193,7 +195,7 @@ class PromptCommandHandler:
                 success=False,
                 message="Failed to reorder sections",
                 error=str(e),
-                prompt_id=command.prompt_id
+                prompt_id=command.prompt_id,
             )
 
     def handle_move_section(self, command: MoveSectionCommand) -> SectionCommandResult:
@@ -218,7 +220,7 @@ class PromptCommandHandler:
                 success=True,
                 message="Section moved successfully",
                 section_id=command.section_id,
-                prompt_id=command.prompt_id
+                prompt_id=command.prompt_id,
             )
 
         except Exception as e:
@@ -227,7 +229,7 @@ class PromptCommandHandler:
                 message="Failed to move section",
                 error=str(e),
                 section_id=command.section_id,
-                prompt_id=command.prompt_id
+                prompt_id=command.prompt_id,
             )
 
     def handle_duplicate_section(self, command: DuplicateSectionCommand) -> SectionCommandResult:
@@ -250,15 +252,13 @@ class PromptCommandHandler:
                     success=False,
                     message="Original section not found",
                     section_id=command.section_id,
-                    prompt_id=command.prompt_id
+                    prompt_id=command.prompt_id,
                 )
 
             # Create duplicate
             new_title = command.new_title or f"{original_section.title} (Copy)"
             duplicate_section = template.add_section(
-                new_title,
-                original_section.content,
-                original_section.section_type
+                new_title, original_section.content, original_section.section_type
             )
 
             # Move to desired position if specified
@@ -271,7 +271,7 @@ class PromptCommandHandler:
                 success=True,
                 message="Section duplicated successfully",
                 section_id=duplicate_section.id,
-                prompt_id=command.prompt_id
+                prompt_id=command.prompt_id,
             )
 
         except Exception as e:
@@ -280,5 +280,5 @@ class PromptCommandHandler:
                 message="Failed to duplicate section",
                 error=str(e),
                 section_id=command.section_id,
-                prompt_id=command.prompt_id
+                prompt_id=command.prompt_id,
             )

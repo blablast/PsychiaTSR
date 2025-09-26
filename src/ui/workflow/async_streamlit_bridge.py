@@ -20,10 +20,7 @@ class StreamlitAsyncBridge:
             if cls._event_loop is None or cls._event_loop.is_closed():
                 # Create new event loop in a separate thread
                 cls._event_loop = asyncio.new_event_loop()
-                cls._loop_thread = threading.Thread(
-                    target=cls._run_event_loop,
-                    daemon=True
-                )
+                cls._loop_thread = threading.Thread(target=cls._run_event_loop, daemon=True)
                 cls._loop_thread.start()
 
     @classmethod
@@ -79,6 +76,7 @@ class StreamlitAsyncBridge:
         cls.ensure_event_loop()
 
         import queue
+
         item_queue = queue.Queue()
         done_event = threading.Event()
 
@@ -149,10 +147,12 @@ def async_to_sync(func):
         # Can now be called synchronously in Streamlit
         result = my_async_function()
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         coro = func(*args, **kwargs)
         return StreamlitAsyncBridge.run_async(coro)
+
     return wrapper
 
 
@@ -170,8 +170,10 @@ def async_generator_to_sync(func):
         for item in my_async_generator():
             st.write(item)
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         async_gen = func(*args, **kwargs)
         return StreamlitAsyncBridge.stream_async_realtime(async_gen)
+
     return wrapper

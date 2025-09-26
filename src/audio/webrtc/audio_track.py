@@ -49,6 +49,7 @@ class ElevenLabsAudioTrack(MediaStreamTrack, IAudioTrack):
     def _create_silence_frame(self) -> "AudioFrame":
         """Create a frame filled with silence."""
         import numpy as np
+
         silence = np.zeros((self.samples_per_frame, 1), dtype=np.int16)
         frame = av.AudioFrame.from_ndarray(silence, format="s16", layout="mono")
         frame.sample_rate = WEBRTC_SAMPLE_RATE
@@ -79,7 +80,7 @@ class ElevenLabsAudioTrack(MediaStreamTrack, IAudioTrack):
                 samples = np.vstack([samples, padding])
             else:
                 # Truncate to frame size
-                samples = samples[:self.samples_per_frame]
+                samples = samples[: self.samples_per_frame]
 
         # Create AudioFrame
         frame = av.AudioFrame.from_ndarray(samples, format="s16", layout="mono")

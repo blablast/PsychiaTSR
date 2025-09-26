@@ -20,9 +20,8 @@ __all__ = [
     "PromptValidator",
     "PromptFormatter",
     "PromptQueryService",
-
     # Legacy managers (backwards compatibility)
     "SystemPromptManager",
     "StagePromptManager",
-    "UnifiedPromptManager"
+    "UnifiedPromptManager",
 ]

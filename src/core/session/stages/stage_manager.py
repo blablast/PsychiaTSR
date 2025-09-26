@@ -63,7 +63,7 @@ class StageManager:
         """Load stages from configuration file."""
         try:
             stages_file = Path(self._stages_config_path) / "stages.json"
-            with open(stages_file, 'r', encoding='utf-8') as f:
+            with open(stages_file, "r", encoding="utf-8") as f:
                 stages_data = json.load(f)
 
             self._stages_cache = [
@@ -71,7 +71,7 @@ class StageManager:
                     stage_id=stage["stage_id"],
                     name=stage["name"],
                     order=stage["order"],
-                    description=stage.get("description")
+                    description=stage.get("description"),
                 )
                 for stage in stages_data
             ]

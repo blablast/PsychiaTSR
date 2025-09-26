@@ -5,12 +5,14 @@ from datetime import datetime
 from .stages.stage_manager import StageManager
 from .session_factory import create_streamlit_session_manager
 from ..logging import LoggerFactory
+
 # Config import moved to functions to avoid circular dependency
 
 
 def load_stages():
     """Load therapy stages from configuration."""
     from config import Config
+
     config = Config.get_instance()
     stage_manager = StageManager(config.STAGES_DIR)
     stages = stage_manager.get_all_stages()
@@ -20,7 +22,7 @@ def load_stages():
             "id": stage.stage_id,
             "name": stage.name,
             "order": stage.order,
-            "description": stage.description or ""
+            "description": stage.description or "",
         }
         for stage in stages
     ]
@@ -35,6 +37,7 @@ def create_new_session():
     try:
         from src.infrastructure.storage import StorageProvider
         from config import Config
+
         config = Config.get_instance()
         storage = StorageProvider(config.LOGS_DIR)
         session_manager._storage_provider = storage
@@ -42,29 +45,35 @@ def create_new_session():
 
         # Log current model configuration to configured logs directory
         import os
+
         logs_dir = os.path.join(config.LOGS_DIR, session_id)
         os.makedirs(logs_dir, exist_ok=True)
         log_file = os.path.join(logs_dir, "session.json")
 
         logger = LoggerFactory.create_multi_logger(
-            file_path=log_file,
-            use_console=False,
-            use_streamlit=True,
-            max_entries=50
+            file_path=log_file, use_console=False, use_streamlit=True, max_entries=50
         )
 
         # Get current models from session state or defaults
         agent_defaults = config.get_agent_defaults()
-        therapist_model = st.session_state.get('selected_therapist_model', agent_defaults['therapist']['model'])
-        supervisor_model = st.session_state.get('selected_supervisor_model', agent_defaults['supervisor']['model'])
-        therapist_provider = st.session_state.get('selected_therapist_provider', agent_defaults['therapist']['provider'])
-        supervisor_provider = st.session_state.get('selected_supervisor_provider', agent_defaults['supervisor']['provider'])
+        therapist_model = st.session_state.get(
+            "selected_therapist_model", agent_defaults["therapist"]["model"]
+        )
+        supervisor_model = st.session_state.get(
+            "selected_supervisor_model", agent_defaults["supervisor"]["model"]
+        )
+        therapist_provider = st.session_state.get(
+            "selected_therapist_provider", agent_defaults["therapist"]["provider"]
+        )
+        supervisor_provider = st.session_state.get(
+            "selected_supervisor_provider", agent_defaults["supervisor"]["provider"]
+        )
 
         logger.log_model_info(
             therapist_model=therapist_model,
             supervisor_model=supervisor_model,
             therapist_provider=therapist_provider,
-            supervisor_provider=supervisor_provider
+            supervisor_provider=supervisor_provider,
         )
 
         # Save model information to session metadata
@@ -73,7 +82,7 @@ def create_new_session():
             therapist_model=therapist_model,
             supervisor_model=supervisor_model,
             therapist_provider=therapist_provider,
-            supervisor_provider=supervisor_provider
+            supervisor_provider=supervisor_provider,
         )
 
         # Save current audio configuration to session
@@ -116,33 +125,36 @@ def format_timestamp(timestamp):
     if not timestamp:
         return ""
     try:
-        dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+        dt = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
         return dt.strftime("%Y-%m-%d %H:%M:%S")
-    except:
+    except Exception:
         return timestamp
 
 
 def get_configured_models():
     """Get configured models from config."""
     from config import Config
+
     config = Config.get_instance()
     agent_defaults = config.get_agent_defaults()
     return {
-        'therapist_model': agent_defaults['therapist']['model'],
-        'therapist_provider': agent_defaults['therapist']['provider'],
-        'supervisor_model': agent_defaults['supervisor']['model'],
-        'supervisor_provider': agent_defaults['supervisor']['provider']
+        "therapist_model": agent_defaults["therapist"]["model"],
+        "therapist_provider": agent_defaults["therapist"]["provider"],
+        "supervisor_model": agent_defaults["supervisor"]["model"],
+        "supervisor_provider": agent_defaults["supervisor"]["provider"],
     }
 
 
 def _add_initial_stage_message():
     """Add initial stage welcome message to chat."""
     stages = load_stages()
-    current_stage_info = next((stage for stage in stages if stage["id"] == st.session_state.current_stage), None)
+    current_stage_info = next(
+        (stage for stage in stages if stage["id"] == st.session_state.current_stage), None
+    )
 
     if current_stage_info:
-        stage_name = current_stage_info['name']
-        stage_order = current_stage_info['order']
+        stage_name = current_stage_info["name"]
+        stage_order = current_stage_info["order"]
 
         welcome_message = f"🎯 **Witaj w terapii TSR (Terapia Skoncentrowana na Rozwiązaniach)**\n\n**Rozpoczynamy od Etapu {stage_order}: {stage_name}**\n\nJestem Twoim terapeutą i będę prowadził z Tobą sesję używając technik specyficznych dla tego etapu. Możesz śmiało dzielić się swoimi myślami i uczuciami."
 
@@ -151,12 +163,15 @@ def _add_initial_stage_message():
             st.session_state.messages = []
 
         # Add as first message
-        st.session_state.messages.insert(0, {
-            "role": "assistant",
-            "content": welcome_message,
-            "timestamp": "",
-            "is_stage_transition": True
-        })
+        st.session_state.messages.insert(
+            0,
+            {
+                "role": "assistant",
+                "content": welcome_message,
+                "timestamp": "",
+                "is_stage_transition": True,
+            },
+        )
 
 
 def load_audio_config_from_session():
@@ -173,14 +188,12 @@ def save_audio_config_to_session():
 
 def _save_current_audio_config_to_session(session_id: str, storage):
     """Save current session state audio config to session file."""
-    audio_enabled = st.session_state.get('audio_enabled', False)
-    tts_config = st.session_state.get('_tts_cfg')
+    audio_enabled = st.session_state.get("audio_enabled", False)
+    tts_config = st.session_state.get("_tts_cfg")
 
     if audio_enabled or tts_config:
         storage.update_audio_config(
-            session_id=session_id,
-            audio_enabled=audio_enabled,
-            tts_config=tts_config
+            session_id=session_id, audio_enabled=audio_enabled, tts_config=tts_config
         )
 
 
@@ -194,15 +207,16 @@ def _clear_technical_logs():
 
     # Log that logs were cleared
     from src.ui.technical_log_display import add_technical_log
+
     add_technical_log("session_start", "🆕 Nowa sesja - logi wyczyszczone")
 
 
 __all__ = [
-    'load_stages',
-    'create_new_session',
-    'advance_stage',
-    'format_timestamp',
-    'get_configured_models',
-    'load_audio_config_from_session',
-    'save_audio_config_to_session'
+    "load_stages",
+    "create_new_session",
+    "advance_stage",
+    "format_timestamp",
+    "get_configured_models",
+    "load_audio_config_from_session",
+    "save_audio_config_to_session",
 ]

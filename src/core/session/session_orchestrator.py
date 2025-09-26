@@ -38,17 +38,19 @@ class SessionOrchestrator:
                 "stage_changed": progression_result.success,
                 "old_stage": progression_result.old_stage,
                 "new_stage": progression_result.new_stage,
-                "progression_error": progression_result.error
+                "progression_error": progression_result.error,
             }
         else:
             return {
                 "stage_changed": False,
                 "old_stage": self._session_manager.get_current_stage(),
                 "new_stage": self._session_manager.get_current_stage(),
-                "progression_error": None
+                "progression_error": None,
             }
 
-    def update_conversation_history(self, user_message: str, therapist_response: str, prompt_id: str = "unknown") -> None:
+    def update_conversation_history(
+        self, user_message: str, therapist_response: str, prompt_id: str = "unknown"
+    ) -> None:
         """
         Update conversation with new exchange.
 
@@ -68,7 +70,9 @@ class SessionOrchestrator:
         except Exception as e:
             self._logger.log_error(f"Failed to update conversation history: {str(e)}")
 
-    def finalize_exchange(self, workflow_result: WorkflowResult, original_user_message: str) -> None:
+    def finalize_exchange(
+        self, workflow_result: WorkflowResult, original_user_message: str
+    ) -> None:
         """
         Finalize the complete exchange including stage transitions.
 
@@ -95,7 +99,7 @@ class SessionOrchestrator:
             self.update_conversation_history(
                 user_message=original_user_message,
                 therapist_response=therapist_response,
-                prompt_id=prompt_id
+                prompt_id=prompt_id,
             )
 
         except Exception as e:

@@ -28,7 +28,7 @@ class DirectoryLoader:
         return {
             "logs_dir": self.get_logs_dir(),
             "prompt_dir": self.get_prompt_dir(),
-            "stages_dir": self.get_stages_dir()
+            "stages_dir": self.get_stages_dir(),
         }
 
     def ensure_directories_exist(self) -> None:
@@ -45,11 +45,7 @@ class DirectoryLoader:
 
     def validate_directories(self) -> Dict[str, Any]:
         """Validate directory configuration."""
-        validation_result = {
-            "valid": True,
-            "errors": [],
-            "warnings": []
-        }
+        validation_result = {"valid": True, "errors": [], "warnings": []}
 
         directories = self.get_all_directories()
 
@@ -62,13 +58,19 @@ class DirectoryLoader:
 
                 # Check if it's writable
                 if not path.is_dir():
-                    validation_result["errors"].append(f"Directory {dir_name} ({dir_path}) is not accessible")
+                    validation_result["errors"].append(
+                        f"Directory {dir_name} ({dir_path}) is not accessible"
+                    )
                     validation_result["valid"] = False
                 elif not self._is_writable(path):
-                    validation_result["warnings"].append(f"Directory {dir_name} ({dir_path}) may not be writable")
+                    validation_result["warnings"].append(
+                        f"Directory {dir_name} ({dir_path}) may not be writable"
+                    )
 
             except Exception as e:
-                validation_result["errors"].append(f"Failed to create directory {dir_name} ({dir_path}): {e}")
+                validation_result["errors"].append(
+                    f"Failed to create directory {dir_name} ({dir_path}): {e}"
+                )
                 validation_result["valid"] = False
 
         return validation_result

@@ -14,7 +14,6 @@ class SessionStateInitializer:
         if "session_id" not in st.session_state:
             st.session_state.session_id = None
 
-
         # Current therapy stage
         if "current_stage" not in st.session_state:
             # Get first stage dynamically using SimpleServiceFactory
@@ -63,6 +62,7 @@ class SessionStateInitializer:
         """Load audio configuration from app config."""
         try:
             from ...core.config.config_manager import ConfigManager
+
             config_manager = ConfigManager()
             audio_config = config_manager.get_audio_config()
 
@@ -74,10 +74,11 @@ class SessionStateInitializer:
                 if tts_config.get("voice_id"):
                     # Add API key from environment if available
                     import os
-                    api_key = os.getenv('ELEVENLABS_API_KEY')
+
+                    api_key = os.getenv("ELEVENLABS_API_KEY")
                     if api_key:
                         tts_config = tts_config.copy()
-                        tts_config['api_key'] = api_key
+                        tts_config["api_key"] = api_key
 
                     st.session_state._tts_cfg = tts_config
         except Exception:

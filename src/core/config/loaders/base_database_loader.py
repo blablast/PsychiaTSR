@@ -32,7 +32,7 @@ class BaseDatabaseLoader:
         """Load database with caching and string unescaping."""
         if self._cache is None:
             try:
-                with open(self.database_file, 'r', encoding='utf-8') as f:
+                with open(self.database_file, "r", encoding="utf-8") as f:
                     raw_data = json.load(f)
                     self._cache = self._unescape_json_strings(raw_data)
 
@@ -41,7 +41,9 @@ class BaseDatabaseLoader:
 
             except FileNotFoundError:
                 if self.logger:
-                    self.logger.warning(f"{self.database_type.title()} database not found: {self.database_file}")
+                    self.logger.warning(
+                        f"{self.database_type.title()} database not found: {self.database_file}"
+                    )
                 self._cache = self._create_empty_database()
 
             except Exception as e:
@@ -61,7 +63,7 @@ class BaseDatabaseLoader:
             # Ensure parent directory exists
             self.database_file.parent.mkdir(parents=True, exist_ok=True)
 
-            with open(self.database_file, 'w', encoding='utf-8') as f:
+            with open(self.database_file, "w", encoding="utf-8") as f:
                 json.dump(database, f, indent=2, ensure_ascii=False)
 
             # Update cache
@@ -202,9 +204,9 @@ class BaseDatabaseLoader:
                 "version": "1.0",
                 "created_at": datetime.now().isoformat(),
                 "updated_at": datetime.now().isoformat(),
-                "description": f"{self.database_type.title()} database"
+                "description": f"{self.database_type.title()} database",
             },
-            "prompts": {}
+            "prompts": {},
         }
 
     def _unescape_json_strings(self, data: Any) -> Any:
@@ -218,14 +220,16 @@ class BaseDatabaseLoader:
             return [self._unescape_json_strings(item) for item in data]
         elif isinstance(data, str):
             # Order matters - do \\\\ first to avoid double processing
-            return (data.replace('\\\\', '\\')      # Double backslash to single
-                       .replace('\\"', '"')        # Escaped quote
-                       .replace("\\'", "'")        # Escaped single quote
-                       .replace('\\n', '\n')       # Escaped newline
-                       .replace('\\r', '\r')       # Escaped carriage return
-                       .replace('\\t', '\t')       # Escaped tab
-                       .replace('\\b', '\b')       # Escaped backspace
-                       .replace('\\f', '\f')       # Escaped form feed
-                       .replace('\\/', '/'))       # Escaped forward slash
+            return (
+                data.replace("\\\\", "\\")  # Double backslash to single
+                .replace('\\"', '"')  # Escaped quote
+                .replace("\\'", "'")  # Escaped single quote
+                .replace("\\n", "\n")  # Escaped newline
+                .replace("\\r", "\r")  # Escaped carriage return
+                .replace("\\t", "\t")  # Escaped tab
+                .replace("\\b", "\b")  # Escaped backspace
+                .replace("\\f", "\f")  # Escaped form feed
+                .replace("\\/", "/")
+            )  # Escaped forward slash
         else:
             return data

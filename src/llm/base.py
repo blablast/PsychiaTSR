@@ -19,7 +19,9 @@ class LLMProvider(ABC):
 
     # === HTTP Session Management (shared by all providers) ===
 
-    async def _get_session(self, headers: Optional[Dict[str, str]] = None) -> 'aiohttp.ClientSession':
+    async def _get_session(
+        self, headers: Optional[Dict[str, str]] = None
+    ) -> "aiohttp.ClientSession":
         """Get or create aiohttp session."""
         if self._session is None or self._session.closed:
             timeout = aiohttp.ClientTimeout(total=60)
@@ -86,10 +88,12 @@ class LLMProvider(ABC):
         return {
             "temperature": kwargs.get("temperature", 0.7),
             "max_tokens": kwargs.get("max_tokens", 150),
-            "top_p": kwargs.get("top_p", 0.9)
+            "top_p": kwargs.get("top_p", 0.9),
         }
 
-    def _prepare_messages(self, prompt: str, system_prompt: Optional[str] = None) -> List[Dict[str, str]]:
+    def _prepare_messages(
+        self, prompt: str, system_prompt: Optional[str] = None
+    ) -> List[Dict[str, str]]:
         """Prepare messages for API call."""
         # Set system prompt if provided and not already set
         if system_prompt and not self.system_prompt_set:
@@ -118,7 +122,9 @@ class LLMProvider(ABC):
         full_response = self.generate_sync(prompt, system_prompt, **kwargs)
         yield full_response
 
-    async def generate_stream_async(self, prompt: str, system_prompt: Optional[str] = None, **kwargs) -> AsyncGenerator[str, None]:
+    async def generate_stream_async(
+        self, prompt: str, system_prompt: Optional[str] = None, **kwargs
+    ) -> AsyncGenerator[str, None]:
         """Generate a streaming response from the LLM (async)"""
         # Default implementation - providers can override
         full_response = await self.generate(prompt, system_prompt, **kwargs)

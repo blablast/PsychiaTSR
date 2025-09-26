@@ -6,10 +6,4 @@ from .json_renderer import JsonRenderer
 from .standard_renderer import StandardRenderer
 from .renderer_factory import RendererFactory
 
-__all__ = [
-    'BaseRenderer',
-    'PromptRenderer',
-    'JsonRenderer',
-    'StandardRenderer',
-    'RendererFactory'
-]
+__all__ = ["BaseRenderer", "PromptRenderer", "JsonRenderer", "StandardRenderer", "RendererFactory"]

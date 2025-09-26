@@ -16,15 +16,14 @@ class SystemPromptRepository:
         self._db_loader = BaseDatabaseLoader(
             database_file=self.config_dir / "system_prompts.json",
             database_type="system prompts",
-            logger=logger
+            logger=logger,
         )
 
     def get_active_prompt(self, agent_type: str) -> Optional[Dict[str, Any]]:
         """Get active system prompt for agent type."""
-        active_prompts = self._db_loader.find_records_by_metadata({
-            "agent": agent_type,
-            "status": "active"
-        })
+        active_prompts = self._db_loader.find_records_by_metadata(
+            {"agent": agent_type, "status": "active"}
+        )
 
         if active_prompts:
             # Return first active prompt found
@@ -49,9 +48,11 @@ class SystemPromptRepository:
                     "created_at": datetime.now().isoformat(),
                     "updated_at": datetime.now().isoformat(),
                     "status": "active",
-                    "note": prompt_data.get("metadata", {}).get("note", f"{agent_type.title()} system prompt")
+                    "note": prompt_data.get("metadata", {}).get(
+                        "note", f"{agent_type.title()} system prompt"
+                    ),
                 },
-                "configuration": prompt_data.get("configuration", {"sections": {}})
+                "configuration": prompt_data.get("configuration", {"sections": {}}),
             }
 
             # Save to database
@@ -93,13 +94,15 @@ class SystemPromptRepository:
 
         for prompt_key, prompt_record in all_prompts.items():
             metadata = prompt_record.get("metadata", {})
-            results.append({
-                "database_key": prompt_key,
-                "id": metadata.get("id"),
-                "status": metadata.get("status"),
-                "created_at": metadata.get("created_at"),
-                "updated_at": metadata.get("updated_at")
-            })
+            results.append(
+                {
+                    "database_key": prompt_key,
+                    "id": metadata.get("id"),
+                    "status": metadata.get("status"),
+                    "created_at": metadata.get("created_at"),
+                    "updated_at": metadata.get("updated_at"),
+                }
+            )
 
         # Sort by ID (newest first)
         results.sort(key=lambda x: x.get("id", 0), reverse=True)
@@ -115,7 +118,7 @@ class StagePromptRepository:
         self._db_loader = BaseDatabaseLoader(
             database_file=self.config_dir / "stage_prompts.json",
             database_type="stage prompts",
-            logger=logger
+            logger=logger,
         )
 
         # No stage mapping needed - we use stage_id strings directly
@@ -124,11 +127,7 @@ class StagePromptRepository:
         """Get active stage prompt for stage and agent."""
 
         # Now we search directly by stage_id string (no conversion needed)
-        search_criteria = {
-            "agent": agent_type,
-            "stage_id": stage_id,
-            "status": "active"
-        }
+        search_criteria = {"agent": agent_type, "stage_id": stage_id, "status": "active"}
 
         active_prompts = self._db_loader.find_records_by_metadata(search_criteria)
 
@@ -142,10 +141,7 @@ class StagePromptRepository:
         """Save stage prompt, archiving existing active prompts."""
         try:
             # Archive existing active prompts for this agent and stage_id
-            self._db_loader.archive_active_records({
-                "agent": agent_type,
-                "stage_id": stage_id
-            })
+            self._db_loader.archive_active_records({"agent": agent_type, "stage_id": stage_id})
 
             # Get next unique ID
             next_id = self._db_loader.find_next_global_id()
@@ -159,9 +155,11 @@ class StagePromptRepository:
                     "created_at": datetime.now().isoformat(),
                     "updated_at": datetime.now().isoformat(),
                     "status": "active",
-                    "note": prompt_data.get("metadata", {}).get("note", f"{agent_type.title()} stage {stage_id}")
+                    "note": prompt_data.get("metadata", {}).get(
+                        "note", f"{agent_type.title()} stage {stage_id}"
+                    ),
                 },
-                "configuration": prompt_data.get("configuration", {"sections": {}})
+                "configuration": prompt_data.get("configuration", {"sections": {}}),
             }
 
             # Save to database
@@ -211,10 +209,12 @@ class StagePromptRepository:
             results.append(record_with_key)
 
         # Sort by agent, then by stage_id
-        results.sort(key=lambda x: (
-            x.get("metadata", {}).get("agent", ""),
-            x.get("metadata", {}).get("stage_id", "")
-        ))
+        results.sort(
+            key=lambda x: (
+                x.get("metadata", {}).get("agent", ""),
+                x.get("metadata", {}).get("stage_id", ""),
+            )
+        )
 
         return results
 

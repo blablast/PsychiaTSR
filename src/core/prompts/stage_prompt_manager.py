@@ -42,11 +42,14 @@ class StagePromptManager:
             # Lazy import to avoid circular dependency
             if self._prompt_management_service is None:
                 from .prompt_management_service import PromptManagementService
+
                 config_dir = self._stages_dir
                 self._prompt_management_service = PromptManagementService(str(config_dir))
 
             # Use new PromptManagementService to get stage prompt
-            prompt_data = self._prompt_management_service.get_active_stage_prompt(stage_id, agent_type)
+            prompt_data = self._prompt_management_service.get_active_stage_prompt(
+                stage_id, agent_type
+            )
 
             if not prompt_data:
                 return None
@@ -83,27 +86,29 @@ class StagePromptManager:
 
         # Stage-specific guidelines
         if "stage_specific_guidelines" in data:
-            guidelines = "\n".join(f"- {guideline}" for guideline in data["stage_specific_guidelines"])
+            guidelines = "\n".join(
+                f"- {guideline}" for guideline in data["stage_specific_guidelines"]
+            )
             sections.append(f"ZASADY ETAPU:\n{guidelines}")
 
         # Suggested questions
         if "suggested_questions" in data:
-            questions = "\n".join(f"- \"{question}\"" for question in data["suggested_questions"])
+            questions = "\n".join(f'- "{question}"' for question in data["suggested_questions"])
             sections.append(f"PRZYKŁADOWE PYTANIA:\n{questions}")
 
         # Key phrases
         if "key_phrases" in data:
-            phrases = "\n".join(f"- \"{phrase}\"" for phrase in data["key_phrases"])
+            phrases = "\n".join(f'- "{phrase}"' for phrase in data["key_phrases"])
             sections.append(f"KLUCZOWE FRAZY:\n{phrases}")
 
         # Response templates
         if "response_templates" in data:
-            templates = "\n".join(f"- \"{template}\"" for template in data["response_templates"])
+            templates = "\n".join(f'- "{template}"' for template in data["response_templates"])
             sections.append(f"SZABLONY ODPOWIEDZI:\n{templates}")
 
         # Good examples
         if "good_examples" in data:
-            examples = "\n".join(f"- \"{example}\"" for example in data["good_examples"])
+            examples = "\n".join(f'- "{example}"' for example in data["good_examples"])
             sections.append(f"DOBRE PRZYKŁADY:\n{examples}")
 
         # What to avoid
@@ -198,9 +203,6 @@ class StagePromptManager:
             if not agent_dir.exists():
                 return []
 
-            return [
-                file.stem for file in agent_dir.glob("*.json")
-                if file.is_file()
-            ]
+            return [file.stem for file in agent_dir.glob("*.json") if file.is_file()]
         except Exception:
             return []

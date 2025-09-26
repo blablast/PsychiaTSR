@@ -58,8 +58,7 @@ def _iter_chunks(obj: Union[bytes, bytearray, Iterable[bytes]]) -> Iterable[byte
 
 
 def wav_iterable_to_pcm48(
-    obj: Union[bytes, bytearray, Iterable[bytes]],
-    fallback_sr: int = 22050
+    obj: Union[bytes, bytearray, Iterable[bytes]], fallback_sr: int = 22050
 ) -> Iterable[np.ndarray]:
     """
     Convert WAV format data to PCM int16 @ 48kHz mono.

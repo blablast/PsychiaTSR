@@ -23,17 +23,9 @@ class JsonFormatter(IFormatter):
 
     def format(self, entry: LogEntry) -> str:
         """Format a single log entry as JSON."""
-        return json.dumps(
-            entry.to_dict(),
-            indent=self._indent,
-            ensure_ascii=self._ensure_ascii
-        )
+        return json.dumps(entry.to_dict(), indent=self._indent, ensure_ascii=self._ensure_ascii)
 
     def format_batch(self, entries: List[LogEntry]) -> str:
         """Format multiple log entries as JSON array."""
         entries_data = [entry.to_dict() for entry in entries]
-        return json.dumps(
-            entries_data,
-            indent=self._indent,
-            ensure_ascii=self._ensure_ascii
-        )
+        return json.dumps(entries_data, indent=self._indent, ensure_ascii=self._ensure_ascii)

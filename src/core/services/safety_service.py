@@ -21,7 +21,9 @@ class SafetyService:
 
     def check_conversation_safety(self, conversation_history: List[MessageData]) -> Dict[str, Any]:
         """Check entire conversation for safety risks."""
-        recent_messages = conversation_history[-3:] if len(conversation_history) > 3 else conversation_history
+        recent_messages = (
+            conversation_history[-3:] if len(conversation_history) > 3 else conversation_history
+        )
 
         safety_concerns = []
         for msg in recent_messages:
@@ -34,7 +36,7 @@ class SafetyService:
         return {
             "has_risk": len(safety_concerns) > 0,
             "concerns": safety_concerns,
-            "crisis_message": self._safety_checker.get_crisis_message() if safety_concerns else ""
+            "crisis_message": self._safety_checker.get_crisis_message() if safety_concerns else "",
         }
 
     def build_safety_context(self, conversation_history: List[MessageData]) -> str:
@@ -43,15 +45,16 @@ class SafetyService:
 
         if safety_check["has_risk"]:
             concerns_text = "\n".join(safety_check["concerns"])
-            return f"WYKRYTE ZAGROŻENIA BEZPIECZEŃSTWA:\n{concerns_text}\n\n"\
-                   "Ważne: Ustaw safety_risk=true jeśli jest jakiekolwiek ryzyko."
+            return (
+                f"WYKRYTE ZAGROŻENIA BEZPIECZEŃSTWA:\n{concerns_text}\n\n"
+                "Ważne: Ustaw safety_risk=true jeśli jest jakiekolwiek ryzyko."
+            )
         else:
             return "Brak wykrytych zagrożeń bezpieczeństwa w ostatnich wiadomościach."
 
     def apply_safety_to_decision(
-            self,
-            decision: SupervisorDecision,
-            conversation_history: List[MessageData]) -> SupervisorDecision:
+        self, decision: SupervisorDecision, conversation_history: List[MessageData]
+    ) -> SupervisorDecision:
         """Apply safety checks to supervisor decision."""
         safety_check = self.check_conversation_safety(conversation_history)
 

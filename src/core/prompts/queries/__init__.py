@@ -4,7 +4,7 @@ from .section_queries import (
     GetPromptSectionsQuery,
     GetSectionByIdQuery,
     GetPromptTemplateQuery,
-    SearchSectionsQuery
+    SearchSectionsQuery,
 )
 from .prompt_query_handler import PromptQueryHandler
 
@@ -13,5 +13,5 @@ __all__ = [
     "GetSectionByIdQuery",
     "GetPromptTemplateQuery",
     "SearchSectionsQuery",
-    "PromptQueryHandler"
+    "PromptQueryHandler",
 ]

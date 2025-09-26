@@ -60,18 +60,14 @@ class PromptMigrationService:
             "compatible": True,
             "issues": [],
             "warnings": [],
-            "statistics": {
-                "system_prompts": 0,
-                "stage_prompts": 0,
-                "total_sections": 0
-            }
+            "statistics": {"system_prompts": 0, "stage_prompts": 0, "total_sections": 0},
         }
 
         # Validate system prompts
         system_prompts_file = self.config_dir / "system_prompts.json"
         if system_prompts_file.exists():
             try:
-                with open(system_prompts_file, 'r', encoding='utf-8') as f:
+                with open(system_prompts_file, "r", encoding="utf-8") as f:
                     system_data = json.load(f)
 
                 prompts_count = len(system_data.get("prompts", {}))
@@ -94,7 +90,7 @@ class PromptMigrationService:
         stage_prompts_file = self.config_dir / "stage_prompts.json"
         if stage_prompts_file.exists():
             try:
-                with open(stage_prompts_file, 'r', encoding='utf-8') as f:
+                with open(stage_prompts_file, "r", encoding="utf-8") as f:
                     stage_data = json.load(f)
 
                 prompts_count = len(stage_data.get("prompts", {}))
@@ -145,19 +141,21 @@ class PromptMigrationService:
                 "issues": [],
                 "original_sections": len(original_template.sections),
                 "reconstructed_sections": len(reconstructed_template.sections),
-                "section_comparison": []
+                "section_comparison": [],
             }
 
             # Compare sections
-            for i, (orig, recon) in enumerate(zip(
-                original_template.get_sections_ordered(),
-                reconstructed_template.get_sections_ordered()
-            )):
+            for i, (orig, recon) in enumerate(
+                zip(
+                    original_template.get_sections_ordered(),
+                    reconstructed_template.get_sections_ordered(),
+                )
+            ):
                 section_comp = {
                     "index": i,
                     "title_match": orig.title == recon.title,
                     "content_match": orig.content == recon.content,
-                    "order_match": orig.order == recon.order
+                    "order_match": orig.order == recon.order,
                 }
 
                 if not all(section_comp.values()):
@@ -169,11 +167,7 @@ class PromptMigrationService:
             return comparison
 
         except Exception as e:
-            return {
-                "success": False,
-                "error": str(e),
-                "issues": [f"Round-trip test failed: {e}"]
-            }
+            return {"success": False, "error": str(e), "issues": [f"Round-trip test failed: {e}"]}
 
     def upgrade_prompt_format(self, prompt_id: str, create_backup: bool = True) -> Dict[str, Any]:
         """
@@ -186,12 +180,7 @@ class PromptMigrationService:
         Returns:
             Upgrade result report
         """
-        result = {
-            "success": False,
-            "message": "",
-            "backup_path": None,
-            "sections_created": 0
-        }
+        result = {"success": False, "message": "", "backup_path": None, "sections_created": 0}
 
         try:
             if create_backup:
@@ -212,7 +201,9 @@ class PromptMigrationService:
 
         return result
 
-    def _validate_prompt_structure(self, prompt_id: str, prompt_data: Dict[str, Any], prompt_type: str) -> List[str]:
+    def _validate_prompt_structure(
+        self, prompt_id: str, prompt_data: Dict[str, Any], prompt_type: str
+    ) -> List[str]:
         """Validate individual prompt structure."""
         issues = []
 

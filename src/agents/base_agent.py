@@ -14,6 +14,7 @@ Key shared responsibilities:
 Concrete agents (TherapistAgent, SupervisorAgent) inherit this foundation
 and implement their specific business logic.
 """
+
 import time
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, List
@@ -41,13 +42,15 @@ class AgentBase(ABC):
     # INITIALIZATION AND CONFIGURATION
     # =====================================================================================
 
-    def __init__(self,
-                 llm_provider: LLMProvider,
-                 prompt_service: PromptService,
-                 safety_service: SafetyService,
-                 memory_service: MemoryService,
-                 logger=None,
-                 agent_type: str = None):
+    def __init__(
+        self,
+        llm_provider: LLMProvider,
+        prompt_service: PromptService,
+        safety_service: SafetyService,
+        memory_service: MemoryService,
+        logger=None,
+        agent_type: str = None,
+    ):
         """
         Initialize agent with injected dependencies and agent type.
 
@@ -71,8 +74,8 @@ class AgentBase(ABC):
 
         # Shared agent state tracking
         self._current_stage_id: Optional[str] = None  # Currently active therapy stage
-        self._system_prompt_set: bool = False         # Whether system prompt has been configured
-        self._stage_prompt_set: bool = False          # Whether stage-specific prompt has been set
+        self._system_prompt_set: bool = False  # Whether system prompt has been configured
+        self._stage_prompt_set: bool = False  # Whether stage-specific prompt has been set
 
         # Allow concrete agents to perform additional configuration
         self._configure_agent_specific_features()
@@ -130,7 +133,9 @@ class AgentBase(ABC):
         if not self._system_prompt_set:
             system_prompt = self._prompt_service.get_system_prompt(self._agent_type)
             if system_prompt:
-                self._memory_service.setup_system_prompt(self._llm_provider, system_prompt, self._agent_type)
+                self._memory_service.setup_system_prompt(
+                    self._llm_provider, system_prompt, self._agent_type
+                )
                 self._system_prompt_set = True
 
     def _handle_stage_transition(self, stage_id: str) -> None:
@@ -156,7 +161,9 @@ class AgentBase(ABC):
             stage_prompt: Stage-specific prompt text
             stage_id: Current therapy stage identifier
         """
-        self._memory_service.setup_stage_prompt(self._llm_provider, stage_prompt, stage_id, self._agent_type)
+        self._memory_service.setup_stage_prompt(
+            self._llm_provider, stage_prompt, stage_id, self._agent_type
+        )
         self._stage_prompt_set = True
 
     @abstractmethod
@@ -214,7 +221,7 @@ class AgentBase(ABC):
                 "agent_type": self._agent_type,
                 "operation": operation,
                 "duration_ms": duration_ms,
-                **metadata
+                **metadata,
             }
             self._logger.log_info(f"{self._agent_type} {operation} completed", perf_data)
 
@@ -233,7 +240,9 @@ class AgentBase(ABC):
     # SHARED INFRASTRUCTURE - ERROR HANDLING
     # =====================================================================================
 
-    def _create_error_metadata(self, error: Exception, safety_check: Optional[Dict] = None) -> Dict[str, Any]:
+    def _create_error_metadata(
+        self, error: Exception, safety_check: Optional[Dict] = None
+    ) -> Dict[str, Any]:
         """
         Create standardized error metadata for consistent error responses.
 
@@ -249,7 +258,7 @@ class AgentBase(ABC):
             "error": str(error),
             "error_type": type(error).__name__,
             "agent_type": self._agent_type,
-            "safety_check": safety_check or {"has_risk": False}
+            "safety_check": safety_check or {"has_risk": False},
         }
 
     @staticmethod
@@ -276,13 +285,15 @@ class AgentBase(ABC):
         Returns:
             Cleaned response text with proper formatting
         """
-        return response.replace('\\n', '\n')
+        return response.replace("\\n", "\n")
 
     # =====================================================================================
     # SHARED INFRASTRUCTURE - CONTEXT BUILDING
     # =====================================================================================
 
-    def _build_conversation_context(self, conversation_history: List[MessageData], max_messages: int = None) -> str:
+    def _build_conversation_context(
+        self, conversation_history: List[MessageData], max_messages: int = None
+    ) -> str:
         """
         Build optimized conversation context from message history with summarization support.
 
@@ -294,18 +305,23 @@ class AgentBase(ABC):
             Formatted conversation context string (with summarization if enabled)
         """
         from config import Config
+
         config = Config.get_instance()
 
         # Use optimized context building with summarization if enabled
-        if config.ENABLE_CONVERSATION_SUMMARY and max_messages and len(conversation_history) > max_messages:
+        if (
+            config.ENABLE_CONVERSATION_SUMMARY
+            and max_messages
+            and len(conversation_history) > max_messages
+        ):
             return self._memory_service.build_optimized_conversation_context(
-                conversation_history,
-                max_messages=max_messages,
-                enable_summarization=True
+                conversation_history, max_messages=max_messages, enable_summarization=True
             )
         else:
             # Fallback to standard method
-            return self._memory_service.build_conversation_context(conversation_history, max_messages=max_messages)
+            return self._memory_service.build_conversation_context(
+                conversation_history, max_messages=max_messages
+            )
 
     def _build_safety_context(self, conversation_history: List[MessageData]) -> str:
         """

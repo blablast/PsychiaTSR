@@ -20,6 +20,7 @@ os.chdir(project_root)
 # Import directly from llm module to avoid src.__init__.py issues
 from src.llm import ModelDiscovery
 
+
 async def main():
     """Refresh models cache from all providers."""
     print("🔄 Refreshing models cache...")

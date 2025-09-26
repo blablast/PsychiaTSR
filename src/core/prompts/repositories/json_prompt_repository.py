@@ -46,9 +46,7 @@ class JsonPromptRepository:
             system_data = self._load_json(self.system_prompts_file)
             if prompt_id in system_data.get("prompts", {}):
                 return self._convert_legacy_to_template(
-                    prompt_id,
-                    system_data["prompts"][prompt_id],
-                    "system"
+                    prompt_id, system_data["prompts"][prompt_id], "system"
                 )
 
         # Try stage prompts
@@ -56,9 +54,7 @@ class JsonPromptRepository:
             stage_data = self._load_json(self.stage_prompts_file)
             if prompt_id in stage_data.get("prompts", {}):
                 return self._convert_legacy_to_template(
-                    prompt_id,
-                    stage_data["prompts"][prompt_id],
-                    "stage"
+                    prompt_id, stage_data["prompts"][prompt_id], "stage"
                 )
 
         raise ValueError(f"Template {prompt_id} not found")
@@ -87,9 +83,9 @@ class JsonPromptRepository:
                     "version": "2.0",  # New version with sections support
                     "created_at": datetime.now().isoformat(),
                     "updated_at": datetime.now().isoformat(),
-                    "description": f"{template.prompt_type.title()} prompts database with sections support"
+                    "description": f"{template.prompt_type.title()} prompts database with sections support",
                 },
-                "prompts": {}
+                "prompts": {},
             }
 
         # Convert template to legacy format
@@ -102,7 +98,9 @@ class JsonPromptRepository:
         # Save back to file
         self._save_json(target_file, data)
 
-    def search_templates(self, agent_type: str = None, prompt_type: str = None, stage_id: str = None) -> List[PromptTemplate]:
+    def search_templates(
+        self, agent_type: str = None, prompt_type: str = None, stage_id: str = None
+    ) -> List[PromptTemplate]:
         """
         Search templates by criteria.
 
@@ -118,11 +116,15 @@ class JsonPromptRepository:
 
         # Search system prompts
         if prompt_type is None or prompt_type == "system":
-            templates.extend(self._search_in_file(self.system_prompts_file, agent_type, "system", stage_id))
+            templates.extend(
+                self._search_in_file(self.system_prompts_file, agent_type, "system", stage_id)
+            )
 
         # Search stage prompts
         if prompt_type is None or prompt_type == "stage":
-            templates.extend(self._search_in_file(self.stage_prompts_file, agent_type, "stage", stage_id))
+            templates.extend(
+                self._search_in_file(self.stage_prompts_file, agent_type, "stage", stage_id)
+            )
 
         return templates
 
@@ -170,7 +172,9 @@ class JsonPromptRepository:
 
         return False
 
-    def _search_in_file(self, file_path: Path, agent_type: str, prompt_type: str, stage_id: str) -> List[PromptTemplate]:
+    def _search_in_file(
+        self, file_path: Path, agent_type: str, prompt_type: str, stage_id: str
+    ) -> List[PromptTemplate]:
         """Search templates in specific file."""
         if not file_path.exists():
             return []
@@ -212,7 +216,9 @@ class JsonPromptRepository:
 
         return False
 
-    def _convert_legacy_to_template(self, prompt_id: str, legacy_data: Dict[str, Any], prompt_type: str) -> PromptTemplate:
+    def _convert_legacy_to_template(
+        self, prompt_id: str, legacy_data: Dict[str, Any], prompt_type: str
+    ) -> PromptTemplate:
         """Convert legacy JSON format to PromptTemplate."""
         metadata = legacy_data.get("metadata", {})
         configuration = legacy_data.get("configuration", {})
@@ -232,7 +238,7 @@ class JsonPromptRepository:
                 section_type="standard",
                 metadata={"legacy_key": section_key},
                 created_at=self._parse_datetime(metadata.get("created_at")),
-                updated_at=self._parse_datetime(metadata.get("updated_at"))
+                updated_at=self._parse_datetime(metadata.get("updated_at")),
             )
             sections.append(section)
 
@@ -246,10 +252,10 @@ class JsonPromptRepository:
             metadata={
                 "note": metadata.get("note"),
                 "status": metadata.get("status"),
-                "legacy_id": metadata.get("id")
+                "legacy_id": metadata.get("id"),
             },
             created_at=self._parse_datetime(metadata.get("created_at")),
-            updated_at=self._parse_datetime(metadata.get("updated_at"))
+            updated_at=self._parse_datetime(metadata.get("updated_at")),
         )
 
         return template
@@ -277,7 +283,7 @@ class JsonPromptRepository:
 
             sections_dict[legacy_key] = {
                 "title": section.title,  # PRESERVE EXACT TITLE - no modifications
-                "content": section.content
+                "content": section.content,
             }
 
         return {
@@ -288,17 +294,15 @@ class JsonPromptRepository:
                 "created_at": template.created_at.isoformat() if template.created_at else None,
                 "updated_at": template.updated_at.isoformat() if template.updated_at else None,
                 "status": template.metadata.get("status", "active"),
-                "note": template.metadata.get("note", "")
+                "note": template.metadata.get("note", ""),
             },
-            "configuration": {
-                "sections": sections_dict
-            }
+            "configuration": {"sections": sections_dict},
         }
 
     def _load_json(self, file_path: Path) -> Dict[str, Any]:
         """Load JSON file safely."""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception as e:
             raise ValueError(f"Failed to load {file_path}: {e}")
@@ -309,7 +313,7 @@ class JsonPromptRepository:
             # Ensure directory exists
             file_path.parent.mkdir(parents=True, exist_ok=True)
 
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
         except Exception as e:
             raise ValueError(f"Failed to save {file_path}: {e}")
@@ -319,6 +323,6 @@ class JsonPromptRepository:
         if not datetime_str:
             return None
         try:
-            return datetime.fromisoformat(datetime_str.replace('Z', '+00:00'))
+            return datetime.fromisoformat(datetime_str.replace("Z", "+00:00"))
         except Exception:
             return None

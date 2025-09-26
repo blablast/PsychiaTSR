@@ -54,26 +54,23 @@ class AppLoader:
         return {
             "title": self.get_app_title(),
             "icon": self.get_app_icon(),
-            "language": self.get_default_language()
+            "language": self.get_default_language(),
         }
 
     def get_session_settings(self) -> Dict[str, Any]:
         """Get all session settings."""
         return {
             "timeout": self.get_session_timeout(),
-            "max_history": self.get_max_conversation_history()
+            "max_history": self.get_max_conversation_history(),
         }
 
     def get_safety_settings(self) -> Dict[str, Any]:
         """Get all safety settings."""
         return {
             "enable_checks": self.is_safety_enabled(),
-            "strict_mode": self.is_strict_safety_mode()
+            "strict_mode": self.is_strict_safety_mode(),
         }
 
     def get_logging_settings(self) -> Dict[str, Any]:
         """Get all logging settings."""
-        return {
-            "level": self.get_log_level(),
-            "detailed": self.is_detailed_logging_enabled()
-        }
+        return {"level": self.get_log_level(), "detailed": self.is_detailed_logging_enabled()}

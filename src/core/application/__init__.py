@@ -4,6 +4,6 @@ from .environment_setup import EnvironmentSetup
 from .user_config_loader import UserConfigLoader
 
 __all__ = [
-    'EnvironmentSetup',
-    'UserConfigLoader',
+    "EnvironmentSetup",
+    "UserConfigLoader",
 ]

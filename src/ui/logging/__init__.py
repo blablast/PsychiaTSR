@@ -4,6 +4,6 @@ from .streamlit_storage import StreamlitStorage
 from .streamlit_formatter import StreamlitFormatter
 
 __all__ = [
-    'StreamlitStorage',
-    'StreamlitFormatter',
+    "StreamlitStorage",
+    "StreamlitFormatter",
 ]

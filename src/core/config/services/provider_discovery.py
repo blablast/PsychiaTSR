@@ -51,5 +51,5 @@ class ProviderDiscovery(IProviderDiscovery):
             "unavailable_count": len(unavailable),
             "available_providers": [p.value for p in available],
             "unavailable_providers": [p.value for p in unavailable],
-            "availability_percentage": (len(available) / len(ProviderType)) * 100
+            "availability_percentage": (len(available) / len(ProviderType)) * 100,
         }

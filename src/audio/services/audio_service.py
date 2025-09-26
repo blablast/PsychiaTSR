@@ -30,9 +30,7 @@ class AudioService:
         return PcmBuffer(max_ms=max_ms)
 
     def create_tts_router(
-        self,
-        config: Dict[str, Any],
-        pcm_buffer: PcmBuffer
+        self, config: Dict[str, Any], pcm_buffer: PcmBuffer
     ) -> Optional[TTSRouterService]:
         """
         Create TTS router from configuration.
@@ -91,9 +89,9 @@ class AudioService:
             True if audio is enabled and configured
         """
         return (
-            getattr(session_state, 'audio_enabled', False) and
-            hasattr(session_state, '_tts_cfg') and
-            bool(session_state._tts_cfg)
+            getattr(session_state, "audio_enabled", False)
+            and hasattr(session_state, "_tts_cfg")
+            and bool(session_state._tts_cfg)
         )
 
     def cleanup(self) -> None:

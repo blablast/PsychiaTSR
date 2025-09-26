@@ -15,18 +15,18 @@ def display_sidebar():
         # Navigation options
         page = st.radio(
             "Wybierz stronę:",
-            options=["💬 Konwersacja", "📝 Prompty"], #"⚙️ Ustawienia", "📊 Raporty", "🔬 Testy"],
+            options=["💬 Konwersacja", "📝 Prompty"],  # "⚙️ Ustawienia", "📊 Raporty", "🔬 Testy"],
             index=0,  # Default to conversation
-            key="navigation_page"
+            key="navigation_page",
         )
 
         # Map page names to internal identifiers
         page_mapping = {
             "💬 Konwersacja": "conversation",
             "📝 Prompty": "prompts",
-            #"⚙️ Ustawienia": "settings",
-            #"📊 Raporty": "reports",
-            #"🔬 Testy": "tests"
+            # "⚙️ Ustawienia": "settings",
+            # "📊 Raporty": "reports",
+            # "🔬 Testy": "tests"
         }
 
         # Set current page in session state
@@ -56,6 +56,7 @@ def _display_audio_status_sidebar():
     """Display detailed audio status information in sidebar."""
     try:
         from src.audio.services.audio_service import AudioService
+
         AUDIO_AVAILABLE = True
     except ImportError:
         AUDIO_AVAILABLE = False

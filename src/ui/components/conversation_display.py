@@ -14,7 +14,7 @@ class ConversationDisplay:
     @staticmethod
     def display_conversation_history() -> None:
         """Display the complete conversation history."""
-        if 'conversation_manager' not in st.session_state:
+        if "conversation_manager" not in st.session_state:
             return
 
         conversation = st.session_state.conversation_manager.get_full_conversation_for_display()

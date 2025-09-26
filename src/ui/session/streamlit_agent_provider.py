@@ -15,7 +15,7 @@ class StreamlitAgentProvider(ISessionAgentProvider):
         Returns:
             TherapistAgent instance or None if not initialized
         """
-        return st.session_state.get('therapist_agent')
+        return st.session_state.get("therapist_agent")
 
     def get_supervisor_agent(self):
         """
@@ -24,7 +24,7 @@ class StreamlitAgentProvider(ISessionAgentProvider):
         Returns:
             SupervisorAgent instance or None if not initialized
         """
-        return st.session_state.get('supervisor_agent')
+        return st.session_state.get("supervisor_agent")
 
     def is_initialized(self) -> bool:
         """
@@ -33,5 +33,4 @@ class StreamlitAgentProvider(ISessionAgentProvider):
         Returns:
             True if both therapist and supervisor agents are available
         """
-        return (self.get_therapist_agent() is not None and
-                self.get_supervisor_agent() is not None)
+        return self.get_therapist_agent() is not None and self.get_supervisor_agent() is not None

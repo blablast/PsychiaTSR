@@ -37,17 +37,14 @@ class BaseRenderer(ABC):
         parsed = self.message_parser.parse(log_entry["data"])
 
         # Get style
-        style_info = self.style_provider.get_style(
-            log_entry["event_type"],
-            log_entry["data"]
-        )
+        style_info = self.style_provider.get_style(log_entry["event_type"], log_entry["data"])
 
         # Render header (same for all)
         self.header_renderer.render_header(
             style_info=style_info,
             timestamp=log_entry["timestamp"],
             response_time_ms=log_entry.get("response_time_ms"),
-            compact_info=parsed.compact_info or ""
+            compact_info=parsed.compact_info or "",
         )
 
         # Render content (specific implementation)

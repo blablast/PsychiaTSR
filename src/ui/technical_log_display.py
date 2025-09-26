@@ -24,13 +24,15 @@ class TechnicalLogDisplay:
         self._renderer_factory = RendererFactory()
         self._initialize_session_state()
 
-    def add_log_entry(self, event_type: str, data: str, response_time_ms: Optional[int] = None) -> None:
+    def add_log_entry(
+        self, event_type: str, data: str, response_time_ms: Optional[int] = None
+    ) -> None:
         """Add entry to technical log."""
         log_entry = {
             "timestamp": datetime.now().isoformat(),
             "event_type": event_type,
             "data": data,
-            "response_time_ms": response_time_ms
+            "response_time_ms": response_time_ms,
         }
 
         st.session_state[self._session_key].append(log_entry)
@@ -59,24 +61,25 @@ class TechnicalLogDisplay:
 
         for entry in log_entries:
             if isinstance(entry, dict):
-                if 'message' in entry:
+                if "message" in entry:
                     # New LogEntry format - use message directly for display
-                    display_data = entry.get('message', '')
+                    display_data = entry.get("message", "")
 
                     # For prompt requests, don't add JSON data (it's in enhanced message)
-                    event_type = entry.get('event_type', '')
-                    if event_type not in ['supervisor_request', 'therapist_request']:
-                        if entry.get('data') and isinstance(entry['data'], dict) and entry['data']:
+                    event_type = entry.get("event_type", "")
+                    if event_type not in ["supervisor_request", "therapist_request"]:
+                        if entry.get("data") and isinstance(entry["data"], dict) and entry["data"]:
                             import json
-                            data_str = json.dumps(entry['data'], ensure_ascii=False, indent=2)
+
+                            data_str = json.dumps(entry["data"], ensure_ascii=False, indent=2)
                             display_data = f"{display_data}\n\nData: {data_str}"
 
                     converted_entry = {
-                        "timestamp": entry.get('timestamp', ''),
-                        "event_type": entry.get('event_type', ''),
+                        "timestamp": entry.get("timestamp", ""),
+                        "event_type": entry.get("event_type", ""),
                         "data": display_data,
-                        "response_time_ms": entry.get('response_time_ms'),
-                        "agent_type": entry.get('agent_type', 'system')
+                        "response_time_ms": entry.get("response_time_ms"),
+                        "agent_type": entry.get("agent_type", "system"),
                     }
                     converted_entries.append(converted_entry)
                 else:
@@ -123,9 +126,9 @@ class TechnicalLogDisplay:
         if not timestamp:
             return ""
         try:
-            dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+            dt = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
             return dt.strftime("%H:%M:%S.%f")[:-3]
-        except:
+        except Exception:
             return timestamp
 
     @staticmethod
@@ -156,7 +159,7 @@ def add_technical_log(event_type: str, message: str, response_time_ms: int = Non
         "event_type": event_type,
         "message": message,
         "data": message,
-        "response_time_ms": response_time_ms
+        "response_time_ms": response_time_ms,
     }
 
     st.session_state[session_key].append(log_entry)

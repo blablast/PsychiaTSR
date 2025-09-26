@@ -18,15 +18,18 @@ class PageConfigurator:
             page_title=config.APP_TITLE,
             page_icon=config.APP_ICON,
             layout="wide",
-            initial_sidebar_state="expanded"
+            initial_sidebar_state="expanded",
         )
 
         # Custom CSS for sidebar styling
-        st.markdown("""
+        st.markdown(
+            """
         <style>
             .sidebar-divider {
                 border-top: 2px solid #f0f2f6;
                 margin: 1rem 0;
             }
         </style>
-        """, unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )

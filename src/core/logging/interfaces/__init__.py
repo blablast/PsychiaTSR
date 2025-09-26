@@ -5,7 +5,7 @@ from .formatter_interface import IFormatter
 from .storage_interface import IStorage
 
 __all__ = [
-    'ILogger',
-    'IFormatter',
-    'IStorage',
+    "ILogger",
+    "IFormatter",
+    "IStorage",
 ]

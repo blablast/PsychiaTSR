@@ -27,7 +27,7 @@ def prompts_management_page():
     mode = st.selectbox(
         "Editor Mode",
         ["📋 Browse & Select", "✏️ Section Editor", "🔧 Legacy Editor"],
-        help="Choose editing mode"
+        help="Choose editing mode",
     )
 
     if mode == "📋 Browse & Select":
@@ -63,7 +63,9 @@ def _display_prompt_browser(service: PromptSectionService) -> None:
             st.markdown("### 🏠 System Prompts")
 
             for prompt_id in system_prompts:
-                if st.button(f"📝 {prompt_id}", key=f"edit_system_{prompt_id}", use_container_width=True):
+                if st.button(
+                    f"📝 {prompt_id}", key=f"edit_system_{prompt_id}", use_container_width=True
+                ):
                     st.session_state.selected_prompt_id = prompt_id
                     st.session_state.editor_mode = "Section Editor"
                     st.rerun()
@@ -72,7 +74,9 @@ def _display_prompt_browser(service: PromptSectionService) -> None:
             st.markdown("### 🎯 Stage Prompts")
 
             for prompt_id in stage_prompts:
-                if st.button(f"📝 {prompt_id}", key=f"edit_stage_{prompt_id}", use_container_width=True):
+                if st.button(
+                    f"📝 {prompt_id}", key=f"edit_stage_{prompt_id}", use_container_width=True
+                ):
                     st.session_state.selected_prompt_id = prompt_id
                     st.session_state.editor_mode = "Section Editor"
                     st.rerun()
@@ -82,9 +86,7 @@ def _display_prompt_browser(service: PromptSectionService) -> None:
         st.markdown("### 📊 Quick Statistics")
 
         selected_prompt = st.selectbox(
-            "View stats for:",
-            ["Select prompt..."] + prompt_ids,
-            key="stats_prompt_select"
+            "View stats for:", ["Select prompt..."] + prompt_ids, key="stats_prompt_select"
         )
 
         if selected_prompt and selected_prompt != "Select prompt...":
@@ -111,9 +113,7 @@ def _display_section_editor(service: PromptSectionService) -> None:
                 return
 
             selected_prompt = st.selectbox(
-                "Select prompt to edit:",
-                prompt_ids,
-                key="section_editor_prompt_select"
+                "Select prompt to edit:", prompt_ids, key="section_editor_prompt_select"
             )
 
         except Exception as e:
@@ -204,7 +204,9 @@ def _display_legacy_system_prompts(ui_service: PromptUIService) -> None:
                 st.info(f"📋 {sections_count} sections detected")
 
                 # Recommendation to use new editor
-                st.warning("⚡ **Recommendation:** Use Section Editor mode for advanced editing features")
+                st.warning(
+                    "⚡ **Recommendation:** Use Section Editor mode for advanced editing features"
+                )
 
                 # Simple JSON editor
                 json_data = st.text_area(
@@ -212,7 +214,7 @@ def _display_legacy_system_prompts(ui_service: PromptUIService) -> None:
                     value=str(therapist_data)[:500] + "...",
                     height=200,
                     disabled=True,
-                    help="Use Section Editor for proper editing"
+                    help="Use Section Editor for proper editing",
                 )
 
                 # Form buttons
@@ -221,7 +223,9 @@ def _display_legacy_system_prompts(ui_service: PromptUIService) -> None:
                     try:
                         service = PromptSectionService("config")
                         prompt_ids = service.repository.list_prompt_ids()
-                        therapist_prompts = [pid for pid in prompt_ids if "therapist" in pid and "system" in pid]
+                        therapist_prompts = [
+                            pid for pid in prompt_ids if "therapist" in pid and "system" in pid
+                        ]
 
                         if therapist_prompts:
                             st.session_state.selected_prompt_id = therapist_prompts[0]
@@ -248,7 +252,9 @@ def _display_legacy_system_prompts(ui_service: PromptUIService) -> None:
                 st.info(f"📋 {sections_count} sections detected")
 
                 # Recommendation
-                st.warning("⚡ **Recommendation:** Use Section Editor mode for advanced editing features")
+                st.warning(
+                    "⚡ **Recommendation:** Use Section Editor mode for advanced editing features"
+                )
 
                 # Simple JSON editor
                 json_data = st.text_area(
@@ -256,14 +262,16 @@ def _display_legacy_system_prompts(ui_service: PromptUIService) -> None:
                     value=str(supervisor_data)[:500] + "...",
                     height=200,
                     disabled=True,
-                    help="Use Section Editor for proper editing"
+                    help="Use Section Editor for proper editing",
                 )
 
                 if st.form_submit_button("Switch to Section Editor"):
                     try:
                         service = PromptSectionService("config")
                         prompt_ids = service.repository.list_prompt_ids()
-                        supervisor_prompts = [pid for pid in prompt_ids if "supervisor" in pid and "system" in pid]
+                        supervisor_prompts = [
+                            pid for pid in prompt_ids if "supervisor" in pid and "system" in pid
+                        ]
 
                         if supervisor_prompts:
                             st.session_state.selected_prompt_id = supervisor_prompts[0]

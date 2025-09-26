@@ -22,14 +22,16 @@ class ServiceFactory:
         agent_services = SimpleServiceFactory.create_agent_services()
 
         return (
-            agent_services['prompt_service'],
-            agent_services['parsing_service'],
-            agent_services['safety_service'],
-            agent_services['memory_service']
+            agent_services["prompt_service"],
+            agent_services["parsing_service"],
+            agent_services["safety_service"],
+            agent_services["memory_service"],
         )
 
     @staticmethod
-    def create_supervisor_agent(llm_provider, prompt_manager=None, safety_checker=None, logger=None):
+    def create_supervisor_agent(
+        llm_provider, prompt_manager=None, safety_checker=None, logger=None
+    ):
         """Create fully configured SupervisorAgent using SimpleServiceFactory."""
         from ...agents.supervisor import SupervisorAgent
 
@@ -48,7 +50,7 @@ class ServiceFactory:
             parsing_service=parsing_service,
             safety_service=safety_service,
             memory_service=memory_service,
-            logger=logger
+            logger=logger,
         )
 
     @staticmethod
@@ -70,5 +72,5 @@ class ServiceFactory:
             prompt_service=prompt_service,
             safety_service=safety_service,
             memory_service=memory_service,
-            logger=logger
+            logger=logger,
         )

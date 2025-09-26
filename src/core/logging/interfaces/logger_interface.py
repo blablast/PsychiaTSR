@@ -50,7 +50,9 @@ class ILogger(ABC):
         pass
 
     @abstractmethod
-    def log_therapist_response(self, response: str, response_time_ms: int, first_chunk_time_ms: int = None) -> None:
+    def log_therapist_response(
+        self, response: str, response_time_ms: int, first_chunk_time_ms: int = None
+    ) -> None:
         """Log therapist response with timing and optional first chunk timing."""
         pass
 
@@ -75,8 +77,13 @@ class ILogger(ABC):
         pass
 
     @abstractmethod
-    def log_model_info(self, therapist_model: str, supervisor_model: str,
-                      therapist_provider: str = "openai", supervisor_provider: str = "gemini") -> None:
+    def log_model_info(
+        self,
+        therapist_model: str,
+        supervisor_model: str,
+        therapist_provider: str = "openai",
+        supervisor_provider: str = "gemini",
+    ) -> None:
         """Log information about currently used models."""
         pass
 
@@ -86,7 +93,9 @@ class ILogger(ABC):
         pass
 
     @abstractmethod
-    def log_stage_prompt(self, agent_type: str, stage_id: str, prompt_content: str, description: str) -> None:
+    def log_stage_prompt(
+        self, agent_type: str, stage_id: str, prompt_content: str, description: str
+    ) -> None:
         """Log stage-specific prompt configuration."""
         pass
 

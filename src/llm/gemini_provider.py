@@ -13,9 +13,11 @@ class GeminiProvider(LLMProvider):
     def __init__(self, model_name: str = "gemini-pro", **kwargs):
         super().__init__(model_name, **kwargs)
 
-        self.api_key = kwargs.get('api_key') or os.getenv('GOOGLE_API_KEY')
+        self.api_key = kwargs.get("api_key") or os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
-            raise ValueError("Gemini API key not provided. Set GOOGLE_API_KEY environment variable or pass api_key parameter.")
+            raise ValueError(
+                "Gemini API key not provided. Set GOOGLE_API_KEY environment variable or pass api_key parameter."
+            )
 
         genai.configure(api_key=self.api_key)
         self.model = genai.GenerativeModel(model_name)
@@ -75,19 +77,15 @@ class GeminiProvider(LLMProvider):
                 # System messages become part of instruction or first user message
                 continue
             elif msg["role"] == "user":
-                gemini_messages.append({
-                    "role": "user",
-                    "parts": [{"text": msg["content"]}]
-                })
+                gemini_messages.append({"role": "user", "parts": [{"text": msg["content"]}]})
             elif msg["role"] == "assistant":
-                gemini_messages.append({
-                    "role": "model",
-                    "parts": [{"text": msg["content"]}]
-                })
+                gemini_messages.append({"role": "model", "parts": [{"text": msg["content"]}]})
 
         return gemini_messages
 
-    def _prepare_gemini_api_params(self, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
+    def _prepare_gemini_api_params(
+        self, messages: List[Dict[str, str]], **kwargs
+    ) -> Dict[str, Any]:
         """Prepare Gemini-specific API parameters."""
         gemini_messages = self._convert_to_gemini_format(messages)
 
@@ -104,8 +102,8 @@ class GeminiProvider(LLMProvider):
             "generationConfig": {
                 "temperature": common_params["temperature"],
                 "maxOutputTokens": common_params["max_tokens"],
-                "topP": common_params["top_p"]
-            }
+                "topP": common_params["top_p"],
+            },
         }
 
         # Add structured output support (from per-request or default)
@@ -115,9 +113,7 @@ class GeminiProvider(LLMProvider):
             request_data["generationConfig"]["responseSchema"] = response_schema
 
         if system_instruction:
-            request_data["systemInstruction"] = {
-                "parts": [{"text": system_instruction}]
-            }
+            request_data["systemInstruction"] = {"parts": [{"text": system_instruction}]}
 
         return request_data
 
@@ -137,7 +133,7 @@ class GeminiProvider(LLMProvider):
                 url,
                 json=request_data,
                 params={"key": self.api_key},
-                headers={"Content-Type": "application/json"}
+                headers={"Content-Type": "application/json"},
             ) as response:
                 if response.status != 200:
                     error_text = await response.text()
@@ -162,7 +158,9 @@ class GeminiProvider(LLMProvider):
         except Exception as e:
             raise Exception(f"Gemini API error: {str(e)}")
 
-    async def generate_stream_async(self, prompt: str, system_prompt: str = None, **kwargs) -> AsyncGenerator[str, None]:
+    async def generate_stream_async(
+        self, prompt: str, system_prompt: str = None, **kwargs
+    ) -> AsyncGenerator[str, None]:
         """Generate streaming response using Gemini API with aiohttp."""
         try:
             # Use base class method to prepare messages
@@ -178,7 +176,7 @@ class GeminiProvider(LLMProvider):
                 url,
                 json=request_data,
                 params={"key": self.api_key},
-                headers={"Content-Type": "application/json"}
+                headers={"Content-Type": "application/json"},
             ) as response:
                 if response.status != 200:
                     error_text = await response.text()
@@ -186,7 +184,7 @@ class GeminiProvider(LLMProvider):
 
                 full_response = ""
                 async for line in response.content:
-                    line = line.decode('utf-8').strip()
+                    line = line.decode("utf-8").strip()
                     if line:
                         try:
                             chunk_data = json.loads(line)
@@ -215,13 +213,13 @@ class GeminiProvider(LLMProvider):
         """Safely extract text from Gemini response, handling different finish reasons."""
         try:
             # Check if response has candidates
-            if not hasattr(response, 'candidates') or not response.candidates:
+            if not hasattr(response, "candidates") or not response.candidates:
                 return '{"decision": "stay", "reason": "Gemini API nie zwrócił żadnych kandydatów odpowiedzi", "handoff": {"error": "No candidates in response"}}'
 
             candidate = response.candidates[0]
 
             # Check finish reason
-            finish_reason = getattr(candidate, 'finish_reason', None)
+            finish_reason = getattr(candidate, "finish_reason", None)
 
             if finish_reason == 2:  # SAFETY
                 return '{"decision": "stay", "reason": "Odpowiedź została zablokowana przez filtry bezpieczeństwa Gemini", "handoff": {"error": "Safety filters triggered", "finish_reason": "SAFETY"}}'
@@ -231,12 +229,12 @@ class GeminiProvider(LLMProvider):
                 return '{"decision": "stay", "reason": "Odpowiedź została zablokowana z innego powodu", "handoff": {"error": "Blocked for other reason", "finish_reason": "OTHER"}}'
 
             # Try to get text normally
-            if hasattr(response, 'text') and response.text:
+            if hasattr(response, "text") and response.text:
                 return response.text
 
             # Fallback: try to extract from parts
-            if hasattr(candidate, 'content') and hasattr(candidate.content, 'parts'):
-                if candidate.content.parts and hasattr(candidate.content.parts[0], 'text'):
+            if hasattr(candidate, "content") and hasattr(candidate.content, "parts"):
+                if candidate.content.parts and hasattr(candidate.content.parts[0], "text"):
                     return candidate.content.parts[0].text
 
             # If no text found, return a valid JSON error response
@@ -261,7 +259,7 @@ class GeminiProvider(LLMProvider):
             generation_config = genai.types.GenerationConfig(
                 temperature=common_params["temperature"],
                 max_output_tokens=common_params["max_tokens"],
-                top_p=common_params["top_p"]
+                top_p=common_params["top_p"],
             )
 
             # Add structured output support for sync API (from per-request or default)
@@ -299,7 +297,6 @@ class GeminiProvider(LLMProvider):
             elif system_prompt and not self.system_prompt_set:
                 self._set_gemini_system_prompt(system_prompt)
 
-
             # Prepare common parameters
             common_params = self._prepare_common_params(**kwargs)
 
@@ -307,7 +304,7 @@ class GeminiProvider(LLMProvider):
             generation_config = genai.types.GenerationConfig(
                 temperature=common_params["temperature"],
                 max_output_tokens=common_params["max_tokens"],
-                top_p=common_params["top_p"]
+                top_p=common_params["top_p"],
             )
 
             # Add structured output support for streaming (from per-request or default)
@@ -318,9 +315,7 @@ class GeminiProvider(LLMProvider):
 
             # Send streaming request
             response = self.chat_session.send_message(
-                prompt,
-                generation_config=generation_config,
-                stream=True
+                prompt, generation_config=generation_config, stream=True
             )
 
             full_response = ""
@@ -338,7 +333,6 @@ class GeminiProvider(LLMProvider):
             # Also update base class conversation for consistency
             self.add_user_message(prompt)
             self.add_assistant_message(full_response)
-
 
         except Exception as e:
             raise Exception(f"Gemini Streaming API error: {str(e)}")
@@ -360,7 +354,7 @@ class GeminiProvider(LLMProvider):
             # Test with a minimal request
             test_response = self.model.generate_content("Hi")
             return bool(test_response.text)
-        except:
+        except Exception:
             return False
 
     def get_model_info(self) -> Dict[str, Any]:
@@ -371,5 +365,5 @@ class GeminiProvider(LLMProvider):
             "type": "cloud",
             "supports_streaming": True,
             "supports_functions": True,
-            "context_length": 32768  # Gemini Pro context length
+            "context_length": 32768,  # Gemini Pro context length
         }

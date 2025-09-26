@@ -3,7 +3,11 @@
 from typing import AsyncGenerator, Generator
 
 from .strategies.async_conversation_workflow_strategy import AsyncConversationWorkflowStrategy
-from ...ui.workflow.async_streamlit_bridge import StreamlitAsyncBridge, async_to_sync, async_generator_to_sync
+from ...ui.workflow.async_streamlit_bridge import (
+    StreamlitAsyncBridge,
+    async_to_sync,
+    async_generator_to_sync,
+)
 
 
 class AsyncWorkflowManager:
@@ -24,7 +28,7 @@ class AsyncWorkflowManager:
             agent_provider=agent_provider,
             prompt_manager=prompt_manager,
             conversation_manager=conversation_manager,
-            logger=logger
+            logger=logger,
         )
 
     @async_to_sync
@@ -40,8 +44,7 @@ class AsyncWorkflowManager:
                 self._logger.log_info("Starting async workflow processing")
 
             result = await self._async_strategy.process_user_message_async(
-                user_message=user_message,
-                current_stage=current_stage
+                user_message=user_message, current_stage=current_stage
             )
 
             if result.success:
@@ -50,14 +53,10 @@ class AsyncWorkflowManager:
                     "response": result.data.get("response", ""),
                     "supervisor_decision": result.data.get("supervisor_decision"),
                     "response_time_ms": result.data.get("response_time_ms", 0),
-                    "message": result.message
+                    "message": result.message,
                 }
             else:
-                return {
-                    "success": False,
-                    "error": result.error,
-                    "message": result.message
-                }
+                return {"success": False, "error": result.error, "message": result.message}
 
         except Exception as e:
             if self._logger:
@@ -66,11 +65,13 @@ class AsyncWorkflowManager:
             return {
                 "success": False,
                 "error": str(e),
-                "message": f"Async workflow failed: {str(e)}"
+                "message": f"Async workflow failed: {str(e)}",
             }
 
     @async_generator_to_sync
-    async def process_user_message_streaming_async(self, user_message: str, current_stage: str) -> Generator[str, None, None]:
+    async def process_user_message_streaming_async(
+        self, user_message: str, current_stage: str
+    ) -> Generator[str, None, None]:
         """
         Process user message with streaming response asynchronously.
 
@@ -82,8 +83,7 @@ class AsyncWorkflowManager:
                 self._logger.log_info("Starting async streaming workflow processing")
 
             async for chunk in self._async_strategy.process_user_message_streaming_async(
-                user_message=user_message,
-                current_stage=current_stage
+                user_message=user_message, current_stage=current_stage
             ):
                 yield chunk
 
@@ -114,14 +114,14 @@ class AsyncWorkflowManager:
                 "Async LLM calls",
                 "Concurrent agent processing",
                 "Real-time streaming",
-                "Non-blocking I/O"
+                "Non-blocking I/O",
             ],
             "benefits": [
                 "Faster response times",
                 "Better resource utilization",
                 "Improved user experience",
-                "Scalable processing"
-            ]
+                "Scalable processing",
+            ],
         }
 
     def cleanup(self):
@@ -142,7 +142,7 @@ def create_async_workflow_manager(agent_provider, prompt_manager, conversation_m
         agent_provider=agent_provider,
         prompt_manager=prompt_manager,
         conversation_manager=conversation_manager,
-        logger=logger
+        logger=logger,
     )
 
 
@@ -155,7 +155,7 @@ def send_supervisor_request_stream_async(prompt: str) -> Generator[str, None, No
     import streamlit as st
 
     # Get current session components
-    if 'conversation_manager' not in st.session_state:
+    if "conversation_manager" not in st.session_state:
         yield "[Błąd: Brak managera konwersacji]"
         return
 
@@ -168,6 +168,7 @@ def send_supervisor_request_stream_async(prompt: str) -> Generator[str, None, No
         config = Config.get_instance()
         prompt_manager = UnifiedPromptManager(config.PROMPT_DIR)
         from ...ui.session.streamlit_agent_provider import StreamlitAgentProvider
+
         agent_provider = StreamlitAgentProvider()
 
         # Create async workflow manager
@@ -175,11 +176,11 @@ def send_supervisor_request_stream_async(prompt: str) -> Generator[str, None, No
             agent_provider=agent_provider,
             prompt_manager=prompt_manager,
             conversation_manager=st.session_state.conversation_manager,
-            logger=getattr(st.session_state, 'therapy_session_logger', None)
+            logger=getattr(st.session_state, "therapy_session_logger", None),
         )
 
         # Process with async streaming
-        current_stage = getattr(st.session_state, 'current_stage', 'opening')
+        current_stage = getattr(st.session_state, "current_stage", "opening")
 
         # Use the async streaming workflow
         yield from async_manager.process_user_message_streaming_async(prompt, current_stage)

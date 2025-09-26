@@ -4,11 +4,12 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TypeVar, Type, Callable, Optional
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class ServiceLifetime(Enum):
     """Service lifetime management options."""
+
     SINGLETON = "singleton"
     TRANSIENT = "transient"
     SCOPED = "scoped"
@@ -18,8 +19,12 @@ class IDependencyContainer(ABC):
     """Interface for dependency injection container."""
 
     @abstractmethod
-    def register(self, service_type: Type[T], implementation: Type[T],
-                lifetime: ServiceLifetime = ServiceLifetime.TRANSIENT) -> None:
+    def register(
+        self,
+        service_type: Type[T],
+        implementation: Type[T],
+        lifetime: ServiceLifetime = ServiceLifetime.TRANSIENT,
+    ) -> None:
         """Register a service implementation for a given service type."""
         pass
 
@@ -29,8 +34,12 @@ class IDependencyContainer(ABC):
         pass
 
     @abstractmethod
-    def register_factory(self, service_type: Type[T], factory: Callable[[], T],
-                         lifetime: ServiceLifetime = ServiceLifetime.TRANSIENT) -> None:
+    def register_factory(
+        self,
+        service_type: Type[T],
+        factory: Callable[[], T],
+        lifetime: ServiceLifetime = ServiceLifetime.TRANSIENT,
+    ) -> None:
         """Register a factory function for creating service instances."""
         pass
 
@@ -50,6 +59,6 @@ class IDependencyContainer(ABC):
         pass
 
     @abstractmethod
-    def create_scope(self) -> 'IDependencyContainer':
+    def create_scope(self) -> "IDependencyContainer":
         """Create a new scoped container for scoped service management."""
         pass

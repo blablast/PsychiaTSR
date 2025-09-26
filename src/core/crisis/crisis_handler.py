@@ -8,7 +8,9 @@ from .crisis_config import CrisisConfig
 class CrisisHandler(ICrisisHandler):
     """Handles crisis situations when safety risks are detected."""
 
-    def __init__(self, session_manager: ICrisisSessionManager, ui_notifier: UICrisisNotifier, logger):
+    def __init__(
+        self, session_manager: ICrisisSessionManager, ui_notifier: UICrisisNotifier, logger
+    ):
         """
         Initialize crisis handler.
 
@@ -46,7 +48,9 @@ class CrisisHandler(ICrisisHandler):
 
         # Update conversation with crisis response
         self._session_manager.add_user_message(user_message)
-        self._session_manager.add_assistant_message(crisis_response, protocols["immediate_response"])
+        self._session_manager.add_assistant_message(
+            crisis_response, protocols["immediate_response"]
+        )
 
         # Log crisis response sent
         self._logger.log_info("🚨 Wysłano odpowiedź kryzysową")
@@ -59,8 +63,8 @@ class CrisisHandler(ICrisisHandler):
                 "supervisor_decision": supervisor_decision,
                 "therapist_response": crisis_response,
                 "stage_changed": False,
-                "current_stage": self._session_manager.get_current_stage()
-            }
+                "current_stage": self._session_manager.get_current_stage(),
+            },
         )
 
     def is_crisis_active(self) -> bool:

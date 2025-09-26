@@ -8,7 +8,9 @@ from .stages.stage_manager import StageManager
 from ...infrastructure.storage import StorageProvider
 
 
-def create_streamlit_session_manager(storage_provider: Optional[StorageProvider] = None) -> SessionManager:
+def create_streamlit_session_manager(
+    storage_provider: Optional[StorageProvider] = None,
+) -> SessionManager:
     """Create a SessionManager configured for Streamlit."""
     from config import Config
 

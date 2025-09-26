@@ -2,4 +2,4 @@
 
 from .message_parser import MessageParser, ParsedMessage
 
-__all__ = ['MessageParser', 'ParsedMessage']
+__all__ = ["MessageParser", "ParsedMessage"]

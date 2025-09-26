@@ -13,7 +13,7 @@ class CompositeStorage(IStorage):
         """Initialize composite storage."""
         self._storages: Dict[str, IStorage] = {}
 
-    def add_storage(self, name: str, storage: IStorage) -> 'CompositeStorage':
+    def add_storage(self, name: str, storage: IStorage) -> "CompositeStorage":
         """
         Add a storage backend.
 
@@ -92,7 +92,7 @@ class CompositeStorage(IStorage):
             Log entries from first working storage
         """
         # Define priority order for retrieval
-        priority_order = ['streamlit', 'file', 'memory']
+        priority_order = ["streamlit", "file", "memory"]
 
         # Try priority storages first
         for storage_name in priority_order:
@@ -127,7 +127,7 @@ class CompositeStorage(IStorage):
             Count from first working storage
         """
         # Use same priority order as retrieve
-        priority_order = ['streamlit', 'file', 'memory']
+        priority_order = ["streamlit", "file", "memory"]
 
         # Try priority storages first
         for storage_name in priority_order:

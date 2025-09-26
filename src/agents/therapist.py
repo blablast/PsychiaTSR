@@ -19,6 +19,7 @@ The agent operates in 5 therapy stages:
 4. Small Steps - Planning concrete actions
 5. Summary - Reinforcement and closure
 """
+
 import time
 from typing import List, Dict, Any, AsyncGenerator
 from ..core.models.schemas import MessageData
@@ -80,7 +81,7 @@ class TherapistAgent(AgentBase, IAsyncTherapistAgent):
                 "stage": stage_id,
                 "user_message": user_message,
                 "full_prompt": full_prompt,
-                "prompt_length": len(full_prompt)
+                "prompt_length": len(full_prompt),
             }
             self._logger.log_therapist_request(prompt_data)
 
@@ -88,11 +89,13 @@ class TherapistAgent(AgentBase, IAsyncTherapistAgent):
     # PUBLIC API - MAIN BUSINESS METHODS
     # =====================================================================================
 
-    def generate_response(self,
-                         user_message: str,
-                         stage_prompt: str,
-                         conversation_history: List[MessageData],
-                         stage_id: str = None) -> Dict[str, Any]:
+    def generate_response(
+        self,
+        user_message: str,
+        stage_prompt: str,
+        conversation_history: List[MessageData],
+        stage_id: str = None,
+    ) -> Dict[str, Any]:
         """
         Generate therapeutic response synchronously.
 
@@ -131,13 +134,15 @@ class TherapistAgent(AgentBase, IAsyncTherapistAgent):
 
         except Exception as e:
             # Handle errors with safe fallback response
-            return self._handle_response_error(e, locals().get('safety_check'))
+            return self._handle_response_error(e, locals().get("safety_check"))
 
-    def generate_response_stream(self,
-                               user_message: str,
-                               stage_prompt: str,
-                               conversation_history: List[MessageData],
-                               stage_id: str = None) -> Any:
+    def generate_response_stream(
+        self,
+        user_message: str,
+        stage_prompt: str,
+        conversation_history: List[MessageData],
+        stage_id: str = None,
+    ) -> Any:
         """
         Generate therapeutic response with real-time streaming.
 
@@ -175,18 +180,22 @@ class TherapistAgent(AgentBase, IAsyncTherapistAgent):
                 yield chunk
 
             # Yield final metadata for completion handling
-            metadata = self._build_streaming_metadata(full_response, safety_check, start_time, first_chunk_time)
+            metadata = self._build_streaming_metadata(
+                full_response, safety_check, start_time, first_chunk_time
+            )
             yield metadata
 
         except Exception as e:
             # Yield error chunks for UI display
-            yield from self._handle_streaming_error(e, locals().get('safety_check'))
+            yield from self._handle_streaming_error(e, locals().get("safety_check"))
 
-    async def generate_response_async(self,
-                                     user_message: str,
-                                     stage_prompt: str,
-                                     conversation_history: List[MessageData],
-                                     stage_id: str = None) -> Dict[str, Any]:
+    async def generate_response_async(
+        self,
+        user_message: str,
+        stage_prompt: str,
+        conversation_history: List[MessageData],
+        stage_id: str = None,
+    ) -> Dict[str, Any]:
         """
         Generate therapeutic response asynchronously.
 
@@ -215,13 +224,15 @@ class TherapistAgent(AgentBase, IAsyncTherapistAgent):
             return self._build_success_response(response, safety_check, start_time)
 
         except Exception as e:
-            return self._handle_response_error(e, locals().get('safety_check'))
+            return self._handle_response_error(e, locals().get("safety_check"))
 
-    async def generate_streaming_response_async(self,
-                                               user_message: str,
-                                               stage_prompt: str,
-                                               conversation_history: List[MessageData],
-                                               stage_id: str = None) -> AsyncGenerator[Any, None]:
+    async def generate_streaming_response_async(
+        self,
+        user_message: str,
+        stage_prompt: str,
+        conversation_history: List[MessageData],
+        stage_id: str = None,
+    ) -> AsyncGenerator[Any, None]:
         """
         Generate streaming therapeutic response asynchronously.
 
@@ -258,14 +269,18 @@ class TherapistAgent(AgentBase, IAsyncTherapistAgent):
 
         except Exception as e:
             # Async error handling with streaming
-            async for error_chunk in self._handle_async_streaming_error(e, locals().get('safety_check')):
+            async for error_chunk in self._handle_async_streaming_error(
+                e, locals().get("safety_check")
+            ):
                 yield error_chunk
 
     # =====================================================================================
     # PRIVATE HELPER METHODS - THERAPIST-SPECIFIC BUSINESS LOGIC
     # =====================================================================================
 
-    def _build_therapist_prompt(self, user_message: str, conversation_history: List[MessageData]) -> str:
+    def _build_therapist_prompt(
+        self, user_message: str, conversation_history: List[MessageData]
+    ) -> str:
         """
         Build comprehensive therapeutic prompt from user message and conversation context.
 
@@ -281,13 +296,18 @@ class TherapistAgent(AgentBase, IAsyncTherapistAgent):
         """
         # Build conversation context for therapeutic continuity (configurable limit for performance)
         from config import Config
+
         config = Config.get_instance()
-        conversation_context = self._build_conversation_context(conversation_history, max_messages=config.MAX_THERAPIST_CONTEXT_MESSAGES)
+        conversation_context = self._build_conversation_context(
+            conversation_history, max_messages=config.MAX_THERAPIST_CONTEXT_MESSAGES
+        )
 
         # Combine user message and context into therapeutic prompt
         return self._prompt_service.build_therapist_prompt(user_message, conversation_context)
 
-    def _build_success_response(self, response: str, safety_check: Dict, start_time: float) -> Dict[str, Any]:
+    def _build_success_response(
+        self, response: str, safety_check: Dict, start_time: float
+    ) -> Dict[str, Any]:
         """
         Build successful response result with validation and performance metrics.
 
@@ -316,16 +336,22 @@ class TherapistAgent(AgentBase, IAsyncTherapistAgent):
             self._logger.log_therapist_response(clean_response, response_time_ms)
 
         return {
-            "response": clean_response,           # Cleaned response text for display
-            "original_response": response,        # Raw LLM response for debugging
-            "safety_check": safety_check,         # User input safety validation
-            "validation": validation,             # Response safety validation
-            "success": True,                      # Success indicator
-            "error": None,                        # No error occurred
-            "response_time_ms": response_time_ms  # Performance metric
+            "response": clean_response,  # Cleaned response text for display
+            "original_response": response,  # Raw LLM response for debugging
+            "safety_check": safety_check,  # User input safety validation
+            "validation": validation,  # Response safety validation
+            "success": True,  # Success indicator
+            "error": None,  # No error occurred
+            "response_time_ms": response_time_ms,  # Performance metric
         }
 
-    def _build_streaming_metadata(self, full_response: str, safety_check: Dict, start_time: float, first_chunk_time_ms: int = None) -> Dict[str, Any]:
+    def _build_streaming_metadata(
+        self,
+        full_response: str,
+        safety_check: Dict,
+        start_time: float,
+        first_chunk_time_ms: int = None,
+    ) -> Dict[str, Any]:
         """
         Build metadata for streaming response completion.
 
@@ -347,7 +373,9 @@ class TherapistAgent(AgentBase, IAsyncTherapistAgent):
 
         # Log streaming completion with first chunk timing if available
         if self._logger:
-            self._logger.log_therapist_response(clean_response, response_time_ms, first_chunk_time_ms)
+            self._logger.log_therapist_response(
+                clean_response, response_time_ms, first_chunk_time_ms
+            )
 
         return {
             "response": clean_response,
@@ -356,7 +384,7 @@ class TherapistAgent(AgentBase, IAsyncTherapistAgent):
             "validation": validation,
             "success": True,
             "error": None,
-            "response_time_ms": response_time_ms
+            "response_time_ms": response_time_ms,
         }
 
     def _handle_response_error(self, error: Exception, safety_check: Dict) -> Dict[str, Any]:
@@ -377,11 +405,11 @@ class TherapistAgent(AgentBase, IAsyncTherapistAgent):
 
         return {
             "response": f"[Błąd generowania odpowiedzi: {str(error)}]",  # User-friendly error
-            "original_response": "",                                      # No response generated
-            "safety_check": safety_check or {"has_risk": False},         # Use existing or safe default
-            "validation": {"is_valid": False, "issues": [str(error)]},   # Mark as invalid with error
-            "success": False,                                             # Indicate failure
-            "error": str(error)                                           # Technical error details
+            "original_response": "",  # No response generated
+            "safety_check": safety_check or {"has_risk": False},  # Use existing or safe default
+            "validation": {"is_valid": False, "issues": [str(error)]},  # Mark as invalid with error
+            "success": False,  # Indicate failure
+            "error": str(error),  # Technical error details
         }
 
     def _handle_streaming_error(self, error: Exception, safety_check: Dict):
@@ -410,7 +438,7 @@ class TherapistAgent(AgentBase, IAsyncTherapistAgent):
             "safety_check": safety_check or {"has_risk": False},
             "validation": {"is_valid": False, "issues": [str(error)]},
             "success": False,
-            "error": str(error)
+            "error": str(error),
         }
 
     async def _handle_async_streaming_error(self, error: Exception, safety_check: Dict):
@@ -436,5 +464,5 @@ class TherapistAgent(AgentBase, IAsyncTherapistAgent):
             "safety_check": safety_check or {"has_risk": False},
             "validation": {"is_valid": False, "issues": [str(error)]},
             "success": False,
-            "error": str(error)
+            "error": str(error),
         }

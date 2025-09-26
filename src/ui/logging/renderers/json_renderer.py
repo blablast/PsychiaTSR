@@ -18,8 +18,7 @@ class JsonRenderer(BaseRenderer):
         data = log_entry.get("data", "")
 
         # JSON entries are typically supervisor responses
-        return (event_type == "supervisor_response" and
-                self.content_renderer.is_json(data))
+        return event_type == "supervisor_response" and self.content_renderer.is_json(data)
 
     def _render_content(self, parsed: ParsedMessage, style_info: StyleInfo) -> None:
         """Render JSON content in expander."""

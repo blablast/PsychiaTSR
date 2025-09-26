@@ -42,15 +42,10 @@ class ElevenLabsStreamingProvider:
             return
 
         try:
-            headers = {
-                "Authorization": f"Bearer {self.api_key}"
-            }
+            headers = {"Authorization": f"Bearer {self.api_key}"}
 
             async with websockets.connect(
-                self.websocket_url,
-                extra_headers=headers,
-                ping_interval=20,
-                ping_timeout=10
+                self.websocket_url, extra_headers=headers, ping_interval=20, ping_timeout=10
             ) as websocket:
 
                 # Send initial configuration
@@ -60,23 +55,17 @@ class ElevenLabsStreamingProvider:
                         "stability": 0.5,
                         "similarity_boost": 0.8,
                         "style": 0.0,
-                        "use_speaker_boost": True
+                        "use_speaker_boost": True,
                     },
-                    "generation_config": {
-                        "chunk_length_schedule": [120, 160, 250, 290]
-                    },
+                    "generation_config": {"chunk_length_schedule": [120, 160, 250, 290]},
                     "xi_api_key": self.api_key,
                 }
 
                 await websocket.send(json.dumps(config_message))
 
                 # Create tasks for sending and receiving
-                send_task = asyncio.create_task(
-                    self._send_text_chunks(websocket, text_chunks)
-                )
-                receive_task = asyncio.create_task(
-                    self._receive_audio_chunks(websocket)
-                )
+                send_task = asyncio.create_task(self._send_text_chunks(websocket, text_chunks))
+                receive_task = asyncio.create_task(self._receive_audio_chunks(websocket))
 
                 # Process audio chunks as they arrive
                 try:
@@ -169,17 +158,21 @@ class StreamingAudioManager:
         chunk_id = str(uuid.uuid4())
 
         # Encode audio chunk as base64 for JavaScript
-        audio_b64 = base64.b64encode(audio_chunk).decode('utf-8')
+        audio_b64 = base64.b64encode(audio_chunk).decode("utf-8")
 
         # Add to queue
         if self.queue_id not in st.session_state[self.session_key]:
             st.session_state[self.session_key][self.queue_id] = []
 
-        st.session_state[self.session_key][self.queue_id].append({
-            'id': chunk_id,
-            'audio_data': audio_b64,
-            'timestamp': asyncio.get_event_loop().time() if hasattr(asyncio, '_get_running_loop') else 0
-        })
+        st.session_state[self.session_key][self.queue_id].append(
+            {
+                "id": chunk_id,
+                "audio_data": audio_b64,
+                "timestamp": (
+                    asyncio.get_event_loop().time() if hasattr(asyncio, "_get_running_loop") else 0
+                ),
+            }
+        )
 
         return chunk_id
 

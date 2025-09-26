@@ -4,7 +4,7 @@ from .section_commands import (
     CreateSectionCommand,
     UpdateSectionCommand,
     DeleteSectionCommand,
-    ReorderSectionsCommand
+    ReorderSectionsCommand,
 )
 from .prompt_command_handler import PromptCommandHandler
 
@@ -13,5 +13,5 @@ __all__ = [
     "UpdateSectionCommand",
     "DeleteSectionCommand",
     "ReorderSectionsCommand",
-    "PromptCommandHandler"
+    "PromptCommandHandler",
 ]

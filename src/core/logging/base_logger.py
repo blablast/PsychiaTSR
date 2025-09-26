@@ -46,10 +46,13 @@ class BaseLogger(ILogger):
         self._storage = storage
 
     @staticmethod
-    def _create_entry(event_type: str, message: str,
-                      data: Optional[Dict[str, Any]] = None,
-                      response_time_ms: Optional[int] = None,
-                      agent_type: str = "system") -> LogEntry:
+    def _create_entry(
+        event_type: str,
+        message: str,
+        data: Optional[Dict[str, Any]] = None,
+        response_time_ms: Optional[int] = None,
+        agent_type: str = "system",
+    ) -> LogEntry:
         """Create a standardized log entry."""
         return LogEntry(
             timestamp=datetime.now().isoformat(),
@@ -57,27 +60,30 @@ class BaseLogger(ILogger):
             message=message,
             data=data or {},
             response_time_ms=response_time_ms,
-            agent_type=agent_type
+            agent_type=agent_type,
         )
 
     def log_supervisor_request(self, prompt_info: Dict[str, Any]) -> None:
         """Log supervisor request with full prompt content for debugging."""
-        prompt_id = prompt_info.get('id', 'unknown')
-        full_prompt = prompt_info.get('full_prompt')
+        prompt_id = prompt_info.get("id", "unknown")
+        full_prompt = prompt_info.get("full_prompt")
 
         if full_prompt:
             # Enhanced message with full content for display
-            stage_info = f" - {prompt_info.get('stage')}" if prompt_info.get('stage') else ""
+            stage_info = f" - {prompt_info.get('stage')}" if prompt_info.get("stage") else ""
             preview = full_prompt[:200] + "..." if len(full_prompt) > 200 else full_prompt
-            enhanced_message = f"📝 SUPERVISOR PROMPT - {prompt_id.upper()}{stage_info}\nFull content: {full_prompt}"
+            enhanced_message = (
+                f"📝 SUPERVISOR PROMPT - {prompt_id.upper()}{stage_info}\n"
+                f"Full content: {full_prompt}"
+            )
 
             data = {
                 "id": prompt_id,
-                "stage": prompt_info.get('stage'),
-                "history_summary": prompt_info.get('history_summary'),
-                "last_user_message": prompt_info.get('last_user_message'),
+                "stage": prompt_info.get("stage"),
+                "history_summary": prompt_info.get("history_summary"),
+                "last_user_message": prompt_info.get("last_user_message"),
                 "full_prompt": full_prompt,
-                "prompt_length": len(full_prompt)
+                "prompt_length": len(full_prompt),
             }
             message = enhanced_message
         else:
@@ -86,10 +92,7 @@ class BaseLogger(ILogger):
             data = {"id": prompt_id}
 
         entry = self._create_entry(
-            event_type="supervisor_request",
-            message=message,
-            data=data,
-            agent_type="supervisor"
+            event_type="supervisor_request", message=message, data=data, agent_type="supervisor"
         )
 
         self._storage.store(entry)
@@ -105,7 +108,7 @@ class BaseLogger(ILogger):
         data = {
             "response_time_ms": response_time_ms,
             "decision": decision.decision,
-            "safety_risk": decision.safety_risk
+            "safety_risk": decision.safety_risk,
         }
 
         entry = self._create_entry(
@@ -113,48 +116,50 @@ class BaseLogger(ILogger):
             message=message,
             data=data,
             response_time_ms=response_time_ms,
-            agent_type="supervisor"
+            agent_type="supervisor",
         )
 
         self._storage.store(entry)
 
     def log_therapist_request(self, prompt_info: Dict[str, Any]) -> None:
         """Log therapist request with full prompt content for debugging."""
-        prompt_id = prompt_info.get('id', 'unknown')
-        full_prompt = prompt_info.get('full_prompt')
+        prompt_id = prompt_info.get("id", "unknown")
+        full_prompt = prompt_info.get("full_prompt")
 
         if full_prompt:
             # Enhanced message with full content for display
-            stage_info = f" - {prompt_info.get('stage')}" if prompt_info.get('stage') else ""
-            enhanced_message = f"📝 THERAPIST PROMPT - {prompt_id.upper()}{stage_info}\nFull content: {full_prompt}"
+            stage_info = f" - {prompt_info.get('stage')}" if prompt_info.get("stage") else ""
+            enhanced_message = (
+                f"📝 THERAPIST PROMPT - {prompt_id.upper()}{stage_info}\n"
+                f"Full content: {full_prompt}"
+            )
 
             data = {
                 "id": prompt_id,
-                "stage": prompt_info.get('stage'),
-                "user_message": prompt_info.get('user_message'),
+                "stage": prompt_info.get("stage"),
+                "user_message": prompt_info.get("user_message"),
                 "full_prompt": full_prompt,
-                "prompt_length": len(full_prompt)
+                "prompt_length": len(full_prompt),
             }
             message = enhanced_message
         else:
             # Fallback for old minimal logging
-            if prompt_id.startswith('therapist_'):
-                stage_id = prompt_id.replace('therapist_', '')
+            if prompt_id.startswith("therapist_"):
+                stage_id = prompt_id.replace("therapist_", "")
             else:
-                stage_id = 'unknown'
+                stage_id = "unknown"
             message = f"Prompt: {prompt_id}"
             data = {"id": prompt_id, "stage": stage_id}
 
         entry = self._create_entry(
-            event_type="therapist_request",
-            message=message,
-            data=data,
-            agent_type="therapist"
+            event_type="therapist_request", message=message, data=data, agent_type="therapist"
         )
 
         self._storage.store(entry)
 
-    def log_therapist_response(self, response: str, response_time_ms: int, first_chunk_time_ms: int = None) -> None:
+    def log_therapist_response(
+        self, response: str, response_time_ms: int, first_chunk_time_ms: int = None
+    ) -> None:
         """Log therapist response with timing and optional first chunk timing."""
 
         data = {"response_time_ms": response_time_ms}
@@ -166,7 +171,7 @@ class BaseLogger(ILogger):
             message=response,
             data=data,
             response_time_ms=response_time_ms,
-            agent_type="therapist"
+            agent_type="therapist",
         )
 
         self._storage.store(entry)
@@ -179,7 +184,7 @@ class BaseLogger(ILogger):
             event_type="stage_transition",
             message=message,
             data={"from_stage": from_stage, "to_stage": to_stage},
-            agent_type="system"
+            agent_type="system",
         )
 
         self._storage.store(entry)
@@ -187,10 +192,7 @@ class BaseLogger(ILogger):
     def log_error(self, error_message: str, context: Optional[Dict[str, Any]] = None) -> None:
         """Log error with optional context."""
         entry = self._create_entry(
-            event_type="error",
-            message=error_message,
-            data=context,
-            agent_type="system"
+            event_type="error", message=error_message, data=context, agent_type="system"
         )
 
         self._storage.store(entry)
@@ -198,10 +200,7 @@ class BaseLogger(ILogger):
     def log_info(self, message: str, data: Optional[Dict[str, Any]] = None) -> None:
         """Log informational message."""
         entry = self._create_entry(
-            event_type="info",
-            message=message,
-            data=data,
-            agent_type="system"
+            event_type="info", message=message, data=data, agent_type="system"
         )
 
         self._storage.store(entry)
@@ -209,35 +208,31 @@ class BaseLogger(ILogger):
     def log_warning(self, message: str, data: Optional[Dict[str, Any]] = None) -> None:
         """Log warning message."""
         entry = self._create_entry(
-            event_type="warning",
-            message=message,
-            data=data,
-            agent_type="system"
+            event_type="warning", message=message, data=data, agent_type="system"
         )
 
         self._storage.store(entry)
 
-    def log_model_info(self, therapist_model: str, supervisor_model: str,
-                      therapist_provider: str = "openai", supervisor_provider: str = "gemini") -> None:
+    def log_model_info(
+        self,
+        therapist_model: str,
+        supervisor_model: str,
+        therapist_provider: str = "openai",
+        supervisor_provider: str = "gemini",
+    ) -> None:
         """Log information about currently used models."""
         model_info = {
-            "therapist": {
-                "model": therapist_model,
-                "provider": therapist_provider
-            },
-            "supervisor": {
-                "model": supervisor_model,
-                "provider": supervisor_provider
-            }
+            "therapist": {"model": therapist_model, "provider": therapist_provider},
+            "supervisor": {"model": supervisor_model, "provider": supervisor_provider},
         }
 
-        message = f"Models: Therapist={therapist_provider}/{therapist_model}, Supervisor={supervisor_provider}/{supervisor_model}"
+        message = (
+            f"Models: Therapist={therapist_provider}/{therapist_model}, "
+            f"Supervisor={supervisor_provider}/{supervisor_model}"
+        )
 
         entry = self._create_entry(
-            event_type="model_info",
-            message=message,
-            data=model_info,
-            agent_type="system"
+            event_type="model_info", message=message, data=model_info, agent_type="system"
         )
 
         self._storage.store(entry)
@@ -253,7 +248,7 @@ class BaseLogger(ILogger):
     @property
     def entry_count(self) -> int:
         """Get the total number of logged entries."""
-        if hasattr(self._storage, 'count'):
+        if hasattr(self._storage, "count"):
             return self._storage.count()
         # Fallback for storages without count method
         return len(self._storage.retrieve())
@@ -263,13 +258,12 @@ class BaseLogger(ILogger):
         """Check if logger has no entries."""
         return self.entry_count == 0
 
-    def add_log_entry(self, entry_type: str, message: str, data: Optional[Dict[str, Any]] = None) -> None:
+    def add_log_entry(
+        self, entry_type: str, message: str, data: Optional[Dict[str, Any]] = None
+    ) -> None:
         """Add generic log entry with custom type."""
         entry = self._create_entry(
-            event_type=entry_type,
-            message=message,
-            data=data,
-            agent_type="system"
+            event_type=entry_type, message=message, data=data, agent_type="system"
         )
         self._storage.store(entry)
 
@@ -277,30 +271,36 @@ class BaseLogger(ILogger):
         """Log system prompt configuration."""
         # Create enhanced message with full content for display
         preview = prompt_content[:200] + "..." if len(prompt_content) > 200 else prompt_content
-        enhanced_message = f"📝 SYSTEM PROMPT - {agent_type.upper()}\nFull content: {prompt_content}"
+        enhanced_message = (
+            f"📝 SYSTEM PROMPT - {agent_type.upper()}\nFull content: {prompt_content}"
+        )
 
         data = {
             "description": description,
             "content_preview": preview,
             "full_length": len(prompt_content),
             "full_content": prompt_content,
-            "agent_type": agent_type
+            "agent_type": agent_type,
         }
 
         entry = self._create_entry(
             event_type="system_prompt_set",
             message=enhanced_message,
             data=data,
-            agent_type=agent_type
+            agent_type=agent_type,
         )
 
         self._storage.store(entry)
 
-    def log_stage_prompt(self, agent_type: str, stage_id: str, prompt_content: str, description: str) -> None:
+    def log_stage_prompt(
+        self, agent_type: str, stage_id: str, prompt_content: str, description: str
+    ) -> None:
         """Log stage-specific prompt configuration."""
         # Create enhanced message with full content for display
         preview = prompt_content[:200] + "..." if len(prompt_content) > 200 else prompt_content
-        enhanced_message = f"📝 STAGE PROMPT - {agent_type.upper()} - {stage_id}\nFull content: {prompt_content}"
+        enhanced_message = (
+            f"📝 STAGE PROMPT - {agent_type.upper()} - {stage_id}\nFull content: {prompt_content}"
+        )
 
         data = {
             "stage_id": stage_id,
@@ -308,14 +308,14 @@ class BaseLogger(ILogger):
             "content_preview": preview,
             "full_length": len(prompt_content),
             "full_content": prompt_content,
-            "agent_type": agent_type
+            "agent_type": agent_type,
         }
 
         entry = self._create_entry(
             event_type="stage_prompt_set",
             message=enhanced_message,
             data=data,
-            agent_type=agent_type
+            agent_type=agent_type,
         )
 
         self._storage.store(entry)

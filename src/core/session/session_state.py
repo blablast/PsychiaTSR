@@ -10,17 +10,18 @@ class StreamlitSessionState(ISessionState):
     """Streamlit-based session state implementation."""
 
     def get_session_id(self) -> Optional[str]:
-        return st.session_state.get('session_id')
+        return st.session_state.get("session_id")
 
     def set_session_id(self, session_id: str) -> None:
         st.session_state.session_id = session_id
 
     def get_current_stage(self) -> str:
-        current_stage = st.session_state.get('current_stage')
+        current_stage = st.session_state.get("current_stage")
         if not current_stage:
             # Get first stage dynamically
             from .stages.stage_manager import StageManager
             from config import Config
+
             config = Config.get_instance()
             stage_manager = StageManager(config.STAGES_DIR)
             first_stage = stage_manager.get_first_stage()
@@ -33,10 +34,10 @@ class StreamlitSessionState(ISessionState):
         st.session_state.current_stage = stage
 
     def get_messages(self) -> List[Dict[str, Any]]:
-        return st.session_state.get('messages', [])
+        return st.session_state.get("messages", [])
 
     def add_message(self, message: Dict[str, Any]) -> None:
-        if 'messages' not in st.session_state:
+        if "messages" not in st.session_state:
             st.session_state.messages = []
         st.session_state.messages.append(message)
 

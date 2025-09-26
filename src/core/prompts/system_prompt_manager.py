@@ -40,6 +40,7 @@ class SystemPromptManager:
             # Lazy import to avoid circular dependency
             if self._prompt_management_service is None:
                 from .prompt_management_service import PromptManagementService
+
                 config_dir = self._system_dir
                 self._prompt_management_service = PromptManagementService(str(config_dir))
 
@@ -83,12 +84,14 @@ class SystemPromptManager:
 
         # Common phrases (for therapist)
         if "common_phrases" in data:
-            phrases = "\n".join(f"- \"{phrase}\"" for phrase in data["common_phrases"])
+            phrases = "\n".join(f'- "{phrase}"' for phrase in data["common_phrases"])
             sections.append(f"PRZYDATNE FRAZY:\n{phrases}")
 
         # Response format (for supervisor)
         if "response_format" in data:
-            sections.append(f"FORMAT ODPOWIEDZI:\n{json.dumps(data['response_format'], ensure_ascii=False, indent=2)}")
+            sections.append(
+                f"FORMAT ODPOWIEDZI:\n{json.dumps(data['response_format'], ensure_ascii=False, indent=2)}"
+            )
 
         return "\n\n".join(sections)
 

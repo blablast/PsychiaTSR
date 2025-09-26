@@ -71,9 +71,9 @@ class LoggerFactory:
         return BaseLogger(formatter=formatter, storage=storage)
 
     @staticmethod
-    def create_file_logger(file_path: str,
-                          format_type: str = "json",
-                          max_entries: int = 1000) -> ILogger:
+    def create_file_logger(
+        file_path: str, format_type: str = "json", max_entries: int = 1000
+    ) -> ILogger:
         """
         Create a file logger with specified format.
 
@@ -99,10 +99,12 @@ class LoggerFactory:
         return LoggerFactory.create_logger(formatter, storage)
 
     @staticmethod
-    def create_console_logger(use_colors: bool = True,
-                            include_data: bool = True,
-                            keep_in_memory: bool = True,
-                            max_entries: int = 100) -> ILogger:
+    def create_console_logger(
+        use_colors: bool = True,
+        include_data: bool = True,
+        keep_in_memory: bool = True,
+        max_entries: int = 100,
+    ) -> ILogger:
         """
         Create a console logger with text formatting.
 
@@ -120,16 +122,13 @@ class LoggerFactory:
 
         # Create storage
         storage = ConsoleStorage(
-            formatter=formatter,
-            keep_in_memory=keep_in_memory,
-            max_entries=max_entries
+            formatter=formatter, keep_in_memory=keep_in_memory, max_entries=max_entries
         )
 
         return LoggerFactory.create_logger(formatter, storage)
 
     @staticmethod
-    def create_streamlit_logger(compact: bool = True,
-                              max_entries: int = 50) -> ILogger:
+    def create_streamlit_logger(compact: bool = True, max_entries: int = 50) -> ILogger:
         """
         Create a Streamlit logger with UI-friendly formatting.
 
@@ -172,11 +171,13 @@ class LoggerFactory:
         return LoggerFactory.create_logger(formatter, storage)
 
     @staticmethod
-    def create_multi_logger(file_path: Optional[str] = None,
-                           use_console: bool = False,
-                           use_streamlit: bool = True,
-                           console_colors: bool = True,
-                           max_entries: int = 100) -> ILogger:
+    def create_multi_logger(
+        file_path: Optional[str] = None,
+        use_console: bool = False,
+        use_streamlit: bool = True,
+        console_colors: bool = True,
+        max_entries: int = 100,
+    ) -> ILogger:
         """
         Create a logger that writes to multiple destinations simultaneously.
 
@@ -217,6 +218,7 @@ class LoggerFactory:
         # Add Streamlit storage if requested
         if use_streamlit:
             from ...ui.logging.streamlit_storage import StreamlitStorage
+
             streamlit_storage = StreamlitStorage(max_entries=max_entries)
             composite_storage.add_storage("streamlit", streamlit_storage)
 
@@ -231,7 +233,7 @@ class LoggerFactory:
             console_storage = ConsoleStorage(
                 formatter=console_formatter,
                 keep_in_memory=False,  # Don't duplicate in memory
-                max_entries=0
+                max_entries=0,
             )
             composite_storage.add_storage("console", console_storage)
 
@@ -254,10 +256,7 @@ class LoggerFactory:
             >>> logger.log_model_info("gpt-4", "gpt-3.5")
         """
         return LoggerFactory.create_multi_logger(
-            file_path="logs/therapy.log",
-            use_console=False,
-            use_streamlit=True,
-            max_entries=50
+            file_path="logs/therapy.log", use_console=False, use_streamlit=True, max_entries=50
         )
 
     @staticmethod
@@ -280,7 +279,7 @@ class LoggerFactory:
             use_console=True,
             use_streamlit=False,
             console_colors=True,
-            max_entries=100
+            max_entries=100,
         )
 
     @staticmethod
@@ -299,9 +298,7 @@ class LoggerFactory:
             >>> logger.log_error("Payment processing failed", {"transaction_id": "tx_123"})
         """
         return LoggerFactory.create_file_logger(
-            file_path="logs/production.log",
-            format_type="json",
-            max_entries=5000
+            file_path="logs/production.log", format_type="json", max_entries=5000
         )
 
     @staticmethod
@@ -317,5 +314,5 @@ class LoggerFactory:
             use_console=True,
             use_streamlit=True,
             console_colors=True,
-            max_entries=50
+            max_entries=50,
         )

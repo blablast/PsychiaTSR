@@ -15,6 +15,7 @@ WEBRTC_SAMPLE_RATE = 48000
 @dataclass
 class PcmChunk:
     """Container for PCM audio samples."""
+
     samples: np.ndarray  # (n,), int16 mono 48kHz
 
 
@@ -29,6 +30,7 @@ class PcmBuffer(IAudioBuffer):
             max_ms: Maximum buffer size in milliseconds
         """
         import collections
+
         self.q: queue.Queue[PcmChunk] = queue.Queue()
         self._closed = False
         self.max_samples = int(WEBRTC_SAMPLE_RATE * max_ms / 1000)

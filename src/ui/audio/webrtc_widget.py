@@ -55,7 +55,7 @@ class WebRTCWidget:
             webrtc_ctx = webrtc_streamer(**webrtc_params)
 
             # Check WebRTC state and provide better error messages
-            if webrtc_ctx and hasattr(webrtc_ctx, 'state'):
+            if webrtc_ctx and hasattr(webrtc_ctx, "state"):
                 if webrtc_ctx.state.playing:
                     st.success("🎵 WebRTC audio streaming aktywne")
                 elif webrtc_ctx.state.signalling:
@@ -67,7 +67,8 @@ class WebRTCWidget:
             error_msg = str(e).lower()
             if "device" in error_msg or "permission" in error_msg:
                 st.error("❌ Brak dostępu do urządzenia audio")
-                st.info("""💡 **Rozwiązania problemu z urządzeniem audio:**
+                st.info(
+                    """💡 **Rozwiązania problemu z urządzeniem audio:**
 
 **1. Uprawnienia przeglądarki:**
 - Kliknij ikonę kłódki w pasku adresu
@@ -86,16 +87,19 @@ class WebRTCWidget:
 **4. Sprzęt:**
 - Sprawdź czy słuchawki/głośniki są podłączone
 - Przetestuj inne aplikacje audio
-                """)
+                """
+                )
             elif "webrtc" in error_msg or "stream" in error_msg:
                 st.error("❌ Błąd WebRTC streaming")
-                st.info("""💡 **Rozwiązania problemu WebRTC:**
+                st.info(
+                    """💡 **Rozwiązania problemu WebRTC:**
 
 - Odśwież stronę (F5)
 - Spróbuj innej przeglądarki (Chrome zalecana)
 - Wyłącz blokery reklam na tej stronie
 - Sprawdź połączenie internetowe
-                """)
+                """
+                )
             else:
                 st.error(f"❌ Błąd WebRTC: {str(e)}")
                 st.info("💡 Spróbuj odświeżyć stronę lub wyłączyć/włączyć audio w ustawieniach")
@@ -126,7 +130,7 @@ class WebRTCWidget:
         # Close PCM buffer if it exists
         if "pcm_buffer" in st.session_state:
             pcm_buffer = st.session_state.pcm_buffer
-            if hasattr(pcm_buffer, 'close'):
+            if hasattr(pcm_buffer, "close"):
                 pcm_buffer.close()
             del st.session_state.pcm_buffer
 

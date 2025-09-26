@@ -48,7 +48,9 @@ class PromptSection:
             raise ValueError("Section content too long (max 5000 chars)")
 
     @classmethod
-    def create_new(cls, title: str, content: str, order: int, section_type: str = "standard") -> "PromptSection":
+    def create_new(
+        cls, title: str, content: str, order: int, section_type: str = "standard"
+    ) -> "PromptSection":
         """
         Create a new section with generated ID and timestamps.
 
@@ -71,7 +73,7 @@ class PromptSection:
             section_type=section_type,
             metadata={},
             created_at=now,
-            updated_at=now
+            updated_at=now,
         )
 
     def update_content(self, new_title: str = None, new_content: str = None) -> "PromptSection":
@@ -93,7 +95,7 @@ class PromptSection:
             section_type=self.section_type,
             metadata=self.metadata,
             created_at=self.created_at,
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
 
     def change_order(self, new_order: int) -> "PromptSection":
@@ -114,7 +116,7 @@ class PromptSection:
             section_type=self.section_type,
             metadata=self.metadata,
             created_at=self.created_at,
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
 
     def is_empty(self) -> bool:
@@ -139,7 +141,7 @@ class PromptSection:
             "section_type": self.section_type,
             "metadata": self.metadata or {},
             "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
     @classmethod
@@ -161,7 +163,7 @@ class PromptSection:
             section_type=data.get("section_type", "standard"),
             metadata=data.get("metadata"),
             created_at=created_at,
-            updated_at=updated_at
+            updated_at=updated_at,
         )
 
     def __str__(self) -> str:

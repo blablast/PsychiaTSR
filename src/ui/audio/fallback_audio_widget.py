@@ -13,14 +13,16 @@ class FallbackAudioWidget:
     @staticmethod
     def display_info():
         """Display information about fallback audio mode."""
-        st.success("""🎵 **HTML5 Audio aktywne**
+        st.success(
+            """🎵 **HTML5 Audio aktywne**
 
 ✅ **Gotowe do słuchania!** Audio będzie odtwarzane automatycznie:
 - Wygenerowane audio pojawi się pod każdą odpowiedzią
 - Wbudowany player HTML5 - działa w każdej przeglądarce
 - **Nie wymaga mikrofonu** - tylko słuchasz!
 - Możliwość pobrania audio na dysk
-        """)
+        """
+        )
 
     @staticmethod
     def play_audio_data(audio_data: bytes, voice_id: str = "unknown") -> None:
@@ -37,7 +39,7 @@ class FallbackAudioWidget:
 
         try:
             # Encode audio data to base64 for HTML5 player
-            audio_b64 = base64.b64encode(audio_data).decode('utf-8')
+            audio_b64 = base64.b64encode(audio_data).decode("utf-8")
 
             # Create HTML5 audio player
             audio_html = f"""
@@ -70,18 +72,18 @@ class FallbackAudioWidget:
 
         try:
             # Create temporary file
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as tmp_file:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
                 tmp_file.write(audio_data)
                 tmp_path = tmp_file.name
 
             # Provide download link
-            with open(tmp_path, 'rb') as audio_file:
+            with open(tmp_path, "rb") as audio_file:
                 st.download_button(
                     label="⬇️ Pobierz audio",
                     data=audio_file.read(),
                     file_name=f"tts_response_{voice_id}.mp3",
                     mime="audio/mpeg",
-                    help="Pobierz wygenerowane audio na dysk"
+                    help="Pobierz wygenerowane audio na dysk",
                 )
 
             # Try to play inline
@@ -90,7 +92,7 @@ class FallbackAudioWidget:
             # Clean up temp file
             try:
                 os.unlink(tmp_path)
-            except:
+            except Exception:
                 pass  # Ignore cleanup errors
 
         except Exception as e:
@@ -100,7 +102,8 @@ class FallbackAudioWidget:
     def show_browser_compatibility():
         """Show browser compatibility information for audio."""
         with st.expander("📱 Kompatybilność przeglądarek", expanded=False):
-            st.markdown("""
+            st.markdown(
+                """
             **WebRTC (najlepsze doświadczenie):**
             - ✅ Chrome 60+ (zalecane)
             - ✅ Edge 79+
@@ -117,4 +120,5 @@ class FallbackAudioWidget:
             2. Wyczyść cache przeglądarki
             3. Wyłącz rozszerzenia blokujące
             4. Sprawdź ustawienia audio systemu
-            """)
+            """
+            )

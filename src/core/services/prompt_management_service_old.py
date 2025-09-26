@@ -12,6 +12,7 @@ Key responsibilities:
 - Provide search and filtering capabilities
 - Ensure data consistency and validation
 """
+
 import json
 from pathlib import Path
 from typing import Dict, List, Optional, Any
@@ -27,9 +28,7 @@ class PromptManagementService:
     separating business logic from UI concerns and data access patterns.
     """
 
-    def __init__(self,
-                 config_dir: str = "config",
-                 logger=None):
+    def __init__(self, config_dir: str = "config", logger=None):
         """
         Initialize the prompt management service.
 
@@ -69,9 +68,11 @@ class PromptManagementService:
             # Look for active prompt with new numeric ID system
             base_key = f"{agent_type}_system"
             for key, prompt_record in database.get("prompts", {}).items():
-                if (key.startswith(base_key) and
-                    prompt_record.get("metadata", {}).get("agent") == agent_type and
-                    prompt_record.get("metadata", {}).get("status") == "active"):
+                if (
+                    key.startswith(base_key)
+                    and prompt_record.get("metadata", {}).get("agent") == agent_type
+                    and prompt_record.get("metadata", {}).get("status") == "active"
+                ):
                     return prompt_record
 
             if self.logger:
@@ -108,9 +109,11 @@ class PromptManagementService:
 
             # Find existing active prompt and archive it
             for key, record in database["prompts"].items():
-                if (key.startswith(base_key) and
-                    record.get("metadata", {}).get("agent") == agent_type and
-                    record.get("metadata", {}).get("status") == "active"):
+                if (
+                    key.startswith(base_key)
+                    and record.get("metadata", {}).get("agent") == agent_type
+                    and record.get("metadata", {}).get("status") == "active"
+                ):
                     # Mark existing as inactive (archived)
                     record["metadata"]["status"] = "inactive"
                     record["metadata"]["archived_at"] = datetime.now().isoformat()
@@ -126,9 +129,11 @@ class PromptManagementService:
                     "created_at": datetime.now().isoformat(),
                     "updated_at": datetime.now().isoformat(),
                     "status": "active",
-                    "note": prompt_data.get("metadata", {}).get("note", f"{agent_type.title()} system prompt")
+                    "note": prompt_data.get("metadata", {}).get(
+                        "note", f"{agent_type.title()} system prompt"
+                    ),
                 },
-                "configuration": prompt_data.get("configuration", {"sections": {}})
+                "configuration": prompt_data.get("configuration", {"sections": {}}),
             }
 
             # Save new prompt to database
@@ -138,7 +143,9 @@ class PromptManagementService:
             success = self._save_system_prompts_database(database)
 
             if success and self.logger:
-                self.logger.info(f"Saved system prompt: {agent_type} ID={next_id}, archived previous versions")
+                self.logger.info(
+                    f"Saved system prompt: {agent_type} ID={next_id}, archived previous versions"
+                )
 
             return success
 
@@ -169,13 +176,15 @@ class PromptManagementService:
                 prompt_record = database["prompts"][prompt_key]
                 metadata = prompt_record.get("metadata", {})
 
-                return [{
-                    "database_key": prompt_key,
-                    "id": metadata.get("id"),
-                    "status": metadata.get("status"),
-                    "created_at": metadata.get("created_at"),
-                    "updated_at": metadata.get("updated_at")
-                }]
+                return [
+                    {
+                        "database_key": prompt_key,
+                        "id": metadata.get("id"),
+                        "status": metadata.get("status"),
+                        "created_at": metadata.get("created_at"),
+                        "updated_at": metadata.get("updated_at"),
+                    }
+                ]
             else:
                 return []
 
@@ -237,13 +246,15 @@ class PromptManagementService:
         """Load stage prompts database with caching and string unescaping."""
         if self._stage_db_cache is None:
             try:
-                with open(self.stage_prompts_db, 'r', encoding='utf-8') as f:
+                with open(self.stage_prompts_db, "r", encoding="utf-8") as f:
                     raw_data = json.load(f)
                     # Apply string unescaping to the loaded data
                     self._stage_db_cache = self._unescape_json_strings(raw_data)
             except FileNotFoundError:
                 if self.logger:
-                    self.logger.warning(f"Stage prompts database not found: {self.stage_prompts_db}")
+                    self.logger.warning(
+                        f"Stage prompts database not found: {self.stage_prompts_db}"
+                    )
                 self._stage_db_cache = self._create_empty_stage_database()
             except Exception as e:
                 if self.logger:
@@ -258,7 +269,7 @@ class PromptManagementService:
             # Update timestamp
             database["metadata"]["updated_at"] = datetime.now().isoformat()
 
-            with open(self.stage_prompts_db, 'w', encoding='utf-8') as f:
+            with open(self.stage_prompts_db, "w", encoding="utf-8") as f:
                 json.dump(database, f, indent=2, ensure_ascii=False)
 
             # Update cache
@@ -280,9 +291,9 @@ class PromptManagementService:
                 "version": "1.0",
                 "created_at": datetime.now().isoformat(),
                 "updated_at": datetime.now().isoformat(),
-                "description": "Stage prompts database - all therapy stages for all agents"
+                "description": "Stage prompts database - all therapy stages for all agents",
             },
-            "prompts": {}
+            "prompts": {},
         }
 
     def _generate_stage_prompt_key(self, stage_id: str, agent_type: str) -> str:
@@ -293,13 +304,15 @@ class PromptManagementService:
         """Load system prompts database with caching and string unescaping."""
         if self._system_db_cache is None:
             try:
-                with open(self.system_prompts_db, 'r', encoding='utf-8') as f:
+                with open(self.system_prompts_db, "r", encoding="utf-8") as f:
                     raw_data = json.load(f)
                     # Apply string unescaping to the loaded data
                     self._system_db_cache = self._unescape_json_strings(raw_data)
             except FileNotFoundError:
                 if self.logger:
-                    self.logger.warning(f"System prompts database not found: {self.system_prompts_db}")
+                    self.logger.warning(
+                        f"System prompts database not found: {self.system_prompts_db}"
+                    )
                 self._system_db_cache = self._create_empty_system_database()
             except Exception as e:
                 if self.logger:
@@ -314,7 +327,7 @@ class PromptManagementService:
             # Update timestamp
             database["metadata"]["updated_at"] = datetime.now().isoformat()
 
-            with open(self.system_prompts_db, 'w', encoding='utf-8') as f:
+            with open(self.system_prompts_db, "w", encoding="utf-8") as f:
                 json.dump(database, f, indent=2, ensure_ascii=False)
 
             # Update cache
@@ -336,9 +349,9 @@ class PromptManagementService:
                 "version": "1.0",
                 "created_at": datetime.now().isoformat(),
                 "updated_at": datetime.now().isoformat(),
-                "description": "System prompts database - all system prompts for all agents"
+                "description": "System prompts database - all system prompts for all agents",
             },
-            "prompts": {}
+            "prompts": {},
         }
 
     def _generate_system_prompt_key(self, agent_type: str) -> str:
@@ -374,14 +387,18 @@ class PromptManagementService:
             # Look for active prompt with numeric stage system
             base_key = f"{agent_type}_stage_{numeric_stage}"
             for key, prompt_record in database.get("prompts", {}).items():
-                if (key.startswith(base_key) and
-                    prompt_record.get("metadata", {}).get("agent") == agent_type and
-                    prompt_record.get("metadata", {}).get("stage") == numeric_stage and
-                    prompt_record.get("metadata", {}).get("status") == "active"):
+                if (
+                    key.startswith(base_key)
+                    and prompt_record.get("metadata", {}).get("agent") == agent_type
+                    and prompt_record.get("metadata", {}).get("stage") == numeric_stage
+                    and prompt_record.get("metadata", {}).get("status") == "active"
+                ):
                     return prompt_record
 
             if self.logger:
-                self.logger.info(f"Active stage prompt not found in database for {stage_id}/{agent_type} (numeric stage: {numeric_stage})")
+                self.logger.info(
+                    f"Active stage prompt not found in database for {stage_id}/{agent_type} (numeric stage: {numeric_stage})"
+                )
 
         except Exception as e:
             if self.logger:
@@ -390,7 +407,9 @@ class PromptManagementService:
         # Return fallback if nothing found
         return self._create_fallback_stage_prompt(stage_id, agent_type)
 
-    def save_stage_prompt(self, stage_id: str, agent_type: str, prompt_data: Dict[str, Any]) -> bool:
+    def save_stage_prompt(
+        self, stage_id: str, agent_type: str, prompt_data: Dict[str, Any]
+    ) -> bool:
         """
         Save stage prompt to database with unique ID and archiving.
         When saving, existing active prompt becomes inactive (archived).
@@ -422,10 +441,12 @@ class PromptManagementService:
 
             # Find existing active prompt and archive it
             for key, record in database["prompts"].items():
-                if (key.startswith(base_key) and
-                    record.get("metadata", {}).get("agent") == agent_type and
-                    record.get("metadata", {}).get("stage") == numeric_stage and
-                    record.get("metadata", {}).get("status") == "active"):
+                if (
+                    key.startswith(base_key)
+                    and record.get("metadata", {}).get("agent") == agent_type
+                    and record.get("metadata", {}).get("stage") == numeric_stage
+                    and record.get("metadata", {}).get("status") == "active"
+                ):
                     # Mark existing as inactive (archived)
                     record["metadata"]["status"] = "inactive"
                     record["metadata"]["archived_at"] = datetime.now().isoformat()
@@ -442,9 +463,11 @@ class PromptManagementService:
                     "created_at": datetime.now().isoformat(),
                     "updated_at": datetime.now().isoformat(),
                     "status": "active",
-                    "note": prompt_data.get("metadata", {}).get("note", f"{agent_type.title()} stage {stage_id}")
+                    "note": prompt_data.get("metadata", {}).get(
+                        "note", f"{agent_type.title()} stage {stage_id}"
+                    ),
                 },
-                "configuration": prompt_data.get("configuration", {"sections": {}})
+                "configuration": prompt_data.get("configuration", {"sections": {}}),
             }
 
             # Save new prompt to database
@@ -454,7 +477,9 @@ class PromptManagementService:
             success = self._save_stage_prompts_database(database)
 
             if success and self.logger:
-                self.logger.info(f"Saved stage prompt: {stage_id}/{agent_type} ID={next_id}, archived previous versions")
+                self.logger.info(
+                    f"Saved stage prompt: {stage_id}/{agent_type} ID={next_id}, archived previous versions"
+                )
 
             return success
 
@@ -560,10 +585,12 @@ class PromptManagementService:
                 results.append(record_with_key)
 
             # Sort by agent, then by stage
-            results.sort(key=lambda x: (
-                x.get("metadata", {}).get("agent", ""),
-                int(x.get("metadata", {}).get("stage", "0"))
-            ))
+            results.sort(
+                key=lambda x: (
+                    x.get("metadata", {}).get("agent", ""),
+                    int(x.get("metadata", {}).get("stage", "0")),
+                )
+            )
 
             return results
 
@@ -581,16 +608,16 @@ class PromptManagementService:
                 "created_at": datetime.now().isoformat(),
                 "updated_at": datetime.now().isoformat(),
                 "status": "active",
-                "note": f"Fallback {agent_type} system prompt - populate database for better prompts"
+                "note": f"Fallback {agent_type} system prompt - populate database for better prompts",
             },
             "configuration": {
                 "sections": {
                     "ai_role": {
                         "title": "1. Rola AI",
-                        "content": f"System prompt dla {agent_type} - skonfiguruj w bazie danych system_prompts.json"
+                        "content": f"System prompt dla {agent_type} - skonfiguruj w bazie danych system_prompts.json",
                     }
                 }
-            }
+            },
         }
 
     def _create_fallback_stage_prompt(self, stage_id: str, agent_type: str) -> Dict[str, Any]:
@@ -603,16 +630,16 @@ class PromptManagementService:
                 "created_at": datetime.now().isoformat(),
                 "updated_at": datetime.now().isoformat(),
                 "status": "active",
-                "note": f"Fallback {agent_type} stage {stage_id} prompt - populate database for better prompts"
+                "note": f"Fallback {agent_type} stage {stage_id} prompt - populate database for better prompts",
             },
             "configuration": {
                 "sections": {
                     "placeholder": {
                         "title": f"Etap {stage_id} - {agent_type}",
-                        "content": f"Prompt etapowy dla {agent_type} etap {stage_id} - skonfiguruj w bazie danych stage_prompts.json"
+                        "content": f"Prompt etapowy dla {agent_type} etap {stage_id} - skonfiguruj w bazie danych stage_prompts.json",
                     }
                 }
-            }
+            },
         }
 
     # =====================================================================================
@@ -737,15 +764,17 @@ class PromptManagementService:
         elif isinstance(data, str):
             # Comprehensive unescaping of all common JSON escape sequences
             # Order matters - do \\\\ first to avoid double processing
-            return (data.replace('\\\\', '\\')      # Double backslash to single
-                       .replace('\\"', '"')        # Escaped quote to quote
-                       .replace("\\'", "'")        # Escaped single quote
-                       .replace('\\n', '\n')       # Escaped newline to newline
-                       .replace('\\r', '\r')       # Escaped carriage return
-                       .replace('\\t', '\t')       # Escaped tab to tab
-                       .replace('\\b', '\b')       # Escaped backspace
-                       .replace('\\f', '\f')       # Escaped form feed
-                       .replace('\\/', '/'))       # Escaped forward slash
+            return (
+                data.replace("\\\\", "\\")  # Double backslash to single
+                .replace('\\"', '"')  # Escaped quote to quote
+                .replace("\\'", "'")  # Escaped single quote
+                .replace("\\n", "\n")  # Escaped newline to newline
+                .replace("\\r", "\r")  # Escaped carriage return
+                .replace("\\t", "\t")  # Escaped tab to tab
+                .replace("\\b", "\b")  # Escaped backspace
+                .replace("\\f", "\f")  # Escaped form feed
+                .replace("\\/", "/")
+            )  # Escaped forward slash
         else:
             return data
 
@@ -774,7 +803,7 @@ class PromptManagementService:
             "small_steps": 4,
             "summary": 5,
             "rest": 6,  # Rest and casual conversation stage
-            "safety_monitoring": 6  # Special stage for crisis monitoring (same as rest)
+            "safety_monitoring": 6,  # Special stage for crisis monitoring (same as rest)
         }
 
         # Also support direct numeric conversion for backwards compatibility

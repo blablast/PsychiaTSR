@@ -13,6 +13,7 @@ Key responsibilities:
 - Manage UI state and user feedback
 - Delegate business operations to core services
 """
+
 import streamlit as st
 from typing import Dict, List, Optional, Any, Tuple
 from ...core.prompts.prompt_management_service import PromptManagementService
@@ -168,7 +169,9 @@ class PromptUIService:
             # Return minimal fallback for UI
             return self._create_ui_fallback_stage_prompt(stage_id, agent_type)
 
-    def save_stage_prompt_from_ui(self, stage_id: str, agent_type: str, prompt_data: Dict[str, Any]) -> bool:
+    def save_stage_prompt_from_ui(
+        self, stage_id: str, agent_type: str, prompt_data: Dict[str, Any]
+    ) -> bool:
         """
         Save stage prompt from UI with user feedback.
 
@@ -195,7 +198,9 @@ class PromptUIService:
 
             if success:
                 prompt_id = prompt_data["metadata"].get("id", "unknown")
-                st.success(f"✅ Zapisano prompt etapowy: {stage_id} ({agent_type}) - ID {prompt_id}")
+                st.success(
+                    f"✅ Zapisano prompt etapowy: {stage_id} ({agent_type}) - ID {prompt_id}"
+                )
                 return True
             else:
                 st.error("❌ Błąd zapisu - sprawdź logi systemu")
@@ -258,7 +263,9 @@ class PromptUIService:
     # PROMPT GENERATION AND PREVIEW
     # =====================================================================================
 
-    def generate_prompt_for_preview(self, prompt_data: Dict[str, Any], prompt_type: str = "stage") -> str:
+    def generate_prompt_for_preview(
+        self, prompt_data: Dict[str, Any], prompt_type: str = "stage"
+    ) -> str:
         """
         Generate prompt text for preview in UI.
 
@@ -291,7 +298,9 @@ class PromptUIService:
     # UI HELPER METHODS
     # =====================================================================================
 
-    def render_dynamic_sections_form(self, prompt_data: Dict[str, Any], form_key_prefix: str) -> Dict[str, Any]:
+    def render_dynamic_sections_form(
+        self, prompt_data: Dict[str, Any], form_key_prefix: str
+    ) -> Dict[str, Any]:
         """
         Render dynamic sections form based on prompt configuration.
 
@@ -312,7 +321,7 @@ class PromptUIService:
                 value=section.get("content", ""),
                 key=f"{form_key_prefix}_{key}",
                 height=150,
-                help=f"Edytuj zawartość sekcji: {section.get('title', key)}"
+                help=f"Edytuj zawartość sekcji: {section.get('title', key)}",
             )
 
             sections[key]["content"] = new_content
@@ -332,16 +341,16 @@ class PromptUIService:
                 "id": f"{agent_type}_ui_fallback_v1_0",
                 "created_at": datetime.now().isoformat(),
                 "updated_at": datetime.now().isoformat(),
-                "status": "active"
+                "status": "active",
             },
             "configuration": {
                 "sections": {
                     "error_notice": {
                         "title": "⚠️ Błąd ładowania",
-                        "content": f"Nie udało się załadować promptu dla {agent_type}. Sprawdź logi i spróbuj ponownie."
+                        "content": f"Nie udało się załadować promptu dla {agent_type}. Sprawdź logi i spróbuj ponownie.",
                     }
                 }
-            }
+            },
         }
 
     def _create_ui_fallback_stage_prompt(self, stage_id: str, agent_type: str) -> Dict[str, Any]:
@@ -353,14 +362,14 @@ class PromptUIService:
                 "id": f"{agent_type}_{stage_id}_ui_fallback_v1_0",
                 "created_at": datetime.now().isoformat(),
                 "updated_at": datetime.now().isoformat(),
-                "status": "active"
+                "status": "active",
             },
             "configuration": {
                 "sections": {
                     "error_notice": {
                         "title": "⚠️ Błąd ładowania",
-                        "content": f"Nie udało się załadować promptu dla {stage_id}/{agent_type}. Sprawdź logi i spróbuj ponownie."
+                        "content": f"Nie udało się załadować promptu dla {stage_id}/{agent_type}. Sprawdź logi i spróbuj ponownie.",
                     }
                 }
-            }
+            },
         }

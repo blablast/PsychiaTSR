@@ -76,8 +76,8 @@ class ConversationWorkflowStrategy(WorkflowStrategy):
                     "supervisor_decision": supervisor_decision,
                     "therapist_response": therapist_response,
                     "stage_changed": supervisor_decision.decision == "advance",
-                    "current_stage": context.current_stage
-                }
+                    "current_stage": context.current_stage,
+                },
             )
 
         except Exception as e:
@@ -86,9 +86,7 @@ class ConversationWorkflowStrategy(WorkflowStrategy):
                 self._conversation_manager.abort_processing()
             self._logger.log_error(f"Conversation workflow failed: {str(e)}")
             return WorkflowResult(
-                success=False,
-                message="Conversation workflow processing failed",
-                error=str(e)
+                success=False, message="Conversation workflow processing failed", error=str(e)
             )
 
     def execute_stream(self, context: WorkflowContext):
@@ -140,15 +138,14 @@ class ConversationWorkflowStrategy(WorkflowStrategy):
                     therapist_result = chunk
                     break
 
-
             if not therapist_result or not therapist_result.success:
                 self._conversation_manager.abort_processing()
-                error_msg = therapist_result.message if therapist_result else "Therapist streaming failed"
+                error_msg = (
+                    therapist_result.message if therapist_result else "Therapist streaming failed"
+                )
                 yield f"[Błąd terapeuty: {error_msg}]"
                 return therapist_result or WorkflowResult(
-                    success=False,
-                    message="Therapist streaming failed",
-                    error="STREAMING_FAILED"
+                    success=False, message="Therapist streaming failed", error="STREAMING_FAILED"
                 )
 
             therapist_response = therapist_result.data["response"]
@@ -164,8 +161,8 @@ class ConversationWorkflowStrategy(WorkflowStrategy):
                     "therapist_response": therapist_response,
                     "stage_changed": supervisor_decision.decision == "advance",
                     "current_stage": context.current_stage,
-                    "streaming": True
-                }
+                    "streaming": True,
+                },
             )
 
         except Exception as e:
@@ -177,5 +174,5 @@ class ConversationWorkflowStrategy(WorkflowStrategy):
             return WorkflowResult(
                 success=False,
                 message="Conversation streaming workflow processing failed",
-                error=str(e)
+                error=str(e),
             )

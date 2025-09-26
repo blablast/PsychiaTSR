@@ -23,14 +23,16 @@ class IProviderConfigurationBuilder(ABC):
     """Interface for building provider configurations."""
 
     @abstractmethod
-    def build_configuration(self, provider: ProviderType, model: str,
-                          credentials: ProviderCredentials) -> ProviderConfiguration:
+    def build_configuration(
+        self, provider: ProviderType, model: str, credentials: ProviderCredentials
+    ) -> ProviderConfiguration:
         """Build complete provider configuration."""
         pass
 
     @abstractmethod
-    def build_agent_mapping(self, agent_type: str,
-                          provider_config: ProviderConfiguration) -> AgentProviderMapping:
+    def build_agent_mapping(
+        self, agent_type: str, provider_config: ProviderConfiguration
+    ) -> AgentProviderMapping:
         """Build agent to provider mapping."""
         pass
 

@@ -113,7 +113,9 @@ class ElevenLabsTTSProvider(BaseTTSProvider):
             self._client = ElevenLabs(api_key=self.api_key)
         return self._client
 
-    def text_to_speech(self, text: str, output_format: str = "mp3_44100_128") -> Union[bytes, Iterable[bytes]]:
+    def text_to_speech(
+        self, text: str, output_format: str = "mp3_44100_128"
+    ) -> Union[bytes, Iterable[bytes]]:
         """Convert text to speech using ElevenLabs API."""
         if not text.strip():
             return b""
@@ -128,12 +130,12 @@ class ElevenLabsTTSProvider(BaseTTSProvider):
             )
 
             # If audio_data is an iterator, collect all chunks
-            if hasattr(audio_data, '__iter__') and not isinstance(audio_data, (bytes, bytearray)):
+            if hasattr(audio_data, "__iter__") and not isinstance(audio_data, (bytes, bytearray)):
                 audio_chunks = []
                 for chunk in audio_data:
                     if chunk:
                         audio_chunks.append(chunk)
-                return b''.join(audio_chunks)
+                return b"".join(audio_chunks)
 
             return audio_data
 

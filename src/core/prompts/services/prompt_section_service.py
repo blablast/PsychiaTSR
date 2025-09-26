@@ -6,15 +6,24 @@ from ..commands.prompt_command_handler import PromptCommandHandler
 from ..queries.prompt_query_handler import PromptQueryHandler
 from ..repositories.json_prompt_repository import JsonPromptRepository
 from ..commands.section_commands import (
-    CreateSectionCommand, UpdateSectionCommand, DeleteSectionCommand,
-    ReorderSectionsCommand, MoveSectionCommand, DuplicateSectionCommand,
-    SectionCommandResult
+    CreateSectionCommand,
+    UpdateSectionCommand,
+    DeleteSectionCommand,
+    ReorderSectionsCommand,
+    MoveSectionCommand,
+    DuplicateSectionCommand,
+    SectionCommandResult,
 )
 from ..queries.section_queries import (
-    GetPromptSectionsQuery, GetSectionByIdQuery, GetPromptTemplateQuery,
-    SearchSectionsQuery, GetPromptStatisticsQuery,
-    SectionsQueryResult, SectionQueryResult, PromptTemplateQueryResult,
-    StatisticsQueryResult
+    GetPromptSectionsQuery,
+    GetSectionByIdQuery,
+    GetPromptTemplateQuery,
+    SearchSectionsQuery,
+    GetPromptStatisticsQuery,
+    SectionsQueryResult,
+    SectionQueryResult,
+    PromptTemplateQueryResult,
+    StatisticsQueryResult,
 )
 from ..domain.prompt_section import PromptSection
 from ..domain.prompt_template import PromptTemplate
@@ -42,8 +51,14 @@ class PromptSectionService:
     # COMMAND OPERATIONS (Write)
     # =====================================================================================
 
-    def create_section(self, prompt_id: str, title: str, content: str,
-                      position: int = None, section_type: str = "standard") -> SectionCommandResult:
+    def create_section(
+        self,
+        prompt_id: str,
+        title: str,
+        content: str,
+        position: int = None,
+        section_type: str = "standard",
+    ) -> SectionCommandResult:
         """
         Create new section in prompt.
 
@@ -62,12 +77,13 @@ class PromptSectionService:
             title=title,
             content=content,
             position=position,
-            section_type=section_type
+            section_type=section_type,
         )
         return self.command_handler.handle_create_section(command)
 
-    def update_section(self, prompt_id: str, section_id: str,
-                      title: str = None, content: str = None) -> SectionCommandResult:
+    def update_section(
+        self, prompt_id: str, section_id: str, title: str = None, content: str = None
+    ) -> SectionCommandResult:
         """
         Update existing section.
 
@@ -81,10 +97,7 @@ class PromptSectionService:
             Result of update operation
         """
         command = UpdateSectionCommand(
-            prompt_id=prompt_id,
-            section_id=section_id,
-            title=title,
-            content=content
+            prompt_id=prompt_id, section_id=section_id, title=title, content=content
         )
         return self.command_handler.handle_update_section(command)
 
@@ -116,7 +129,9 @@ class PromptSectionService:
         command = ReorderSectionsCommand(prompt_id=prompt_id, section_ids=section_ids)
         return self.command_handler.handle_reorder_sections(command)
 
-    def move_section(self, prompt_id: str, section_id: str, new_position: int) -> SectionCommandResult:
+    def move_section(
+        self, prompt_id: str, section_id: str, new_position: int
+    ) -> SectionCommandResult:
         """
         Move section to new position.
 
@@ -129,14 +144,13 @@ class PromptSectionService:
             Result of move operation
         """
         command = MoveSectionCommand(
-            prompt_id=prompt_id,
-            section_id=section_id,
-            new_position=new_position
+            prompt_id=prompt_id, section_id=section_id, new_position=new_position
         )
         return self.command_handler.handle_move_section(command)
 
-    def duplicate_section(self, prompt_id: str, section_id: str,
-                         new_title: str = None, position: int = None) -> SectionCommandResult:
+    def duplicate_section(
+        self, prompt_id: str, section_id: str, new_title: str = None, position: int = None
+    ) -> SectionCommandResult:
         """
         Duplicate existing section.
 
@@ -150,10 +164,7 @@ class PromptSectionService:
             Result of duplicate operation
         """
         command = DuplicateSectionCommand(
-            prompt_id=prompt_id,
-            section_id=section_id,
-            new_title=new_title,
-            position=position
+            prompt_id=prompt_id, section_id=section_id, new_title=new_title, position=position
         )
         return self.command_handler.handle_duplicate_section(command)
 
@@ -172,10 +183,7 @@ class PromptSectionService:
         Returns:
             Query result with sections
         """
-        query = GetPromptSectionsQuery(
-            prompt_id=prompt_id,
-            include_metadata=include_metadata
-        )
+        query = GetPromptSectionsQuery(prompt_id=prompt_id, include_metadata=include_metadata)
         return self.query_handler.handle_get_prompt_sections(query)
 
     def get_section(self, prompt_id: str, section_id: str) -> SectionQueryResult:
@@ -192,8 +200,9 @@ class PromptSectionService:
         query = GetSectionByIdQuery(prompt_id=prompt_id, section_id=section_id)
         return self.query_handler.handle_get_section_by_id(query)
 
-    def get_template(self, prompt_id: str, include_sections: bool = True,
-                    include_metadata: bool = True) -> PromptTemplateQueryResult:
+    def get_template(
+        self, prompt_id: str, include_sections: bool = True, include_metadata: bool = True
+    ) -> PromptTemplateQueryResult:
         """
         Get complete prompt template.
 
@@ -208,12 +217,18 @@ class PromptSectionService:
         query = GetPromptTemplateQuery(
             prompt_id=prompt_id,
             include_sections=include_sections,
-            include_metadata=include_metadata
+            include_metadata=include_metadata,
         )
         return self.query_handler.handle_get_prompt_template(query)
 
-    def search_sections(self, prompt_id: str = None, agent_type: str = None,
-                       search_term: str = None, limit: int = None, offset: int = 0) -> SectionsQueryResult:
+    def search_sections(
+        self,
+        prompt_id: str = None,
+        agent_type: str = None,
+        search_term: str = None,
+        limit: int = None,
+        offset: int = 0,
+    ) -> SectionsQueryResult:
         """
         Search sections by criteria.
 
@@ -232,7 +247,7 @@ class PromptSectionService:
             agent_type=agent_type,
             search_term=search_term,
             limit=limit,
-            offset=offset
+            offset=offset,
         )
         return self.query_handler.handle_search_sections(query)
 
@@ -294,11 +309,12 @@ class PromptSectionService:
             "valid": len(missing_ids) == 0 and len(extra_ids) == 0,
             "missing_sections": list(missing_ids),
             "extra_sections": list(extra_ids),
-            "section_count_match": len(current_ids) == len(proposed_ids)
+            "section_count_match": len(current_ids) == len(proposed_ids),
         }
 
-    def clone_template(self, source_prompt_id: str, new_prompt_id: str,
-                      new_agent_type: str = None) -> SectionCommandResult:
+    def clone_template(
+        self, source_prompt_id: str, new_prompt_id: str, new_agent_type: str = None
+    ) -> SectionCommandResult:
         """
         Clone entire template with all sections.
 
@@ -315,5 +331,5 @@ class PromptSectionService:
         return SectionCommandResult(
             success=False,
             message="Template cloning not yet implemented",
-            error="Feature requires additional command support"
+            error="Feature requires additional command support",
         )

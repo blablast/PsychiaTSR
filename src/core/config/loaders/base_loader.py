@@ -23,7 +23,7 @@ class BaseLoader:
         """Load configuration from JSON file."""
         if self._config_file.exists():
             try:
-                with open(self._config_file, 'r', encoding='utf-8') as f:
+                with open(self._config_file, "r", encoding="utf-8") as f:
                     self._config_data = json.load(f)
             except (json.JSONDecodeError, IOError) as e:
                 raise ValueError(f"Failed to load configuration from {self._config_file}: {e}")
@@ -46,11 +46,10 @@ class BaseLoader:
         """Save configuration data to JSON file."""
         try:
             self._config_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(self._config_file, 'w', encoding='utf-8') as f:
+            with open(self._config_file, "w", encoding="utf-8") as f:
                 json.dump(config_data, f, ensure_ascii=False, indent=2)
             self._config_data = config_data.copy()
             return True
         except (IOError, OSError) as e:
             print(f"Failed to save configuration to {self._config_file}: {e}")
             return False
-

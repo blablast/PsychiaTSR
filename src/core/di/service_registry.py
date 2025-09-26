@@ -18,6 +18,7 @@ class ServiceRegistry:
 
         # Configuration services
         from config import Config
+
         config = Config.get_instance()
         container.register_instance(Config, config)
         container.register(ConfigManager, ConfigManager, ServiceLifetime.SINGLETON)
@@ -47,23 +48,23 @@ class ServiceRegistry:
 
         container.register_factory(AgentLoader, create_agent_loader, ServiceLifetime.SINGLETON)
         container.register_factory(AppLoader, create_app_loader, ServiceLifetime.SINGLETON)
-        container.register_factory(DirectoryLoader, create_directory_loader, ServiceLifetime.SINGLETON)
+        container.register_factory(
+            DirectoryLoader, create_directory_loader, ServiceLifetime.SINGLETON
+        )
 
         # Logging services
         from ..logging.interfaces.logger_interface import ILogger
         from ..logging.logger_factory import LoggerFactory
 
         container.register_factory(
-            ILogger,
-            lambda: LoggerFactory.create_default(),
-            ServiceLifetime.SINGLETON
+            ILogger, lambda: LoggerFactory.create_default(), ServiceLifetime.SINGLETON
         )
 
         # Storage and safety services
         container.register_factory(
             StorageProvider,
             lambda: StorageProvider(Config.get_instance().LOGS_DIR),
-            ServiceLifetime.SINGLETON
+            ServiceLifetime.SINGLETON,
         )
         container.register(SafetyChecker, SafetyChecker, ServiceLifetime.SINGLETON)
 
@@ -71,7 +72,7 @@ class ServiceRegistry:
         container.register_factory(
             StageManager,
             lambda: StageManager(Config.get_instance().STAGES_DIR),
-            ServiceLifetime.SINGLETON
+            ServiceLifetime.SINGLETON,
         )
 
         # Session state (Streamlit specific)
@@ -90,7 +91,7 @@ class ServiceRegistry:
         container.register_factory(
             UnifiedPromptManager,
             lambda: UnifiedPromptManager(Config.get_instance().PROMPT_DIR),
-            ServiceLifetime.SINGLETON
+            ServiceLifetime.SINGLETON,
         )
 
         # Agent services - these will automatically resolve ILogger through DI
@@ -113,7 +114,9 @@ class ServiceRegistry:
         from ..workflow.async_workflow_manager import AsyncWorkflowManager
 
         def create_async_workflow_manager():
-            from ...ui.session.streamlit_agent_provider import StreamlitAgentProvider  # Use proper agent provider
+            from ...ui.session.streamlit_agent_provider import (
+                StreamlitAgentProvider,
+            )  # Use proper agent provider
             from ..prompts.unified_prompt_manager import UnifiedPromptManager
             from ..logging.interfaces.logger_interface import ILogger
 
@@ -121,12 +124,12 @@ class ServiceRegistry:
             prompt_manager = container.resolve(UnifiedPromptManager)
             conversation_manager = container.resolve(ConversationManager)
             logger = container.resolve(ILogger)
-            return AsyncWorkflowManager(agent_provider, prompt_manager, conversation_manager, logger)
+            return AsyncWorkflowManager(
+                agent_provider, prompt_manager, conversation_manager, logger
+            )
 
         container.register_factory(
-            AsyncWorkflowManager,
-            create_async_workflow_manager,
-            ServiceLifetime.SCOPED
+            AsyncWorkflowManager, create_async_workflow_manager, ServiceLifetime.SCOPED
         )
 
     @staticmethod
@@ -139,8 +142,12 @@ class ServiceRegistry:
 
             # Register audio services
             container.register(AudioService, AudioService, ServiceLifetime.SINGLETON)
-            container.register(ElevenLabsTTSProvider, ElevenLabsTTSProvider, ServiceLifetime.TRANSIENT)
-            container.register(AudioStreamingManager, AudioStreamingManager, ServiceLifetime.SINGLETON)
+            container.register(
+                ElevenLabsTTSProvider, ElevenLabsTTSProvider, ServiceLifetime.TRANSIENT
+            )
+            container.register(
+                AudioStreamingManager, AudioStreamingManager, ServiceLifetime.SINGLETON
+            )
 
         except ImportError:
             # Audio dependencies not available - skip registration

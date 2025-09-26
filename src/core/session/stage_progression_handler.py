@@ -6,6 +6,7 @@ from dataclasses import dataclass
 @dataclass
 class StageProgressionResult:
     """Result of stage progression operation."""
+
     success: bool
     old_stage: str
     new_stage: str
@@ -58,7 +59,7 @@ class StageProgressionHandler:
                     old_stage=old_stage,
                     new_stage=old_stage,
                     message="Stage progression failed",
-                    error=progression_result.error
+                    error=progression_result.error,
                 )
 
             new_stage = self._session_manager.get_current_stage()
@@ -73,7 +74,7 @@ class StageProgressionHandler:
                 success=True,
                 old_stage=old_stage,
                 new_stage=new_stage,
-                message=f"Stage advanced from {old_stage} to {new_stage}"
+                message=f"Stage advanced from {old_stage} to {new_stage}",
             )
 
         except Exception as e:
@@ -83,7 +84,7 @@ class StageProgressionHandler:
                 old_stage=self._session_manager.get_current_stage(),
                 new_stage=self._session_manager.get_current_stage(),
                 message="Stage progression failed due to exception",
-                error=str(e)
+                error=str(e),
             )
 
     def add_stage_transition_message(self, current_stage: str) -> None:

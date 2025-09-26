@@ -7,9 +7,9 @@ from .composite_storage import CompositeStorage
 from .session_storage import SessionStorage
 
 __all__ = [
-    'FileStorage',
-    'ConsoleStorage',
-    'MemoryStorage',
-    'CompositeStorage',
-    'SessionStorage',
+    "FileStorage",
+    "ConsoleStorage",
+    "MemoryStorage",
+    "CompositeStorage",
+    "SessionStorage",
 ]

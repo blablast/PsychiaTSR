@@ -8,7 +8,7 @@ import streamlit as st
 
 from ..providers.elevenlabs_streaming_provider import (
     ElevenLabsStreamingProvider,
-    StreamingAudioManager
+    StreamingAudioManager,
 )
 
 
@@ -24,8 +24,7 @@ class RealtimeAudioService:
         """
         self.tts_config = tts_config
         self.streaming_provider = ElevenLabsStreamingProvider(
-            api_key=tts_config.get("api_key"),
-            voice_id=tts_config.get("voice_id")
+            api_key=tts_config.get("api_key"), voice_id=tts_config.get("voice_id")
         )
         self.audio_manager = StreamingAudioManager()
         self._active_tasks = []
@@ -58,7 +57,7 @@ class RealtimeAudioService:
     def render_audio_player(self):
         """Render the JavaScript audio player component."""
         # Create placeholder for dynamic updates
-        if 'audio_player_placeholder' not in st.session_state:
+        if "audio_player_placeholder" not in st.session_state:
             st.session_state.audio_player_placeholder = st.empty()
 
         # Render player with current queue data
@@ -67,6 +66,7 @@ class RealtimeAudioService:
 
     def _start_background_streaming(self, text_stream: Iterator[str]):
         """Start background thread for audio streaming."""
+
         def background_task():
             try:
                 # Create async text stream from sync iterator
@@ -106,10 +106,10 @@ class RealtimeAudioService:
         """Trigger a Streamlit rerun to update session state."""
         try:
             # Update the audio player placeholder with new queue data
-            if 'audio_player_placeholder' in st.session_state:
+            if "audio_player_placeholder" in st.session_state:
                 with st.session_state.audio_player_placeholder.container():
                     self.audio_manager.render_streaming_audio_player()
-        except:
+        except Exception:
             # Silent fail - rerun might not be available in all contexts
             pass
 
@@ -122,7 +122,9 @@ class RealtimeAudioService:
 class StreamingTextWrapper:
     """Wrapper for text streaming that also feeds to audio streaming."""
 
-    def __init__(self, text_iterator: Iterator[str], audio_service: Optional[RealtimeAudioService] = None):
+    def __init__(
+        self, text_iterator: Iterator[str], audio_service: Optional[RealtimeAudioService] = None
+    ):
         """
         Initialize wrapper.
 
@@ -162,6 +164,7 @@ class StreamingTextWrapper:
 
     def _start_audio_streaming(self):
         """Start audio streaming with buffered text."""
+
         def text_generator():
             while True:
                 try:
@@ -177,8 +180,7 @@ class StreamingTextWrapper:
 
 
 def create_streaming_text_with_audio(
-    text_iterator: Iterator[str],
-    tts_config: Optional[dict] = None
+    text_iterator: Iterator[str], tts_config: Optional[dict] = None
 ) -> Iterator[str]:
     """
     Create a text iterator that also streams audio in real-time.
@@ -193,9 +195,11 @@ def create_streaming_text_with_audio(
     audio_service = None
 
     # Create audio service if config provided and audio enabled
-    if (tts_config and
-        st.session_state.get("audio_enabled", False) and
-        st.session_state.get("fallback_mode", True)):
+    if (
+        tts_config
+        and st.session_state.get("audio_enabled", False)
+        and st.session_state.get("fallback_mode", True)
+    ):
 
         try:
             audio_service = RealtimeAudioService(tts_config)

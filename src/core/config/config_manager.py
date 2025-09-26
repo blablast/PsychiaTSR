@@ -36,7 +36,7 @@ class ConfigManager:
         return {
             "logs_dir": self._config_manager.get_logs_dir(),
             "prompt_dir": self._config_manager.get_prompt_dir(),
-            "stages_dir": self._config_manager.get_stages_dir()
+            "stages_dir": self._config_manager.get_stages_dir(),
         }
 
     def get_app_config(self) -> Dict[str, Any]:
@@ -44,18 +44,20 @@ class ConfigManager:
         return {
             "title": self._config_manager.get_app_title(),
             "icon": self._config_manager.get_app_icon(),
-            "language": self._config_manager.get_app_language()
+            "language": self._config_manager.get_app_language(),
         }
 
     def get_environment_config(self) -> Dict[str, Any]:
         """Get environment configuration."""
         return self._config_manager.get_all_api_keys()
 
-    def update_model_config(self,
-                          therapist_model: str,
-                          therapist_provider: str,
-                          supervisor_model: str,
-                          supervisor_provider: str) -> bool:
+    def update_model_config(
+        self,
+        therapist_model: str,
+        therapist_provider: str,
+        supervisor_model: str,
+        supervisor_provider: str,
+    ) -> bool:
         """Update model configuration in app_config.json"""
         config_dict = self._config_manager.to_dict()
 
@@ -99,21 +101,17 @@ class ConfigManager:
         try:
             template_path = Path("config/templates/defaults/app_config_default.json")
             if template_path.exists():
-                with open(template_path, 'r', encoding='utf-8') as f:
+                with open(template_path, "r", encoding="utf-8") as f:
                     return json.load(f)
         except Exception as e:
             print(f"Warning: Could not load default config template: {e}")
 
         # Fallback to minimal config if template loading fails
         return {
-            "app": {
-                "title": "Psychia - TSR Therapy Assistant",
-                "icon": "🧠",
-                "language": "pl"
-            },
+            "app": {"title": "Psychia - TSR Therapy Assistant", "icon": "🧠", "language": "pl"},
             "directories": {
                 "logs_dir": "./logs",
                 "prompt_dir": "./config/prompts",
-                "stages_dir": "./config"
-            }
+                "stages_dir": "./config",
+            },
         }

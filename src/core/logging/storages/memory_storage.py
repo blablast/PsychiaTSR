@@ -25,7 +25,7 @@ class MemoryStorage(IStorage):
 
         # Rotate if necessary
         if len(self._entries) > self._max_entries:
-            self._entries = self._entries[-self._max_entries:]
+            self._entries = self._entries[-self._max_entries :]
 
     def store_batch(self, entries: List[LogEntry]) -> None:
         """Store multiple log entries efficiently."""
@@ -36,7 +36,7 @@ class MemoryStorage(IStorage):
 
         # Rotate if necessary
         if len(self._entries) > self._max_entries:
-            self._entries = self._entries[-self._max_entries:]
+            self._entries = self._entries[-self._max_entries :]
 
     def retrieve(self, limit: Optional[int] = None) -> List[LogEntry]:
         """Retrieve log entries from memory."""

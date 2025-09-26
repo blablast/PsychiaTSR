@@ -16,11 +16,13 @@ class WorkflowOrchestrator:
     specific concerns to specialized services.
     """
 
-    def __init__(self,
-                 strategy_factory: WorkflowStrategyFactory,
-                 crisis_handler: CrisisHandler,
-                 session_orchestrator: SessionOrchestrator,
-                 logger):
+    def __init__(
+        self,
+        strategy_factory: WorkflowStrategyFactory,
+        crisis_handler: CrisisHandler,
+        session_orchestrator: SessionOrchestrator,
+        logger,
+    ):
         """
         Initialize workflow orchestrator with injected dependencies.
 
@@ -63,9 +65,7 @@ class WorkflowOrchestrator:
         except Exception as e:
             self._logger.log_error(f"Workflow orchestration failed: {str(e)}")
             return WorkflowResult(
-                success=False,
-                message="Workflow orchestration failed",
-                error=str(e)
+                success=False, message="Workflow orchestration failed", error=str(e)
             )
 
     def _execute_strategy(self, request: WorkflowRequest) -> WorkflowResult:
@@ -81,7 +81,9 @@ class WorkflowOrchestrator:
         strategy = self._strategy_factory.create_strategy(request.type)
         return strategy.execute(request.context)
 
-    def _handle_crisis_check(self, result: WorkflowResult, request: WorkflowRequest) -> WorkflowResult:
+    def _handle_crisis_check(
+        self, result: WorkflowResult, request: WorkflowRequest
+    ) -> WorkflowResult:
         """
         Check for and handle crisis situations.
 
@@ -96,8 +98,7 @@ class WorkflowOrchestrator:
         if supervisor_decision and supervisor_decision.safety_risk:
             self._logger.log_error("🚨 KRYZYS: Wykryto zagrożenie bezpieczeństwa!")
             return self._crisis_handler.handle_crisis(
-                request.context.user_message,
-                supervisor_decision
+                request.context.user_message, supervisor_decision
             )
         return result
 
@@ -111,8 +112,9 @@ class WorkflowOrchestrator:
         """
         self._session_orchestrator.finalize_exchange(result, request.context.user_message)
 
-
-    def process_conversation_message(self, user_message: str, current_stage: str, conversation_history, session_id: str) -> WorkflowResult:
+    def process_conversation_message(
+        self, user_message: str, current_stage: str, conversation_history, session_id: str
+    ) -> WorkflowResult:
         """
         Convenience method for conversation workflow processing.
 
@@ -129,11 +131,13 @@ class WorkflowOrchestrator:
             user_message=user_message,
             current_stage=current_stage,
             conversation_history=conversation_history,
-            session_id=session_id
+            session_id=session_id,
         )
         return self.process_request(request)
 
-    def process_conversation_message_stream(self, user_message: str, current_stage: str, conversation_history, session_id: str):
+    def process_conversation_message_stream(
+        self, user_message: str, current_stage: str, conversation_history, session_id: str
+    ):
         """
         Stream conversation workflow processing.
 
@@ -144,7 +148,7 @@ class WorkflowOrchestrator:
             user_message=user_message,
             current_stage=current_stage,
             conversation_history=conversation_history,
-            session_id=session_id
+            session_id=session_id,
         )
 
         # Process request with streaming
@@ -153,7 +157,7 @@ class WorkflowOrchestrator:
         strategy = self._strategy_factory.create_strategy(request.type)
 
         # Check if strategy supports streaming
-        if hasattr(strategy, 'execute_stream'):
+        if hasattr(strategy, "execute_stream"):
             yield from strategy.execute_stream(context)
         else:
             # Fallback to non-streaming
@@ -162,4 +166,3 @@ class WorkflowOrchestrator:
                 yield result.data["therapist_response"]
             else:
                 yield f"[Błąd: {result.message}]"
-

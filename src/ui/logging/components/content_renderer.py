@@ -13,7 +13,7 @@ class ContentRenderer:
         """Check if content is valid JSON."""
         try:
             content = content.strip()
-            if content.startswith('{') and content.endswith('}'):
+            if content.startswith("{") and content.endswith("}"):
                 json.loads(content)
                 return True
         except (json.JSONDecodeError, AttributeError):
@@ -41,8 +41,7 @@ class ContentRenderer:
         else:
             st.code(content, language="text")
 
-    def render_expandable_content(self, summary: str, content: str,
-                                expanded: bool = False) -> None:
+    def render_expandable_content(self, summary: str, content: str, expanded: bool = False) -> None:
         """
         Render content in expander if it's longer than summary.
 
@@ -52,7 +51,7 @@ class ContentRenderer:
             return
 
         # Only show expander if content is different/longer than summary
-        lines = content.split('\n', 1)
+        lines = content.split("\n", 1)
         content_without_header = lines[1] if len(lines) > 1 else ""
 
         if content_without_header.strip():

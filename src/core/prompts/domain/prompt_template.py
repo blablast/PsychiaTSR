@@ -60,7 +60,9 @@ class PromptTemplate:
             raise ValueError("Section orders must be consecutive starting from 0")
 
     @classmethod
-    def create_new(cls, agent_type: str, prompt_type: str, stage_id: str = None) -> "PromptTemplate":
+    def create_new(
+        cls, agent_type: str, prompt_type: str, stage_id: str = None
+    ) -> "PromptTemplate":
         """
         Create a new prompt template with generated ID and timestamps.
 
@@ -80,10 +82,12 @@ class PromptTemplate:
             sections=[],
             metadata={},
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
 
-    def add_section(self, title: str, content: str, section_type: str = "standard") -> PromptSection:
+    def add_section(
+        self, title: str, content: str, section_type: str = "standard"
+    ) -> PromptSection:
         """
         Add new section to template.
 
@@ -103,7 +107,9 @@ class PromptTemplate:
 
         return section
 
-    def update_section(self, section_id: str, title: str = None, content: str = None) -> PromptSection:
+    def update_section(
+        self, section_id: str, title: str = None, content: str = None
+    ) -> PromptSection:
         """
         Update existing section.
 
@@ -237,7 +243,7 @@ class PromptTemplate:
             "total_characters": total_chars,
             "total_words": total_words,
             "average_section_length": total_chars // len(self.sections) if self.sections else 0,
-            "empty_sections": sum(1 for s in self.sections if s.is_empty())
+            "empty_sections": sum(1 for s in self.sections if s.is_empty()),
         }
 
     def _find_section_index(self, section_id: str) -> Optional[int]:
@@ -263,7 +269,7 @@ class PromptTemplate:
             "sections": [s.to_dict() for s in self.sections],
             "metadata": self.metadata,
             "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
     @classmethod
@@ -286,5 +292,5 @@ class PromptTemplate:
             sections=sections,
             metadata=data.get("metadata", {}),
             created_at=created_at,
-            updated_at=updated_at
+            updated_at=updated_at,
         )

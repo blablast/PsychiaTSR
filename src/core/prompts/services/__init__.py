@@ -2,6 +2,4 @@
 
 from .prompt_section_service import PromptSectionService
 
-__all__ = [
-    "PromptSectionService"
-]
+__all__ = ["PromptSectionService"]

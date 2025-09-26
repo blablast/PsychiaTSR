@@ -55,6 +55,7 @@ class GetPromptStatisticsQuery:
 
 # Query Result objects
 
+
 @dataclass(frozen=True)
 class QueryResult:
     """Base result for query operations."""
@@ -66,7 +67,7 @@ class QueryResult:
 
     def __post_init__(self):
         if self.timestamp is None:
-            object.__setattr__(self, 'timestamp', datetime.now())
+            object.__setattr__(self, "timestamp", datetime.now())
 
 
 @dataclass(frozen=True)
@@ -79,7 +80,7 @@ class SectionsQueryResult(QueryResult):
     def __post_init__(self):
         super().__post_init__()
         if self.sections is None:
-            object.__setattr__(self, 'sections', [])
+            object.__setattr__(self, "sections", [])
 
 
 @dataclass(frozen=True)
@@ -105,4 +106,4 @@ class StatisticsQueryResult(QueryResult):
     def __post_init__(self):
         super().__post_init__()
         if self.statistics is None:
-            object.__setattr__(self, 'statistics', {})
+            object.__setattr__(self, "statistics", {})

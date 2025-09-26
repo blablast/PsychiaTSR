@@ -11,6 +11,7 @@ Key responsibilities:
 - Apply safety checks to all decisions
 - Provide structured reasoning for decisions
 """
+
 import time
 from typing import List, Dict, Any
 from ..llm.base import LLMProvider
@@ -33,13 +34,15 @@ class SupervisorAgent(AgentBase, IAsyncSupervisorAgent):
     # AGENT CONFIGURATION (IMPLEMENTATION OF ABSTRACT METHODS)
     # =====================================================================================
 
-    def __init__(self,
-                 llm_provider: LLMProvider,
-                 prompt_service: PromptService,
-                 parsing_service: ParsingService,
-                 safety_service: SafetyService,
-                 memory_service: MemoryService,
-                 logger=None):
+    def __init__(
+        self,
+        llm_provider: LLMProvider,
+        prompt_service: PromptService,
+        parsing_service: ParsingService,
+        safety_service: SafetyService,
+        memory_service: MemoryService,
+        logger=None,
+    ):
         """
         Initialize SupervisorAgent with injected dependencies.
 
@@ -55,7 +58,9 @@ class SupervisorAgent(AgentBase, IAsyncSupervisorAgent):
         self._parsing_service = parsing_service
 
         # Initialize base agent with shared infrastructure
-        super().__init__(llm_provider, prompt_service, safety_service, memory_service, logger, "supervisor")
+        super().__init__(
+            llm_provider, prompt_service, safety_service, memory_service, logger, "supervisor"
+        )
 
     def _get_default_agent_type(self) -> str:
         """Get the default agent type identifier for supervisor."""
@@ -70,31 +75,39 @@ class SupervisorAgent(AgentBase, IAsyncSupervisorAgent):
         """
         provider_class = self._llm_provider.__class__.__name__
 
-        if provider_class == 'OpenAIProvider':
+        if provider_class == "OpenAIProvider":
             # Configure OpenAI structured output if supported
-            if hasattr(self._llm_provider, 'set_default_response_format'):
+            if hasattr(self._llm_provider, "set_default_response_format"):
                 from ..core.models.schemas import SupervisorDecision
+
                 response_format = SupervisorDecision.get_openai_response_format()
                 self._llm_provider.set_default_response_format(response_format)
                 if self._logger:
-                    self._logger.log_info("OpenAI structured output configured", {
-                        "provider": "OpenAI",
-                        "feature": "structured_output",
-                        "agent_type": "supervisor"
-                    })
+                    self._logger.log_info(
+                        "OpenAI structured output configured",
+                        {
+                            "provider": "OpenAI",
+                            "feature": "structured_output",
+                            "agent_type": "supervisor",
+                        },
+                    )
 
-        elif provider_class == 'GeminiProvider':
+        elif provider_class == "GeminiProvider":
             # Configure Gemini structured output if supported
-            if hasattr(self._llm_provider, 'set_default_response_schema'):
+            if hasattr(self._llm_provider, "set_default_response_schema"):
                 from ..core.models.schemas import SupervisorDecision
+
                 response_schema = SupervisorDecision.get_gemini_response_schema()
                 self._llm_provider.set_default_response_schema(response_schema)
                 if self._logger:
-                    self._logger.log_info("Gemini structured output configured", {
-                        "provider": "Gemini",
-                        "feature": "structured_output",
-                        "agent_type": "supervisor"
-                    })
+                    self._logger.log_info(
+                        "Gemini structured output configured",
+                        {
+                            "provider": "Gemini",
+                            "feature": "structured_output",
+                            "agent_type": "supervisor",
+                        },
+                    )
 
     def _should_log_stage_transitions(self) -> bool:
         """Supervisor logs stage transitions as the authority on stage progression."""
@@ -104,7 +117,9 @@ class SupervisorAgent(AgentBase, IAsyncSupervisorAgent):
         """Log supervisor-specific request data."""
         self._logger.log_supervisor_request(prompt_data)
 
-    def _log_full_prompt_request(self, stage: str, full_prompt: str, history: List[MessageData]) -> None:
+    def _log_full_prompt_request(
+        self, stage: str, full_prompt: str, history: List[MessageData]
+    ) -> None:
         """Log complete prompt content sent to LLM for debugging."""
         if self._logger:
             # Create summary of conversation history for context
@@ -117,7 +132,7 @@ class SupervisorAgent(AgentBase, IAsyncSupervisorAgent):
                 "history_summary": history_summary,
                 "last_user_message": last_message,
                 "full_prompt": full_prompt,
-                "prompt_length": len(full_prompt)
+                "prompt_length": len(full_prompt),
             }
             self._logger.log_supervisor_request(prompt_data)
 
@@ -126,10 +141,8 @@ class SupervisorAgent(AgentBase, IAsyncSupervisorAgent):
     # =====================================================================================
 
     def evaluate_stage_completion(
-            self,
-            stage: str,
-            history: List[MessageData],
-            stage_prompt: str ) -> SupervisorDecision:
+        self, stage: str, history: List[MessageData], stage_prompt: str
+    ) -> SupervisorDecision:
         """
         Evaluate whether the current therapy stage is complete and should advance.
 
@@ -176,10 +189,9 @@ class SupervisorAgent(AgentBase, IAsyncSupervisorAgent):
             # Handle any errors with safe fallback decision
             return self._handle_evaluation_error(e)
 
-    async def evaluate_stage_completion_async(self,
-                                             stage: str,
-                                             history: List[MessageData],
-                                             stage_prompt: str) -> SupervisorDecision:
+    async def evaluate_stage_completion_async(
+        self, stage: str, history: List[MessageData], stage_prompt: str
+    ) -> SupervisorDecision:
         """
         Asynchronous version of stage completion evaluation.
 
@@ -213,11 +225,13 @@ class SupervisorAgent(AgentBase, IAsyncSupervisorAgent):
         except Exception as e:
             return self._handle_evaluation_error(e)
 
-    async def generate_response_async(self,
-                                     user_message: str,
-                                     stage_prompt: str,
-                                     conversation_history: List[MessageData],
-                                     stage_id: str = None) -> Dict[str, Any]:
+    async def generate_response_async(
+        self,
+        user_message: str,
+        stage_prompt: str,
+        conversation_history: List[MessageData],
+        stage_id: str = None,
+    ) -> Dict[str, Any]:
         """
         Generate general supervisor response asynchronously.
 
@@ -269,16 +283,23 @@ class SupervisorAgent(AgentBase, IAsyncSupervisorAgent):
         """
         # Build conversation context with configurable token limit for performance optimization
         from config import Config
+
         config = Config.get_instance()
-        conversation_context = self._build_conversation_context(history, max_messages=config.MAX_SUPERVISOR_CONTEXT_MESSAGES)
+        conversation_context = self._build_conversation_context(
+            history, max_messages=config.MAX_SUPERVISOR_CONTEXT_MESSAGES
+        )
 
         # Build safety context to identify potential risks or crisis indicators
         safety_context = self._build_safety_context(history)
 
         # Combine all contexts into final supervisor prompt
-        return self._prompt_service.build_supervisor_prompt(stage, conversation_context, safety_context)
+        return self._prompt_service.build_supervisor_prompt(
+            stage, conversation_context, safety_context
+        )
 
-    def _process_supervisor_response(self, response: str, history: List[MessageData]) -> SupervisorDecision:
+    def _process_supervisor_response(
+        self, response: str, history: List[MessageData]
+    ) -> SupervisorDecision:
         """
         Process raw LLM response into validated SupervisorDecision object.
 
@@ -324,7 +345,7 @@ class SupervisorAgent(AgentBase, IAsyncSupervisorAgent):
             "original_response": response,
             "success": True,
             "error": None,
-            "response_time_ms": response_time_ms
+            "response_time_ms": response_time_ms,
         }
 
     def _log_supervisor_response(self, decision: SupervisorDecision, response_time_ms: int) -> None:
@@ -364,7 +385,7 @@ class SupervisorAgent(AgentBase, IAsyncSupervisorAgent):
             reason=f"Błąd w ocenie nadzorcy: {str(error)}",
             handoff={"error": str(error), "error_type": type(error).__name__},  # Debug info
             safety_risk=False,  # Error handling doesn't indicate safety risk
-            safety_message=""
+            safety_message="",
         )
 
     def _handle_response_error(self, error: Exception) -> Dict[str, Any]:
@@ -383,5 +404,5 @@ class SupervisorAgent(AgentBase, IAsyncSupervisorAgent):
             "response": f"[Błąd generowania odpowiedzi supervisora: {str(error)}]",
             "original_response": "",
             "success": False,
-            "error": str(error)
+            "error": str(error),
         }

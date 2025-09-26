@@ -7,6 +7,7 @@ from typing import Optional, List
 @dataclass
 class ParsedMessage:
     """Unified parsed message structure."""
+
     message_type: str  # 'enhanced_prompt', 'standard', 'json'
     header: str
     full_content: Optional[str] = None
@@ -22,7 +23,7 @@ class MessageParser:
         "📝 SUPERVISOR PROMPT -",
         "📝 THERAPIST PROMPT -",
         "📝 SYSTEM PROMPT -",
-        "📝 STAGE PROMPT -"
+        "📝 STAGE PROMPT -",
     ]
 
     def parse(self, data: str) -> ParsedMessage:
@@ -45,11 +46,11 @@ class MessageParser:
     def _is_json_only(self, data: str) -> bool:
         """Check if data is pure JSON."""
         data = data.strip()
-        return data.startswith('{') and data.endswith('}')
+        return data.startswith("{") and data.endswith("}")
 
     def _parse_enhanced_prompt(self, data: str) -> ParsedMessage:
         """Parse enhanced prompt format (📝 PROMPT - ...)."""
-        lines = data.split('\n')
+        lines = data.split("\n")
         header_line = lines[0] if lines else data
 
         # Extract prompt type for compact info
@@ -73,34 +74,33 @@ class MessageParser:
 
         # Create compact info
         content_length = len(full_content) if full_content else 0
-        compact_info = f"{prompt_type} • {content_length} chars" if content_length > 0 else prompt_type
+        compact_info = (
+            f"{prompt_type} • {content_length} chars" if content_length > 0 else prompt_type
+        )
 
         return ParsedMessage(
-            message_type='enhanced_prompt',
+            message_type="enhanced_prompt",
             header=header_line,
             full_content=full_content,
             compact_info=compact_info,
-            raw_data=data
+            raw_data=data,
         )
 
     def _parse_json(self, data: str) -> ParsedMessage:
         """Parse pure JSON data."""
         return ParsedMessage(
-            message_type='json',
-            header="JSON Data",
-            full_content=data,
-            raw_data=data
+            message_type="json", header="JSON Data", full_content=data, raw_data=data
         )
 
     def _parse_standard(self, data: str) -> ParsedMessage:
         """Parse standard message format."""
-        lines = data.split('\n', 1)
+        lines = data.split("\n", 1)
         header = lines[0] if lines else data
         content = lines[1] if len(lines) > 1 else ""
 
         return ParsedMessage(
-            message_type='standard',
+            message_type="standard",
             header=header,
             full_content=content if content.strip() else None,
-            raw_data=data
+            raw_data=data,
         )

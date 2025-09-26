@@ -3,5 +3,5 @@
 from .storage import StorageProvider
 
 __all__ = [
-    'StorageProvider',
+    "StorageProvider",
 ]

@@ -2,8 +2,11 @@
 
 from ..interfaces import IProviderConfigurationBuilder
 from ..domain import (
-    ProviderType, ProviderCredentials, LLMParameters,
-    ProviderConfiguration, AgentProviderMapping
+    ProviderType,
+    ProviderCredentials,
+    LLMParameters,
+    ProviderConfiguration,
+    AgentProviderMapping,
 )
 from ..loaders.agent_loader import AgentLoader
 
@@ -15,16 +18,14 @@ class ProviderConfigurationBuilder(IProviderConfigurationBuilder):
         """Initialize with agent loader."""
         self._agent_loader = agent_loader
 
-    def build_configuration(self, provider: ProviderType, model: str,
-                          credentials: ProviderCredentials) -> ProviderConfiguration:
+    def build_configuration(
+        self, provider: ProviderType, model: str, credentials: ProviderCredentials
+    ) -> ProviderConfiguration:
         """Build complete provider configuration."""
         parameters = LLMParameters()
 
         return ProviderConfiguration(
-            provider=provider,
-            model=model,
-            credentials=credentials,
-            parameters=parameters
+            provider=provider, model=model, credentials=credentials, parameters=parameters
         )
 
     def build_agent_configuration(self, agent_type: str) -> ProviderConfiguration:
@@ -37,7 +38,7 @@ class ProviderConfigurationBuilder(IProviderConfigurationBuilder):
         parameters = LLMParameters(
             temperature=agent_params.get("temperature", 0.7),
             max_tokens=agent_params.get("max_tokens", 150),
-            top_p=agent_params.get("top_p", 0.9)
+            top_p=agent_params.get("top_p", 0.9),
         )
 
         # Create placeholder credentials that will be replaced by orchestrator
@@ -47,32 +48,27 @@ class ProviderConfigurationBuilder(IProviderConfigurationBuilder):
             provider=provider,
             model=model,
             credentials=placeholder_credentials,
-            parameters=parameters
+            parameters=parameters,
         )
 
-    def build_agent_mapping(self, agent_type: str,
-                          provider_config: ProviderConfiguration) -> AgentProviderMapping:
+    def build_agent_mapping(
+        self, agent_type: str, provider_config: ProviderConfiguration
+    ) -> AgentProviderMapping:
         """Build agent to provider mapping."""
-        return AgentProviderMapping(
-            agent_type=agent_type,
-            provider_config=provider_config
-        )
+        return AgentProviderMapping(agent_type=agent_type, provider_config=provider_config)
 
-    def build_configuration_with_agent_params(self, provider: ProviderType, model: str,
-                                            credentials: ProviderCredentials,
-                                            agent_type: str) -> ProviderConfiguration:
+    def build_configuration_with_agent_params(
+        self, provider: ProviderType, model: str, credentials: ProviderCredentials, agent_type: str
+    ) -> ProviderConfiguration:
         """Build configuration with agent-specific parameters."""
         agent_params = self._agent_loader.get_agent_parameters(agent_type)
 
         parameters = LLMParameters(
             temperature=agent_params.get("temperature", 0.7),
             max_tokens=agent_params.get("max_tokens", 150),
-            top_p=agent_params.get("top_p", 0.9)
+            top_p=agent_params.get("top_p", 0.9),
         )
 
         return ProviderConfiguration(
-            provider=provider,
-            model=model,
-            credentials=credentials,
-            parameters=parameters
+            provider=provider, model=model, credentials=credentials, parameters=parameters
         )

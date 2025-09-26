@@ -33,7 +33,7 @@ class FileStorage(IStorage):
             return []
 
         try:
-            with open(self._file_path, 'r', encoding='utf-8') as f:
+            with open(self._file_path, "r", encoding="utf-8") as f:
                 content = f.read().strip()
                 if not content:
                     return []
@@ -44,7 +44,7 @@ class FileStorage(IStorage):
     def _write_entries(self, entries: List[dict]) -> None:
         """Write entries to file."""
         try:
-            with open(self._file_path, 'w', encoding='utf-8') as f:
+            with open(self._file_path, "w", encoding="utf-8") as f:
                 json.dump(entries, f, ensure_ascii=False, indent=2)
         except Exception:
             # Fallback: try to append as JSONL
@@ -53,8 +53,8 @@ class FileStorage(IStorage):
     def _append_entry_jsonl(self, entry_dict: dict) -> None:
         """Fallback: append entry as JSON line."""
         try:
-            with open(self._file_path, 'a', encoding='utf-8') as f:
-                f.write(json.dumps(entry_dict, ensure_ascii=False) + '\n')
+            with open(self._file_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry_dict, ensure_ascii=False) + "\n")
         except Exception:
             # Silent fail - storage issues shouldn't break logging
             pass
@@ -70,7 +70,7 @@ class FileStorage(IStorage):
 
             # Rotate if necessary
             if len(entries) > self._max_entries:
-                entries = entries[-self._max_entries:]
+                entries = entries[-self._max_entries :]
 
             # Write back to file
             self._write_entries(entries)
@@ -94,7 +94,7 @@ class FileStorage(IStorage):
 
             # Rotate if necessary
             if len(all_entries) > self._max_entries:
-                all_entries = all_entries[-self._max_entries:]
+                all_entries = all_entries[-self._max_entries :]
 
             # Write back to file
             self._write_entries(all_entries)

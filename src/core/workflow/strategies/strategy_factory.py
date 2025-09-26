@@ -9,7 +9,9 @@ from .agent_adapters import SupervisorAdapter, TherapistAdapter
 class WorkflowStrategyFactory:
     """Factory for creating appropriate workflow strategies."""
 
-    def __init__(self, agent_provider, prompt_manager, session_manager, conversation_manager, logger):
+    def __init__(
+        self, agent_provider, prompt_manager, session_manager, conversation_manager, logger
+    ):
         """
         Initialize strategy factory with dependencies.
 
@@ -48,7 +50,7 @@ class WorkflowStrategyFactory:
                 supervisor_evaluator=self._supervisor_adapter,
                 therapist_responder=self._therapist_adapter,
                 conversation_manager=self._conversation_manager,
-                logger=self._logger
+                logger=self._logger,
             )
         else:
             raise ValueError(f"Unsupported workflow type: {workflow_type}")

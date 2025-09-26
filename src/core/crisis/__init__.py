@@ -5,10 +5,10 @@ from .crisis_config import CrisisConfig
 from .interfaces import ICrisisHandler, ICrisisSessionManager, UICrisisNotifier, NoOpCrisisNotifier
 
 __all__ = [
-    'CrisisHandler',
-    'ICrisisHandler',
-    'UICrisisNotifier',
-    'ICrisisSessionManager',
-    'CrisisConfig',
-    'NoOpCrisisNotifier'
+    "CrisisHandler",
+    "ICrisisHandler",
+    "UICrisisNotifier",
+    "ICrisisSessionManager",
+    "CrisisConfig",
+    "NoOpCrisisNotifier",
 ]

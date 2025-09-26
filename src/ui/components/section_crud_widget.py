@@ -48,10 +48,12 @@ class SectionCRUDWidget:
         """Initialize widget with configuration."""
         self.config = config or SectionCRUDConfig()
 
-    def render(self,
-               sections: List[PromptSection],
-               callbacks: SectionCRUDCallbacks,
-               widget_key: str = "section_crud") -> None:
+    def render(
+        self,
+        sections: List[PromptSection],
+        callbacks: SectionCRUDCallbacks,
+        widget_key: str = "section_crud",
+    ) -> None:
         """
         Render the complete CRUD interface.
 
@@ -64,7 +66,7 @@ class SectionCRUDWidget:
         if f"{widget_key}_state" not in st.session_state:
             st.session_state[f"{widget_key}_state"] = {
                 "editing_section": None,
-                "show_add_form": False
+                "show_add_form": False,
             }
 
         state = st.session_state[f"{widget_key}_state"]
@@ -99,9 +101,7 @@ class SectionCRUDWidget:
 
             with col1:
                 title = st.text_input(
-                    "Title",
-                    max_chars=self.config.max_title_length,
-                    key=f"{widget_key}_add_title"
+                    "Title", max_chars=self.config.max_title_length, key=f"{widget_key}_add_title"
                 )
 
                 position = st.number_input(
@@ -109,7 +109,7 @@ class SectionCRUDWidget:
                     min_value=0,
                     value=0,
                     help="0 = beginning, -1 = end",
-                    key=f"{widget_key}_add_position"
+                    key=f"{widget_key}_add_position",
                 )
 
             with col2:
@@ -117,7 +117,7 @@ class SectionCRUDWidget:
                     "Content",
                     height=100,
                     max_chars=self.config.max_content_length,
-                    key=f"{widget_key}_add_content"
+                    key=f"{widget_key}_add_content",
                 )
 
             col1, col2, col3 = st.columns([1, 1, 2])
@@ -140,23 +140,27 @@ class SectionCRUDWidget:
 
         st.markdown("---")
 
-    def _render_sections_list(self,
-                            sections: List[PromptSection],
-                            callbacks: SectionCRUDCallbacks,
-                            widget_key: str,
-                            state: Dict[str, Any]) -> None:
+    def _render_sections_list(
+        self,
+        sections: List[PromptSection],
+        callbacks: SectionCRUDCallbacks,
+        widget_key: str,
+        state: Dict[str, Any],
+    ) -> None:
         """Render list of sections with CRUD operations."""
 
         for i, section in enumerate(sections):
             self._render_section_item(section, i, len(sections), callbacks, widget_key, state)
 
-    def _render_section_item(self,
-                           section: PromptSection,
-                           index: int,
-                           total_sections: int,
-                           callbacks: SectionCRUDCallbacks,
-                           widget_key: str,
-                           state: Dict[str, Any]) -> None:
+    def _render_section_item(
+        self,
+        section: PromptSection,
+        index: int,
+        total_sections: int,
+        callbacks: SectionCRUDCallbacks,
+        widget_key: str,
+        state: Dict[str, Any],
+    ) -> None:
         """Render individual section with CRUD controls."""
 
         section_key = f"{widget_key}_section_{section.id}"
@@ -170,9 +174,7 @@ class SectionCRUDWidget:
                 # Editable title
                 if self.config.show_edit_inline and state["editing_section"] == section.id:
                     new_title = st.text_input(
-                        "Title",
-                        value=section.title,
-                        key=f"{section_key}_edit_title"
+                        "Title", value=section.title, key=f"{section_key}_edit_title"
                     )
                 else:
                     st.markdown(f"**{index + 1}. {section.title}**")
@@ -206,8 +208,12 @@ class SectionCRUDWidget:
                         if state["editing_section"] == section.id:
                             if st.button("💾", key=f"{section_key}_save", help="Save"):
                                 # Save changes
-                                new_title = st.session_state.get(f"{section_key}_edit_title", section.title)
-                                new_content = st.session_state.get(f"{section_key}_edit_content", section.content)
+                                new_title = st.session_state.get(
+                                    f"{section_key}_edit_title", section.title
+                                )
+                                new_content = st.session_state.get(
+                                    f"{section_key}_edit_content", section.content
+                                )
 
                                 if callbacks.on_update:
                                     callbacks.on_update(section.id, new_title, new_content)
@@ -243,10 +249,7 @@ class SectionCRUDWidget:
             if state["editing_section"] == section.id:
                 # Edit mode
                 new_content = st.text_area(
-                    "Content",
-                    value=section.content,
-                    height=150,
-                    key=f"{section_key}_edit_content"
+                    "Content", value=section.content, height=150, key=f"{section_key}_edit_content"
                 )
 
                 # Edit controls
@@ -270,8 +273,10 @@ class SectionCRUDWidget:
                     char_count = len(new_content) if new_content else 0
                     max_chars = self.config.max_content_length
                     color = "red" if char_count > max_chars else "green"
-                    st.markdown(f"<span style='color: {color}'>Characters: {char_count}/{max_chars}</span>",
-                              unsafe_allow_html=True)
+                    st.markdown(
+                        f"<span style='color: {color}'>Characters: {char_count}/{max_chars}</span>",
+                        unsafe_allow_html=True,
+                    )
             else:
                 # View mode
                 if section.content:
@@ -311,16 +316,22 @@ class SectionCRUDWidget:
 
                     with info_col2:
                         if section.created_at:
-                            st.write(f"**Created:** {section.created_at.strftime('%Y-%m-%d %H:%M')}")
+                            st.write(
+                                f"**Created:** {section.created_at.strftime('%Y-%m-%d %H:%M')}"
+                            )
                         if section.updated_at:
-                            st.write(f"**Updated:** {section.updated_at.strftime('%Y-%m-%d %H:%M')}")
+                            st.write(
+                                f"**Updated:** {section.updated_at.strftime('%Y-%m-%d %H:%M')}"
+                            )
 
             st.markdown("---")
 
-    def render_compact(self,
-                      sections: List[PromptSection],
-                      callbacks: SectionCRUDCallbacks,
-                      widget_key: str = "compact_crud") -> None:
+    def render_compact(
+        self,
+        sections: List[PromptSection],
+        callbacks: SectionCRUDCallbacks,
+        widget_key: str = "compact_crud",
+    ) -> None:
         """
         Render compact version for smaller spaces.
 

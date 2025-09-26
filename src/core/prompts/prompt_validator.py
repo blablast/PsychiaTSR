@@ -83,7 +83,9 @@ class PromptValidator:
         return len(errors) == 0, errors
 
     @staticmethod
-    def validate_system_prompt(prompt_data: Dict[str, Any], agent_type: str) -> Tuple[bool, List[str]]:
+    def validate_system_prompt(
+        prompt_data: Dict[str, Any], agent_type: str
+    ) -> Tuple[bool, List[str]]:
         """
         Validate system prompt data with agent-specific checks.
 
@@ -104,13 +106,15 @@ class PromptValidator:
         metadata = prompt_data.get("metadata", {})
         metadata_agent = metadata.get("agent")
         if metadata_agent and metadata_agent != agent_type:
-            errors.append(f"Metadata agent '{metadata_agent}' doesn't match expected '{agent_type}'")
+            errors.append(
+                f"Metadata agent '{metadata_agent}' doesn't match expected '{agent_type}'"
+            )
 
         # Check for required sections in system prompts
         sections = prompt_data.get("configuration", {}).get("sections", {})
         recommended_sections = {
             "therapist": ["ai_role", "therapy_approach", "communication_style"],
-            "supervisor": ["ai_role", "evaluation_criteria", "decision_process"]
+            "supervisor": ["ai_role", "evaluation_criteria", "decision_process"],
         }
 
         if agent_type in recommended_sections:
@@ -120,12 +124,16 @@ class PromptValidator:
                     missing_sections.append(recommended)
 
             if missing_sections:
-                errors.append(f"Missing recommended sections for {agent_type}: {', '.join(missing_sections)}")
+                errors.append(
+                    f"Missing recommended sections for {agent_type}: {', '.join(missing_sections)}"
+                )
 
         return len(errors) == 0, errors
 
     @staticmethod
-    def validate_stage_prompt(prompt_data: Dict[str, Any], stage_id: str, agent_type: str) -> Tuple[bool, List[str]]:
+    def validate_stage_prompt(
+        prompt_data: Dict[str, Any], stage_id: str, agent_type: str
+    ) -> Tuple[bool, List[str]]:
         """
         Validate stage prompt data with stage-specific checks.
 
@@ -148,12 +156,19 @@ class PromptValidator:
 
         metadata_agent = metadata.get("agent")
         if metadata_agent and metadata_agent != agent_type:
-            errors.append(f"Metadata agent '{metadata_agent}' doesn't match expected '{agent_type}'")
+            errors.append(
+                f"Metadata agent '{metadata_agent}' doesn't match expected '{agent_type}'"
+            )
 
         # Stage validation - convert stage_id to numeric for comparison
         stage_mapping = {
-            "opening": 1, "resources": 2, "scaling": 3,
-            "small_steps": 4, "summary": 5, "rest": 6, "safety_monitoring": 6
+            "opening": 1,
+            "resources": 2,
+            "scaling": 3,
+            "small_steps": 4,
+            "summary": 5,
+            "rest": 6,
+            "safety_monitoring": 6,
         }
 
         expected_stage = stage_mapping.get(stage_id)
@@ -161,8 +176,14 @@ class PromptValidator:
             expected_stage = int(stage_id)
 
         metadata_stage = metadata.get("stage")
-        if metadata_stage is not None and expected_stage is not None and metadata_stage != expected_stage:
-            errors.append(f"Metadata stage '{metadata_stage}' doesn't match expected '{expected_stage}' for stage '{stage_id}'")
+        if (
+            metadata_stage is not None
+            and expected_stage is not None
+            and metadata_stage != expected_stage
+        ):
+            errors.append(
+                f"Metadata stage '{metadata_stage}' doesn't match expected '{expected_stage}' for stage '{stage_id}'"
+            )
 
         # Check for stage-specific content requirements
         sections = prompt_data.get("configuration", {}).get("sections", {})
@@ -181,7 +202,9 @@ class PromptValidator:
                     missing_sections.append(required)
 
             if missing_sections:
-                errors.append(f"Missing sections for stage '{stage_id}': {', '.join(missing_sections)}")
+                errors.append(
+                    f"Missing sections for stage '{stage_id}': {', '.join(missing_sections)}"
+                )
 
         return len(errors) == 0, errors
 
@@ -220,7 +243,15 @@ class PromptValidator:
         Returns:
             Tuple of (is_valid, error_message)
         """
-        valid_stages = ["opening", "resources", "scaling", "small_steps", "summary", "rest", "safety_monitoring"]
+        valid_stages = [
+            "opening",
+            "resources",
+            "scaling",
+            "small_steps",
+            "summary",
+            "rest",
+            "safety_monitoring",
+        ]
 
         if not isinstance(stage_id, str):
             return False, "Stage ID must be a string"

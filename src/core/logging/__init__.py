@@ -51,21 +51,18 @@ from .storages import FileStorage, ConsoleStorage, MemoryStorage, CompositeStora
 
 __all__ = [
     # Main API
-    'LoggerFactory',
-    'BaseLogger',
-    'ILogger',
-    'IFormatter',
-    'IStorage',
-    'LogEntry',
-
+    "LoggerFactory",
+    "BaseLogger",
+    "ILogger",
+    "IFormatter",
+    "IStorage",
+    "LogEntry",
     # Formatters
-    'JsonFormatter',
-    'TextFormatter',
-
+    "JsonFormatter",
+    "TextFormatter",
     # Storages
-    'FileStorage',
-    'ConsoleStorage',
-    'MemoryStorage',
-    'CompositeStorage',
-
+    "FileStorage",
+    "ConsoleStorage",
+    "MemoryStorage",
+    "CompositeStorage",
 ]

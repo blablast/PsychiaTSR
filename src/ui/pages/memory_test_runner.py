@@ -11,8 +11,15 @@ from ...llm import OpenAIProvider, GeminiProvider
 class MemoryTestRunner:
     """Handles memory testing with step-by-step execution."""
 
-    def __init__(self, provider: str, model: str, system_prompt: str, stage_prompt: str,
-                 temperature: float, max_tokens: int):
+    def __init__(
+        self,
+        provider: str,
+        model: str,
+        system_prompt: str,
+        stage_prompt: str,
+        temperature: float,
+        max_tokens: int,
+    ):
         """Initialize test runner."""
         self.provider = provider
         self.model = model
@@ -49,6 +56,7 @@ class MemoryTestRunner:
     def _initialize_provider(self) -> None:
         """Initialize LLM provider."""
         from config import Config
+
         config = Config.get_instance()
         if self.provider == "OpenAI":
             self.llm_provider = OpenAIProvider(self.model, api_key=config.OPENAI_API_KEY)
@@ -63,13 +71,14 @@ class MemoryTestRunner:
             "timestamp": datetime.now().isoformat(),
             "start_time": datetime.now(),
             "supports_memory": self._check_memory_support(),
-            "steps": []
+            "steps": [],
         }
 
     def _check_memory_support(self) -> bool:
         """Check if provider supports conversation memory."""
-        return (hasattr(self.llm_provider, 'conversation_messages') or
-                hasattr(self.llm_provider, 'chat_session'))
+        return hasattr(self.llm_provider, "conversation_messages") or hasattr(
+            self.llm_provider, "chat_session"
+        )
 
     def _initialize_ui_elements(self) -> None:
         """Initialize UI progress elements."""
@@ -82,11 +91,21 @@ class MemoryTestRunner:
         self.status_text.text("🔧 Krok 1/5: Ustawianie system prompt...")
         self.progress_bar.progress(0.2)
 
-        if hasattr(self.llm_provider, 'set_system_prompt'):
+        if hasattr(self.llm_provider, "set_system_prompt"):
             self.llm_provider.set_system_prompt(self.system_prompt)
-            result = {"step": 1, "action": "set_system_prompt", "success": True, "method": "set_system_prompt"}
+            result = {
+                "step": 1,
+                "action": "set_system_prompt",
+                "success": True,
+                "method": "set_system_prompt",
+            }
         else:
-            result = {"step": 1, "action": "set_system_prompt", "success": False, "method": "not_supported"}
+            result = {
+                "step": 1,
+                "action": "set_system_prompt",
+                "success": False,
+                "method": "not_supported",
+            }
 
         self.test_results["steps"].append(result)
 
@@ -96,14 +115,35 @@ class MemoryTestRunner:
         self.progress_bar.progress(0.4)
 
         if self.test_results["supports_memory"]:
-            if hasattr(self.llm_provider, 'add_user_message') and hasattr(self.llm_provider, 'add_assistant_message'):
-                self.llm_provider.add_user_message(f"NOWY ETAP TERAPII:\n{self.stage_prompt}\n\nOd teraz pracuj zgodnie z tym etapem.")
-                self.llm_provider.add_assistant_message("Rozumiem. Pracuję zgodnie z wytycznymi tego etapu.")
-                result = {"step": 2, "action": "set_stage_prompt", "success": True, "method": "conversation_memory"}
+            if hasattr(self.llm_provider, "add_user_message") and hasattr(
+                self.llm_provider, "add_assistant_message"
+            ):
+                self.llm_provider.add_user_message(
+                    f"NOWY ETAP TERAPII:\n{self.stage_prompt}\n\nOd teraz pracuj zgodnie z tym etapem."
+                )
+                self.llm_provider.add_assistant_message(
+                    "Rozumiem. Pracuję zgodnie z wytycznymi tego etapu."
+                )
+                result = {
+                    "step": 2,
+                    "action": "set_stage_prompt",
+                    "success": True,
+                    "method": "conversation_memory",
+                }
             else:
-                result = {"step": 2, "action": "set_stage_prompt", "success": False, "method": "no_conversation_methods"}
+                result = {
+                    "step": 2,
+                    "action": "set_stage_prompt",
+                    "success": False,
+                    "method": "no_conversation_methods",
+                }
         else:
-            result = {"step": 2, "action": "set_stage_prompt", "success": False, "method": "no_memory_support"}
+            result = {
+                "step": 2,
+                "action": "set_stage_prompt",
+                "success": False,
+                "method": "no_memory_support",
+            }
 
         self.test_results["steps"].append(result)
 
@@ -130,7 +170,7 @@ class MemoryTestRunner:
                 "method": method,
                 "query": query,
                 "response": response,
-                "response_length": len(response)
+                "response_length": len(response),
             }
 
         except Exception as e:
@@ -139,7 +179,7 @@ class MemoryTestRunner:
                 "action": "initial_query",
                 "success": False,
                 "error": str(e),
-                "query": query
+                "query": query,
             }
 
         self.test_results["steps"].append(result)
@@ -166,7 +206,7 @@ class MemoryTestRunner:
                 "method": method,
                 "query": query,
                 "response": response,
-                "response_length": len(response)
+                "response_length": len(response),
             }
 
         except Exception as e:
@@ -175,7 +215,7 @@ class MemoryTestRunner:
                 "action": "followup_query",
                 "success": False,
                 "error": str(e),
-                "query": query
+                "query": query,
             }
 
         self.test_results["steps"].append(result)
@@ -187,47 +227,38 @@ class MemoryTestRunner:
 
         memory_info = {}
 
-        if hasattr(self.llm_provider, 'conversation_messages'):
+        if hasattr(self.llm_provider, "conversation_messages"):
             memory_info["conversation_messages"] = len(self.llm_provider.conversation_messages)
             memory_info["memory_type"] = "conversation_messages"
 
-        elif hasattr(self.llm_provider, 'chat_session'):
+        elif hasattr(self.llm_provider, "chat_session"):
             try:
                 history = self.llm_provider.chat_session.history
                 memory_info["history_entries"] = len(history)
                 memory_info["memory_type"] = "chat_session"
-            except:
+            except Exception:
                 memory_info["history_entries"] = 0
                 memory_info["memory_type"] = "chat_session_error"
 
         else:
             memory_info["memory_type"] = "none"
 
-        result = {
-            "step": 5,
-            "action": "memory_check",
-            "success": True,
-            "memory_info": memory_info
-        }
+        result = {"step": 5, "action": "memory_check", "success": True, "memory_info": memory_info}
 
         self.test_results["steps"].append(result)
 
     def _send_memory_query(self, query: str) -> str:
         """Send query using memory-capable provider."""
-        if hasattr(self.llm_provider, 'add_user_message'):
+        if hasattr(self.llm_provider, "add_user_message"):
             self.llm_provider.add_user_message(query)
 
-        if hasattr(self.llm_provider, 'generate_response'):
+        if hasattr(self.llm_provider, "generate_response"):
             return self.llm_provider.generate_response(
-                query,
-                temperature=self.temperature,
-                max_tokens=self.max_tokens
+                query, temperature=self.temperature, max_tokens=self.max_tokens
             )
-        elif hasattr(self.llm_provider, 'get_response'):
+        elif hasattr(self.llm_provider, "get_response"):
             return self.llm_provider.get_response(
-                query,
-                temperature=self.temperature,
-                max_tokens=self.max_tokens
+                query, temperature=self.temperature, max_tokens=self.max_tokens
             )
         else:
             raise ValueError("Provider doesn't have response generation method")
@@ -237,17 +268,13 @@ class MemoryTestRunner:
         # Build full prompt with context
         full_prompt = f"{self.system_prompt}\n\nEtap terapii:\n{self.stage_prompt}\n\nUżytkownik: {query}\nTerapeuta:"
 
-        if hasattr(self.llm_provider, 'generate_response'):
+        if hasattr(self.llm_provider, "generate_response"):
             return self.llm_provider.generate_response(
-                full_prompt,
-                temperature=self.temperature,
-                max_tokens=self.max_tokens
+                full_prompt, temperature=self.temperature, max_tokens=self.max_tokens
             )
-        elif hasattr(self.llm_provider, 'get_response'):
+        elif hasattr(self.llm_provider, "get_response"):
             return self.llm_provider.get_response(
-                full_prompt,
-                temperature=self.temperature,
-                max_tokens=self.max_tokens
+                full_prompt, temperature=self.temperature, max_tokens=self.max_tokens
             )
         else:
             raise ValueError("Provider doesn't have response generation method")
@@ -260,7 +287,9 @@ class MemoryTestRunner:
         ).total_seconds()
 
         # Calculate success rate
-        successful_steps = sum(1 for step in self.test_results["steps"] if step.get("success", False))
+        successful_steps = sum(
+            1 for step in self.test_results["steps"] if step.get("success", False)
+        )
         self.test_results["success_rate"] = successful_steps / len(self.test_results["steps"])
 
         self.status_text.text("✅ Test zakończony pomyślnie!")
@@ -272,5 +301,5 @@ class MemoryTestRunner:
             "model": self.model,
             "timestamp": datetime.now().isoformat(),
             "error": error_message,
-            "success": False
+            "success": False,
         }

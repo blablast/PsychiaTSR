@@ -27,6 +27,7 @@ class ConfigAdapter(IConfiguration):
         if self._config is None:
             # Import here to avoid circular dependency
             from config import Config
+
             self._config = Config.get_instance()
         return self._config
 
@@ -69,15 +70,15 @@ class ConfigAdapter(IConfiguration):
             return {
                 "model": config.THERAPIST_MODEL,
                 "provider": config.THERAPIST_PROVIDER,
-                "temperature": getattr(config, 'THERAPIST_TEMPERATURE', 0.7),
-                "max_tokens": getattr(config, 'THERAPIST_MAX_TOKENS', 150)
+                "temperature": getattr(config, "THERAPIST_TEMPERATURE", 0.7),
+                "max_tokens": getattr(config, "THERAPIST_MAX_TOKENS", 150),
             }
         elif agent_type.lower() == "supervisor":
             return {
                 "model": config.SUPERVISOR_MODEL,
                 "provider": config.SUPERVISOR_PROVIDER,
-                "temperature": getattr(config, 'SUPERVISOR_TEMPERATURE', 0.3),
-                "max_tokens": getattr(config, 'SUPERVISOR_MAX_TOKENS', 100)
+                "temperature": getattr(config, "SUPERVISOR_TEMPERATURE", 0.3),
+                "max_tokens": getattr(config, "SUPERVISOR_MAX_TOKENS", 100),
             }
         else:
             raise ValueError(f"Unknown agent type: {agent_type}")
@@ -99,13 +100,13 @@ class ConfigAdapter(IConfiguration):
         if provider_name.lower() == "openai":
             return {
                 "api_key": config.OPENAI_API_KEY,
-                "base_url": getattr(config, 'OPENAI_BASE_URL', 'https://api.openai.com/v1'),
-                "organization": getattr(config, 'OPENAI_ORGANIZATION', None)
+                "base_url": getattr(config, "OPENAI_BASE_URL", "https://api.openai.com/v1"),
+                "organization": getattr(config, "OPENAI_ORGANIZATION", None),
             }
         elif provider_name.lower() == "gemini":
             return {
                 "api_key": config.GEMINI_API_KEY,
-                "base_url": getattr(config, 'GEMINI_BASE_URL', None)
+                "base_url": getattr(config, "GEMINI_BASE_URL", None),
             }
         else:
             raise ValueError(f"Unknown LLM provider: {provider_name}")
@@ -122,10 +123,7 @@ class ConfigAdapter(IConfiguration):
         config = self._get_config()
 
         # Map service names to config attributes
-        key_mapping = {
-            "openai": "OPENAI_API_KEY",
-            "gemini": "GEMINI_API_KEY"
-        }
+        key_mapping = {"openai": "OPENAI_API_KEY", "gemini": "GEMINI_API_KEY"}
 
         attr_name = key_mapping.get(service_name.lower())
         if attr_name:
@@ -142,10 +140,10 @@ class ConfigAdapter(IConfiguration):
         config = self._get_config()
 
         return {
-            "title": getattr(config, 'APP_TITLE', 'PsychiaTSR'),
-            "language": getattr(config, 'APP_LANGUAGE', 'pl'),
-            "theme": getattr(config, 'APP_THEME', 'light'),
-            "debug": getattr(config, 'DEBUG', False)
+            "title": getattr(config, "APP_TITLE", "PsychiaTSR"),
+            "language": getattr(config, "APP_LANGUAGE", "pl"),
+            "theme": getattr(config, "APP_THEME", "light"),
+            "debug": getattr(config, "DEBUG", False),
         }
 
     def get_directory_paths(self) -> Dict[str, str]:
@@ -158,7 +156,7 @@ class ConfigAdapter(IConfiguration):
             "logs": self.LOGS_DIR,
             "prompts": self.PROMPTS_DIR,
             "stages": self.STAGES_DIR,
-            "config": self.CONFIG_DIR
+            "config": self.CONFIG_DIR,
         }
 
     def reload(self) -> bool:

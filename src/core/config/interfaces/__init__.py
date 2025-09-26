@@ -4,12 +4,12 @@ from .provider_interfaces import (
     ICredentialsProvider,
     IProviderConfigurationBuilder,
     IProviderValidator,
-    IProviderDiscovery
+    IProviderDiscovery,
 )
 
 __all__ = [
-    'ICredentialsProvider',
-    'IProviderConfigurationBuilder',
-    'IProviderValidator',
-    'IProviderDiscovery'
+    "ICredentialsProvider",
+    "IProviderConfigurationBuilder",
+    "IProviderValidator",
+    "IProviderDiscovery",
 ]

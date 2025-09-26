@@ -4,10 +4,15 @@ from typing import Protocol, runtime_checkable, List
 from ..domain.prompt_template import PromptTemplate
 from ..domain.prompt_section import PromptSection
 from .section_queries import (
-    GetPromptSectionsQuery, GetSectionByIdQuery, GetPromptTemplateQuery,
-    SearchSectionsQuery, GetPromptStatisticsQuery,
-    SectionsQueryResult, SectionQueryResult, PromptTemplateQueryResult,
-    StatisticsQueryResult
+    GetPromptSectionsQuery,
+    GetSectionByIdQuery,
+    GetPromptTemplateQuery,
+    SearchSectionsQuery,
+    GetPromptStatisticsQuery,
+    SectionsQueryResult,
+    SectionQueryResult,
+    PromptTemplateQueryResult,
+    StatisticsQueryResult,
 )
 
 
@@ -19,7 +24,9 @@ class PromptQueryRepository(Protocol):
         """Get prompt template by ID."""
         ...
 
-    def search_templates(self, agent_type: str = None, prompt_type: str = None, stage_id: str = None) -> List[PromptTemplate]:
+    def search_templates(
+        self, agent_type: str = None, prompt_type: str = None, stage_id: str = None
+    ) -> List[PromptTemplate]:
         """Search templates by criteria."""
         ...
 
@@ -66,15 +73,16 @@ class PromptQueryHandler:
                         section_type=s.section_type,
                         metadata=None,
                         created_at=s.created_at,
-                        updated_at=s.updated_at
-                    ) for s in sections
+                        updated_at=s.updated_at,
+                    )
+                    for s in sections
                 ]
 
             return SectionsQueryResult(
                 success=True,
                 message="Sections retrieved successfully",
                 sections=sections,
-                total_count=len(sections)
+                total_count=len(sections),
             )
 
         except Exception as e:
@@ -83,7 +91,7 @@ class PromptQueryHandler:
                 message="Failed to retrieve sections",
                 error=str(e),
                 sections=[],
-                total_count=0
+                total_count=0,
             )
 
     def handle_get_section_by_id(self, query: GetSectionByIdQuery) -> SectionQueryResult:
@@ -101,27 +109,20 @@ class PromptQueryHandler:
             section = template.get_section(query.section_id)
 
             if not section:
-                return SectionQueryResult(
-                    success=False,
-                    message="Section not found",
-                    section=None
-                )
+                return SectionQueryResult(success=False, message="Section not found", section=None)
 
             return SectionQueryResult(
-                success=True,
-                message="Section retrieved successfully",
-                section=section
+                success=True, message="Section retrieved successfully", section=section
             )
 
         except Exception as e:
             return SectionQueryResult(
-                success=False,
-                message="Failed to retrieve section",
-                error=str(e),
-                section=None
+                success=False, message="Failed to retrieve section", error=str(e), section=None
             )
 
-    def handle_get_prompt_template(self, query: GetPromptTemplateQuery) -> PromptTemplateQueryResult:
+    def handle_get_prompt_template(
+        self, query: GetPromptTemplateQuery
+    ) -> PromptTemplateQueryResult:
         """
         Handle get prompt template query.
 
@@ -144,21 +145,16 @@ class PromptQueryHandler:
                     sections=[],
                     metadata=template.metadata if query.include_metadata else {},
                     created_at=template.created_at,
-                    updated_at=template.updated_at
+                    updated_at=template.updated_at,
                 )
 
             return PromptTemplateQueryResult(
-                success=True,
-                message="Template retrieved successfully",
-                template=template
+                success=True, message="Template retrieved successfully", template=template
             )
 
         except Exception as e:
             return PromptTemplateQueryResult(
-                success=False,
-                message="Failed to retrieve template",
-                error=str(e),
-                template=None
+                success=False, message="Failed to retrieve template", error=str(e), template=None
             )
 
     def handle_search_sections(self, query: SearchSectionsQuery) -> SectionsQueryResult:
@@ -179,9 +175,7 @@ class PromptQueryHandler:
             else:
                 # Search across all templates matching criteria
                 templates = self._repository.search_templates(
-                    query.agent_type,
-                    query.prompt_type,
-                    query.stage_id
+                    query.agent_type, query.prompt_type, query.stage_id
                 )
                 all_sections = []
                 for template in templates:
@@ -201,19 +195,17 @@ class PromptQueryHandler:
                 success=True,
                 message="Search completed successfully",
                 sections=filtered_sections,
-                total_count=total_count
+                total_count=total_count,
             )
 
         except Exception as e:
             return SectionsQueryResult(
-                success=False,
-                message="Search failed",
-                error=str(e),
-                sections=[],
-                total_count=0
+                success=False, message="Search failed", error=str(e), sections=[], total_count=0
             )
 
-    def handle_get_prompt_statistics(self, query: GetPromptStatisticsQuery) -> StatisticsQueryResult:
+    def handle_get_prompt_statistics(
+        self, query: GetPromptStatisticsQuery
+    ) -> StatisticsQueryResult:
         """
         Handle get prompt statistics query.
 
@@ -228,20 +220,17 @@ class PromptQueryHandler:
             statistics = template.get_statistics()
 
             return StatisticsQueryResult(
-                success=True,
-                message="Statistics retrieved successfully",
-                statistics=statistics
+                success=True, message="Statistics retrieved successfully", statistics=statistics
             )
 
         except Exception as e:
             return StatisticsQueryResult(
-                success=False,
-                message="Failed to retrieve statistics",
-                error=str(e),
-                statistics={}
+                success=False, message="Failed to retrieve statistics", error=str(e), statistics={}
             )
 
-    def _apply_search_filters(self, sections: List[PromptSection], query: SearchSectionsQuery) -> List[PromptSection]:
+    def _apply_search_filters(
+        self, sections: List[PromptSection], query: SearchSectionsQuery
+    ) -> List[PromptSection]:
         """Apply search filters to sections list."""
         filtered = sections
 
@@ -253,7 +242,8 @@ class PromptQueryHandler:
         if query.search_term:
             search_term_lower = query.search_term.lower()
             filtered = [
-                s for s in filtered
+                s
+                for s in filtered
                 if search_term_lower in s.title.lower() or search_term_lower in s.content.lower()
             ]
 

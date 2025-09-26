@@ -13,7 +13,9 @@ class WorkflowFactory:
     """Factory for creating complete workflow orchestration system."""
 
     @staticmethod
-    def create_streamlit_orchestrator(agent_provider, prompt_manager, session_manager, conversation_manager, logger):
+    def create_streamlit_orchestrator(
+        agent_provider, prompt_manager, session_manager, conversation_manager, logger
+    ):
         """
         Create workflow orchestrator with Streamlit UI dependencies.
 
@@ -32,21 +34,18 @@ class WorkflowFactory:
 
         # Create crisis handler
         crisis_handler = CrisisHandler(
-            session_manager=session_manager,
-            ui_notifier=ui_notifier,
-            logger=logger
+            session_manager=session_manager, ui_notifier=ui_notifier, logger=logger
         )
 
         # Create session orchestration components
         stage_progression_handler = StageProgressionHandler(
-            session_manager=session_manager,
-            logger=logger
+            session_manager=session_manager, logger=logger
         )
 
         session_orchestrator = SessionOrchestrator(
             session_manager=session_manager,
             stage_progression_handler=stage_progression_handler,
-            logger=logger
+            logger=logger,
         )
 
         # Create strategy factory with direct parameters
@@ -55,7 +54,7 @@ class WorkflowFactory:
             prompt_manager=prompt_manager,
             session_manager=session_manager,
             conversation_manager=conversation_manager,
-            logger=logger
+            logger=logger,
         )
 
         # Create main orchestrator
@@ -63,11 +62,13 @@ class WorkflowFactory:
             strategy_factory=strategy_factory,
             crisis_handler=crisis_handler,
             session_orchestrator=session_orchestrator,
-            logger=logger
+            logger=logger,
         )
 
     @staticmethod
-    def create_test_orchestrator(agent_provider, prompt_manager, session_manager, conversation_manager, logger):
+    def create_test_orchestrator(
+        agent_provider, prompt_manager, session_manager, conversation_manager, logger
+    ):
         """
         Create workflow orchestrator for testing (no UI dependencies).
 
@@ -86,21 +87,18 @@ class WorkflowFactory:
 
         # Create crisis handler
         crisis_handler = CrisisHandler(
-            session_manager=session_manager,
-            ui_notifier=ui_notifier,
-            logger=logger
+            session_manager=session_manager, ui_notifier=ui_notifier, logger=logger
         )
 
         # Create session orchestration components
         stage_progression_handler = StageProgressionHandler(
-            session_manager=session_manager,
-            logger=logger
+            session_manager=session_manager, logger=logger
         )
 
         session_orchestrator = SessionOrchestrator(
             session_manager=session_manager,
             stage_progression_handler=stage_progression_handler,
-            logger=logger
+            logger=logger,
         )
 
         # Create strategy factory with direct parameters
@@ -109,7 +107,7 @@ class WorkflowFactory:
             prompt_manager=prompt_manager,
             session_manager=session_manager,
             conversation_manager=conversation_manager,
-            logger=logger
+            logger=logger,
         )
 
         # Create main orchestrator
@@ -117,5 +115,5 @@ class WorkflowFactory:
             strategy_factory=strategy_factory,
             crisis_handler=crisis_handler,
             session_orchestrator=session_orchestrator,
-            logger=logger
+            logger=logger,
         )

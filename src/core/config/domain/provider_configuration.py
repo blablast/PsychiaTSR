@@ -7,6 +7,7 @@ from enum import Enum
 
 class ProviderType(Enum):
     """Supported LLM provider types."""
+
     OPENAI = "openai"
     GEMINI = "gemini"
     ANTHROPIC = "anthropic"
@@ -16,6 +17,7 @@ class ProviderType(Enum):
 @dataclass(frozen=True)
 class ProviderCredentials:
     """Immutable credentials for LLM provider."""
+
     provider: ProviderType
     api_key: str
 
@@ -27,6 +29,7 @@ class ProviderCredentials:
 @dataclass(frozen=True)
 class LLMParameters:
     """Immutable LLM generation parameters."""
+
     temperature: float = 0.7
     max_tokens: int = 150
     top_p: float = 0.9
@@ -44,6 +47,7 @@ class LLMParameters:
 @dataclass(frozen=True)
 class ProviderConfiguration:
     """Complete immutable configuration for an LLM provider."""
+
     provider: ProviderType
     model: str
     credentials: ProviderCredentials
@@ -56,13 +60,14 @@ class ProviderConfiguration:
             "model": self.model,
             "temperature": self.parameters.temperature,
             "max_tokens": self.parameters.max_tokens,
-            "top_p": self.parameters.top_p
+            "top_p": self.parameters.top_p,
         }
 
 
 @dataclass(frozen=True)
 class AgentProviderMapping:
     """Immutable mapping of agent to provider configuration."""
+
     agent_type: str
     provider_config: ProviderConfiguration
 

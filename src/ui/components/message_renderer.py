@@ -15,7 +15,7 @@ class MessageRenderer:
         Args:
             message: Message object with role, text, timestamp, etc.
         """
-        is_pending = getattr(message, 'is_pending', False)
+        is_pending = getattr(message, "is_pending", False)
         avatar = "💚" if message.role == "therapist" else None
 
         with st.chat_message(message.role, avatar=avatar):
@@ -34,21 +34,24 @@ class MessageRenderer:
             st.write(content)
 
         with col_audio:
-            if (message.role == "therapist" and
-                hasattr(message, 'audio_file_path') and
-                message.audio_file_path):
+            if (
+                message.role == "therapist"
+                and hasattr(message, "audio_file_path")
+                and message.audio_file_path
+            ):
                 MessageRenderer._render_audio_button(message)
 
     @staticmethod
     def _render_audio_button(message: Any) -> None:
         """Render audio play button for therapist messages."""
         from src.ui.chat import _render_audio_play_button
+
         _render_audio_play_button(message)
 
     @staticmethod
     def _render_message_metadata(message: Any) -> None:
         """Render timestamp and response times for message."""
-        if not hasattr(message, 'timestamp'):
+        if not hasattr(message, "timestamp"):
             return
         caption_parts = [f"🕒 {format_timestamp(message.timestamp)}"]
 
@@ -65,6 +68,7 @@ class MessageRenderer:
     def _get_response_times(message: Any) -> Optional[Dict[str, Any]]:
         """Get response times for a message."""
         from src.ui.chat import _get_response_times_for_message
+
         return _get_response_times_for_message(message)
 
     @staticmethod
@@ -73,9 +77,9 @@ class MessageRenderer:
         if not response_times:
             return None
 
-        sup_time = response_times.get('supervisor_time_ms', 0)
-        ther_time = response_times.get('therapist_time_ms', 0)
-        first_chunk_time = response_times.get('first_chunk_time_ms')
+        sup_time = response_times.get("supervisor_time_ms", 0)
+        ther_time = response_times.get("therapist_time_ms", 0)
+        first_chunk_time = response_times.get("first_chunk_time_ms")
 
         if sup_time <= 0 and ther_time <= 0:
             return None

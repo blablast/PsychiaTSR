@@ -18,7 +18,9 @@ class PromptService:
         """Get stage-specific prompt for agent."""
         return self._prompt_manager.get_stage_prompt(stage_id, agent_type)
 
-    def build_supervisor_prompt(self, stage_id: str, conversation_context: str, safety_context: str) -> str:
+    def build_supervisor_prompt(
+        self, stage_id: str, conversation_context: str, safety_context: str
+    ) -> str:
         """Build complete prompt for supervisor evaluation."""
         stage_prompt = self.get_stage_prompt(stage_id, "supervisor")
 

@@ -21,5 +21,5 @@ class StandardRenderer(BaseRenderer):
             self.content_renderer.render_expandable_content(
                 summary=parsed.header,
                 content=parsed.raw_data,  # Use raw_data to include header + content
-                expanded=False
+                expanded=False,
             )

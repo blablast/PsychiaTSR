@@ -5,6 +5,7 @@ from typing import Dict, Any, Optional, List
 @dataclass
 class SupervisorDecision:
     """Schema for supervisor decision output (TSR compliant)"""
+
     decision: str  # "stay" or "advance"
     summary: str  # 2-3 zdania neutralnego podsumowania etapu
     addressing: str  # "formal" or "informal"
@@ -26,37 +27,47 @@ class SupervisorDecision:
                 "decision": {
                     "type": "string",
                     "enum": ["stay", "advance"],
-                    "description": "Decyzja czy zostać w obecnym etapie (stay) czy przejść dalej (advance)"
+                    "description": (
+                        "Decyzja czy zostać w obecnym etapie (stay) czy przejść dalej (advance)"
+                    ),
                 },
                 "summary": {
                     "type": "string",
-                    "description": "2-3 zdania neutralnego podsumowania etapu w trzeciej osobie, bez zwrotów do klienta"
+                    "description": (
+                        "2-3 zdania neutralnego podsumowania etapu w trzeciej osobie, "
+                        "bez zwrotów do klienta"
+                    ),
                 },
                 "addressing": {
                     "type": "string",
                     "enum": ["formal", "informal"],
-                    "description": "Ustalona forma zwracania się (formal = Pan/Pani, informal = ty)"
+                    "description": (
+                        "Ustalona forma zwracania się (formal = Pan/Pani, informal = ty)"
+                    ),
                 },
                 "reason": {
                     "type": "string",
-                    "description": "Uzasadnienie decyzji nadzorcy w języku polskim (opcjonalne dla debugowania)"
+                    "description": (
+                        "Uzasadnienie decyzji nadzorcy w języku polskim "
+                        "(opcjonalne dla debugowania)"
+                    ),
                 },
                 "handoff": {
                     "type": "object",
                     "description": "Dodatkowe informacje przekazywane między etapami",
-                    "additionalProperties": True
+                    "additionalProperties": True,
                 },
                 "safety_risk": {
                     "type": "boolean",
-                    "description": "Czy wykryto ryzyko bezpieczeństwa"
+                    "description": "Czy wykryto ryzyko bezpieczeństwa",
                 },
                 "safety_message": {
                     "type": "string",
-                    "description": "Wiadomość dotycząca bezpieczeństwa (jeśli dotyczy)"
-                }
+                    "description": "Wiadomość dotycząca bezpieczeństwa (jeśli dotyczy)",
+                },
             },
             "required": ["decision", "summary", "addressing"],
-            "additionalProperties": False
+            "additionalProperties": False,
         }
 
     @staticmethod
@@ -67,8 +78,8 @@ class SupervisorDecision:
             "json_schema": {
                 "name": "supervisor_decision",
                 "schema": SupervisorDecision.get_json_schema(),
-                "strict": True
-            }
+                "strict": True,
+            },
         }
 
     @staticmethod
@@ -80,20 +91,30 @@ class SupervisorDecision:
                 "decision": {
                     "type": "string",
                     "enum": ["stay", "advance"],
-                    "description": "Decyzja czy zostać w obecnym etapie (stay) czy przejść dalej (advance)"
+                    "description": (
+                        "Decyzja czy zostać w obecnym etapie (stay) czy przejść dalej (advance)"
+                    ),
                 },
                 "summary": {
                     "type": "string",
-                    "description": "2-3 zdania neutralnego podsumowania etapu w trzeciej osobie, bez zwrotów do klienta"
+                    "description": (
+                        "2-3 zdania neutralnego podsumowania etapu w trzeciej osobie, "
+                        "bez zwrotów do klienta"
+                    ),
                 },
                 "addressing": {
                     "type": "string",
                     "enum": ["formal", "informal"],
-                    "description": "Ustalona forma zwracania się (formal = Pan/Pani, informal = ty)"
+                    "description": (
+                        "Ustalona forma zwracania się (formal = Pan/Pani, informal = ty)"
+                    ),
                 },
                 "reason": {
                     "type": "string",
-                    "description": "Uzasadnienie decyzji nadzorcy w języku polskim (opcjonalne dla debugowania)"
+                    "description": (
+                        "Uzasadnienie decyzji nadzorcy w języku polskim "
+                        "(opcjonalne dla debugowania)"
+                    ),
                 },
                 "handoff": {
                     "type": "object",
@@ -101,42 +122,43 @@ class SupervisorDecision:
                     "properties": {
                         "stage_progress": {
                             "type": "string",
-                            "description": "Informacja o postępie w aktualnym etapie"
+                            "description": "Informacja o postępie w aktualnym etapie",
                         },
                         "key_insights": {
                             "type": "string",
-                            "description": "Kluczowe spostrzeżenia z rozmowy"
+                            "description": "Kluczowe spostrzeżenia z rozmowy",
                         },
                         "next_focus": {
                             "type": "string",
-                            "description": "Na czym skupić się w następnym etapie"
+                            "description": "Na czym skupić się w następnym etapie",
                         },
                         "error": {
                             "type": "string",
-                            "description": "Informacja o błędzie (jeśli wystąpił)"
+                            "description": "Informacja o błędzie (jeśli wystąpił)",
                         },
                         "error_type": {
                             "type": "string",
-                            "description": "Typ błędu (jeśli wystąpił)"
-                        }
-                    }
+                            "description": "Typ błędu (jeśli wystąpił)",
+                        },
+                    },
                 },
                 "safety_risk": {
                     "type": "boolean",
-                    "description": "Czy wykryto ryzyko bezpieczeństwa"
+                    "description": "Czy wykryto ryzyko bezpieczeństwa",
                 },
                 "safety_message": {
                     "type": "string",
-                    "description": "Wiadomość dotycząca bezpieczeństwa (jeśli dotyczy)"
-                }
+                    "description": "Wiadomość dotycząca bezpieczeństwa (jeśli dotyczy)",
+                },
             },
-            "required": ["decision", "summary", "addressing"]
+            "required": ["decision", "summary", "addressing"],
         }
 
 
 @dataclass
 class MessageData:
     """Schema for chat messages"""
+
     role: str  # "user", "therapist", "supervisor"
     text: str
     timestamp: str
@@ -150,6 +172,7 @@ class MessageData:
 @dataclass
 class SessionData:
     """Schema for session data"""
+
     session_id: str
     user_id: Optional[str]
     created_at: str
@@ -163,5 +186,3 @@ class SessionData:
     def __post_init__(self):
         if self.audio_files is None:
             self.audio_files = {}
-
-

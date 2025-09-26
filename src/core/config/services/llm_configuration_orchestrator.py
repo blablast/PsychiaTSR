@@ -5,7 +5,7 @@ from ..interfaces import (
     ICredentialsProvider,
     IProviderConfigurationBuilder,
     IProviderValidator,
-    IProviderDiscovery
+    IProviderDiscovery,
 )
 from ..domain import ProviderConfiguration, AgentProviderMapping
 
@@ -13,11 +13,13 @@ from ..domain import ProviderConfiguration, AgentProviderMapping
 class LLMConfigurationOrchestrator:
     """Orchestrator that coordinates LLM configuration services."""
 
-    def __init__(self,
-                 credentials_provider: ICredentialsProvider,
-                 configuration_builder: IProviderConfigurationBuilder,
-                 validator: IProviderValidator,
-                 discovery: IProviderDiscovery):
+    def __init__(
+        self,
+        credentials_provider: ICredentialsProvider,
+        configuration_builder: IProviderConfigurationBuilder,
+        validator: IProviderValidator,
+        discovery: IProviderDiscovery,
+    ):
         """Initialize with service dependencies."""
         self._credentials = credentials_provider
         self._builder = configuration_builder
@@ -40,11 +42,13 @@ class LLMConfigurationOrchestrator:
                 provider=base_config.provider,
                 model=base_config.model,
                 credentials=credentials,
-                parameters=base_config.parameters
+                parameters=base_config.parameters,
             )
 
             # Validate the configuration
-            return complete_config if self._validator.validate_configuration(complete_config) else None
+            return (
+                complete_config if self._validator.validate_configuration(complete_config) else None
+            )
 
         except Exception:
             return None
@@ -54,15 +58,9 @@ class LLMConfigurationOrchestrator:
         config = self.get_agent_configuration(agent_type)
         return self._builder.build_agent_mapping(agent_type, config) if config else None
 
-
     def validate_agent_setup(self, agent_type: str) -> Dict[str, Any]:
         """Validate complete agent setup and return detailed status."""
-        result = {
-            "valid": False,
-            "agent_type": agent_type,
-            "errors": [],
-            "warnings": []
-        }
+        result = {"valid": False, "agent_type": agent_type, "errors": [], "warnings": []}
 
         try:
             config = self.get_agent_configuration(agent_type)
@@ -79,7 +77,9 @@ class LLMConfigurationOrchestrator:
 
             # Agent-specific validation
             if not self._validator.validate_agent_configuration(agent_type, config):
-                result["warnings"].append(f"Configuration may not be optimal for agent {agent_type}")
+                result["warnings"].append(
+                    f"Configuration may not be optimal for agent {agent_type}"
+                )
 
             result["valid"] = True
             result["provider"] = config.provider.value
@@ -107,7 +107,7 @@ class LLMConfigurationOrchestrator:
             "system_healthy": all_agents_valid and provider_status["available_count"] > 0,
             "provider_status": provider_status,
             "agent_configurations": agent_statuses,
-            "recommendations": self._generate_recommendations(provider_status, agent_statuses)
+            "recommendations": self._generate_recommendations(provider_status, agent_statuses),
         }
 
     @staticmethod

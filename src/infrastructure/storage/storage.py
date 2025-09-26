@@ -7,7 +7,7 @@ from pathlib import Path
 
 class StorageProvider:
     """JSON-based storage provider for sessions and logs"""
-    
+
     def __init__(self, logs_dir: str = "./logs"):
         self.logs_dir = Path(logs_dir)
         # Remove old data_dir and sessions_dir - everything goes in logs/ now
@@ -24,7 +24,7 @@ class StorageProvider:
         try:
             template_path = Path("config/templates/defaults/session_template.json")
             if template_path.exists():
-                with open(template_path, 'r', encoding='utf-8') as f:
+                with open(template_path, "r", encoding="utf-8") as f:
                     return json.load(f)
         except Exception:
             pass
@@ -38,13 +38,9 @@ class StorageProvider:
             "messages": [],
             "supervisor_outputs": [],
             "prompts_used": {},
-            "metadata": {
-                "safety_flags": [],
-                "notes": [],
-                "models_used": {}
-            }
+            "metadata": {"safety_flags": [], "notes": [], "models_used": {}},
         }
-    
+
     def create_session(self, user_id: Optional[str] = None) -> str:
         """Create a new session and return session ID"""
         session_id = str(uuid.uuid4())
@@ -59,44 +55,51 @@ class StorageProvider:
         session_dir = self.logs_dir / session_id
         session_dir.mkdir(parents=True, exist_ok=True)
         session_file = session_dir / "session.json"
-        with open(session_file, 'w', encoding='utf-8') as f:
+        with open(session_file, "w", encoding="utf-8") as f:
             json.dump(session_data, f, ensure_ascii=False, indent=2)
-        
+
         return session_id
-    
+
     def load_session(self, session_id: str) -> Optional[Dict[str, Any]]:
         """Load session data by ID"""
         # Load from logs/{session_id}/session.json
         session_file = self.logs_dir / session_id / "session.json"
-        
+
         if not session_file.exists():
             return None
-        
+
         try:
-            with open(session_file, 'r', encoding='utf-8') as f:
+            with open(session_file, "r", encoding="utf-8") as f:
                 return json.load(f)
         except (json.JSONDecodeError, IOError):
             return None
-    
+
     def save_session(self, session_data: Dict[str, Any]) -> bool:
         """Save session data"""
         session_id = session_data.get("session_id")
         if not session_id:
             return False
-        
+
         # Save to logs/{session_id}/session.json
         session_dir = self.logs_dir / session_id
         session_dir.mkdir(parents=True, exist_ok=True)
         session_file = session_dir / "session.json"
-        
+
         try:
-            with open(session_file, 'w', encoding='utf-8') as f:
+            with open(session_file, "w", encoding="utf-8") as f:
                 json.dump(session_data, f, ensure_ascii=False, indent=2)
             return True
         except IOError:
             return False
-    
-    def append_message(self, session_id: str, role: str, text: str, prompt_used: str = "", audio_file_path: str = None) -> str:
+
+    def append_message(
+        self,
+        session_id: str,
+        role: str,
+        text: str,
+        prompt_used: str = "",
+        audio_file_path: str = None,
+    ) -> str:
         """Append a message to session and return message ID"""
         session_data = self.load_session(session_id)
         if not session_data:
@@ -104,6 +107,7 @@ class StorageProvider:
 
         # Generate unique message ID using timestamp in milliseconds
         import time
+
         message_id = str(int(time.time() * 1000))
 
         message = {
@@ -111,7 +115,7 @@ class StorageProvider:
             "role": role,
             "text": text,
             "timestamp": datetime.now().isoformat(),
-            "prompt_used": prompt_used
+            "prompt_used": prompt_used,
         }
 
         # Add audio file path if provided
@@ -126,57 +130,61 @@ class StorageProvider:
 
         # Add to audio_files mapping if audio provided
         if audio_file_path:
-            session_data["audio_files"][message_id] = audio_file_path.split('/')[-1]  # Just filename
+            session_data["audio_files"][message_id] = audio_file_path.split("/")[
+                -1
+            ]  # Just filename
 
         success = self.save_session(session_data)
         return message_id if success else ""
-    
+
     def save_supervisor(self, session_id: str, output: Dict[str, Any]) -> bool:
         """Save supervisor output to session"""
         session_data = self.load_session(session_id)
         if not session_data:
             return False
-        
-        supervisor_entry = {
-            "timestamp": datetime.now().isoformat(),
-            "output": output
-        }
-        
+
+        supervisor_entry = {"timestamp": datetime.now().isoformat(), "output": output}
+
         session_data["supervisor_outputs"].append(supervisor_entry)
         return self.save_session(session_data)
-    
+
     def update_stage(self, session_id: str, stage: str) -> bool:
         """Update current stage in session"""
         session_data = self.load_session(session_id)
         if not session_data:
             return False
-        
+
         session_data["current_stage"] = stage
         return self.save_session(session_data)
-    
+
     def update_prompt_used(self, session_id: str, stage: str, prompt_id: str) -> bool:
         """Update prompt used for a stage"""
         session_data = self.load_session(session_id)
         if not session_data:
             return False
-        
+
         session_data["prompts_used"][stage] = prompt_id
         return self.save_session(session_data)
-    
+
     def add_safety_flag(self, session_id: str, flag: str) -> bool:
         """Add safety flag to session metadata"""
         session_data = self.load_session(session_id)
         if not session_data:
             return False
-        
-        session_data["metadata"]["safety_flags"].append({
-            "flag": flag,
-            "timestamp": datetime.now().isoformat()
-        })
+
+        session_data["metadata"]["safety_flags"].append(
+            {"flag": flag, "timestamp": datetime.now().isoformat()}
+        )
         return self.save_session(session_data)
 
-    def update_session_models(self, session_id: str, therapist_model: str, supervisor_model: str,
-                             therapist_provider: str = "openai", supervisor_provider: str = "gemini") -> bool:
+    def update_session_models(
+        self,
+        session_id: str,
+        therapist_model: str,
+        supervisor_model: str,
+        therapist_provider: str = "openai",
+        supervisor_provider: str = "gemini",
+    ) -> bool:
         """Update session with current model information"""
         session_data = self.load_session(session_id)
         if not session_data:
@@ -186,54 +194,55 @@ class StorageProvider:
             "therapist": {
                 "model": therapist_model,
                 "provider": therapist_provider,
-                "updated_at": datetime.now().isoformat()
+                "updated_at": datetime.now().isoformat(),
             },
             "supervisor": {
                 "model": supervisor_model,
                 "provider": supervisor_provider,
-                "updated_at": datetime.now().isoformat()
-            }
+                "updated_at": datetime.now().isoformat(),
+            },
         }
         return self.save_session(session_data)
-    
-    
+
     def list_sessions(self) -> List[str]:
         """List all available session IDs"""
         # List all session directories in logs/
-        session_dirs = [d for d in self.logs_dir.iterdir() if d.is_dir() and (d / "session.json").exists()]
+        session_dirs = [
+            d for d in self.logs_dir.iterdir() if d.is_dir() and (d / "session.json").exists()
+        ]
         return [d.name for d in session_dirs]
-    
+
     @staticmethod
     def save_prompt(stage: str, prompt_text: str, review: str = "") -> str:
         """Save a new prompt version for a stage"""
         prompt_dir = Path("./prompts")
         prompt_dir.mkdir(exist_ok=True)
-        
+
         prompt_file = prompt_dir / f"{stage}.json"
-        
+
         prompt_id = f"p{int(datetime.now().timestamp())}"
         new_prompt = {
             "id": prompt_id,
             "prompt_text": prompt_text,
             "created_at": datetime.now().isoformat(),
             "review": review,
-            "active": True
+            "active": True,
         }
-        
+
         if prompt_file.exists():
-            with open(prompt_file, 'r', encoding='utf-8') as f:
+            with open(prompt_file, "r", encoding="utf-8") as f:
                 prompts = json.load(f)
-            
+
             for prompt in prompts:
                 prompt["active"] = False
         else:
             prompts = []
-        
+
         prompts.append(new_prompt)
-        
-        with open(prompt_file, 'w', encoding='utf-8') as f:
+
+        with open(prompt_file, "w", encoding="utf-8") as f:
             json.dump(prompts, f, ensure_ascii=False, indent=2)
-        
+
         return prompt_id
 
     def add_technical_log(self, session_id: str, log_entry: Dict[str, Any]) -> bool:
@@ -252,7 +261,9 @@ class StorageProvider:
         # Save updated session
         return self.save_session(session_data)
 
-    def update_audio_config(self, session_id: str, audio_enabled: bool, tts_config: Optional[Dict[str, Any]] = None) -> bool:
+    def update_audio_config(
+        self, session_id: str, audio_enabled: bool, tts_config: Optional[Dict[str, Any]] = None
+    ) -> bool:
         """Update session with current audio configuration"""
         session_data = self.load_session(session_id)
         if not session_data:
@@ -311,7 +322,7 @@ class StorageProvider:
             file_path = audio_dir / filename
 
             # Save audio data
-            with open(file_path, 'wb') as f:
+            with open(file_path, "wb") as f:
                 f.write(audio_data)
 
             # Return relative path for portability
@@ -339,7 +350,7 @@ class StorageProvider:
             session_dir.mkdir(parents=True, exist_ok=True)
 
             log_file = session_dir / "session.json"
-            with open(log_file, 'w', encoding='utf-8') as f:
+            with open(log_file, "w", encoding="utf-8") as f:
                 json.dump(session_data, f, ensure_ascii=False, indent=2)
 
             return True

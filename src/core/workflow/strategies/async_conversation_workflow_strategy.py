@@ -24,7 +24,9 @@ class AsyncConversationWorkflowStrategy:
         self._supervisor_adapter = AsyncSupervisorAdapter(agent_provider, prompt_manager, logger)
         self._therapist_adapter = AsyncTherapistAdapter(agent_provider, prompt_manager, logger)
 
-    async def process_user_message_async(self, user_message: str, current_stage: str) -> WorkflowResult:
+    async def process_user_message_async(
+        self, user_message: str, current_stage: str
+    ) -> WorkflowResult:
         """
         Process user message asynchronously through the full conversation workflow.
 
@@ -36,7 +38,9 @@ class AsyncConversationWorkflowStrategy:
         """
         try:
             if self._logger:
-                self._logger.log_info(f"Starting async conversation workflow for stage: {current_stage}")
+                self._logger.log_info(
+                    f"Starting async conversation workflow for stage: {current_stage}"
+                )
 
             # Get conversation history
             conversation_history = self._conversation_manager.get_conversation_for_agents()
@@ -45,7 +49,7 @@ class AsyncConversationWorkflowStrategy:
             supervisor_result = await self._supervisor_adapter.evaluate_stage_async(
                 current_stage=current_stage,
                 user_message=user_message,
-                conversation_history=conversation_history
+                conversation_history=conversation_history,
             )
 
             if not supervisor_result.success:
@@ -53,16 +57,19 @@ class AsyncConversationWorkflowStrategy:
 
             decision = supervisor_result.data.get("decision")
             if self._logger:
-                self._logger.log_info(f"Async supervisor evaluation completed", {
-                    "should_advance": decision.should_advance if decision else False,
-                    "confidence": decision.confidence_score if decision else 0.0
-                })
+                self._logger.log_info(
+                    f"Async supervisor evaluation completed",
+                    {
+                        "should_advance": decision.should_advance if decision else False,
+                        "confidence": decision.confidence_score if decision else 0.0,
+                    },
+                )
 
             # Step 2: Generate therapist response (async)
             therapist_result = await self._therapist_adapter.generate_response_async(
                 current_stage=current_stage,
                 user_message=user_message,
-                conversation_history=conversation_history
+                conversation_history=conversation_history,
             )
 
             if not therapist_result.success:
@@ -84,8 +91,8 @@ class AsyncConversationWorkflowStrategy:
                 data={
                     "response": response_text,
                     "supervisor_decision": decision.__dict__ if decision else None,
-                    "response_time_ms": response_data.get("response_time_ms", 0)
-                }
+                    "response_time_ms": response_data.get("response_time_ms", 0),
+                },
             )
 
         except Exception as e:
@@ -95,10 +102,12 @@ class AsyncConversationWorkflowStrategy:
             return WorkflowResult(
                 success=False,
                 message=f"Async conversation workflow failed: {str(e)}",
-                error="ASYNC_WORKFLOW_ERROR"
+                error="ASYNC_WORKFLOW_ERROR",
             )
 
-    async def process_user_message_streaming_async(self, user_message: str, current_stage: str) -> AsyncGenerator[str, None]:
+    async def process_user_message_streaming_async(
+        self, user_message: str, current_stage: str
+    ) -> AsyncGenerator[str, None]:
         """
         Process user message with streaming response asynchronously.
 
@@ -107,7 +116,9 @@ class AsyncConversationWorkflowStrategy:
         """
         try:
             if self._logger:
-                self._logger.log_info(f"Starting async streaming conversation workflow for stage: {current_stage}")
+                self._logger.log_info(
+                    f"Starting async streaming conversation workflow for stage: {current_stage}"
+                )
 
             # Get conversation history
             conversation_history = self._conversation_manager.get_conversation_for_agents()
@@ -116,7 +127,7 @@ class AsyncConversationWorkflowStrategy:
             supervisor_result = await self._supervisor_adapter.evaluate_stage_async(
                 current_stage=current_stage,
                 user_message=user_message,
-                conversation_history=conversation_history
+                conversation_history=conversation_history,
             )
 
             if not supervisor_result.success:
@@ -125,10 +136,13 @@ class AsyncConversationWorkflowStrategy:
 
             decision = supervisor_result.data.get("decision")
             if self._logger:
-                self._logger.log_info(f"Async supervisor evaluation completed", {
-                    "should_advance": decision.should_advance if decision else False,
-                    "confidence": decision.confidence_score if decision else 0.0
-                })
+                self._logger.log_info(
+                    f"Async supervisor evaluation completed",
+                    {
+                        "should_advance": decision.should_advance if decision else False,
+                        "confidence": decision.confidence_score if decision else 0.0,
+                    },
+                )
 
             # Step 2: Generate streaming therapist response (async)
             full_response = ""
@@ -137,7 +151,7 @@ class AsyncConversationWorkflowStrategy:
             async for chunk in self._therapist_adapter.generate_streaming_response_async(
                 current_stage=current_stage,
                 user_message=user_message,
-                conversation_history=conversation_history
+                conversation_history=conversation_history,
             ):
                 if isinstance(chunk, str):
                     full_response += chunk
@@ -152,7 +166,9 @@ class AsyncConversationWorkflowStrategy:
                 self._conversation_manager.commit_therapist_response(full_response)
 
                 if self._logger:
-                    self._logger.log_info("Async streaming conversation workflow completed successfully")
+                    self._logger.log_info(
+                        "Async streaming conversation workflow completed successfully"
+                    )
             else:
                 if self._logger:
                     self._logger.log_error("Async streaming workflow failed to complete properly")

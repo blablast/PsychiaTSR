@@ -34,12 +34,15 @@ def main():
     # Route to appropriate page
     if current_page == "conversation":
         from src.ui.pages.therapy import therapy_page
+
         therapy_page()
     elif current_page == "prompts":
         from src.ui.pages.prompts_unified import prompts_unified_page
+
         prompts_unified_page()
     elif current_page == "settings":
         from src.ui.pages.conversation_settings import display_conversation_settings
+
         display_conversation_settings()
     elif current_page == "reports":
         _display_reports_page()
@@ -48,45 +51,53 @@ def main():
     else:
         # Default to conversation
         from src.ui.pages.therapy import therapy_page
+
         therapy_page()
 
 
 def _display_reports_page():
     """Display reports and analytics page."""
     import streamlit as st
+
     st.title("📊 Raporty i Statystyki")
     st.info("🚧 Ta strona jest w trakcie rozwoju...")
-    st.markdown("""
+    st.markdown(
+        """
     ### Planowane funkcje:
     - 📈 Statystyki sesji terapeutycznych
     - 📋 Raporty z użycia modeli AI
     - 🔍 Analiza skuteczności terapii
     - 📊 Wykresy postępu pacjentów
-    """)
+    """
+    )
 
 
 def _display_tests_page():
     """Display testing and development page."""
     import streamlit as st
+
     st.title("🔬 Testy i Rozwój")
 
     # Test page selection
     test_option = st.selectbox(
-        "Wybierz moduł testowy:",
-        ["Testy Modeli", "Testy Promptów", "Eksport Danych", "Inne Testy"]
+        "Wybierz moduł testowy:", ["Testy Modeli", "Testy Promptów", "Eksport Danych", "Inne Testy"]
     )
 
     if test_option == "Testy Modeli":
         from src.ui.pages.model_test import model_test_page
+
         model_test_page()
     elif test_option == "Testy Promptów":
         from src.ui.pages.prompts_new import prompts_management_page
+
         prompts_management_page()
     elif test_option == "Eksport Danych":
         from src.ui.pages.export import export_page
+
         export_page()
     else:
         from src.ui.pages.testing import testing_page
+
         testing_page()
 
 

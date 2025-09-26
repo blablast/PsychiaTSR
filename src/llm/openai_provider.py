@@ -30,10 +30,12 @@ class OpenAIProvider(LLMProvider):
     def clear_default_response_format(self) -> None:
         """Clear default response format."""
         self._default_response_format = None
-    
+
     # Conversation methods now inherited from base class
 
-    def _prepare_openai_api_params(self, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
+    def _prepare_openai_api_params(
+        self, messages: List[Dict[str, str]], **kwargs
+    ) -> Dict[str, Any]:
         """Prepare OpenAI-specific API parameters."""
         api_params = {
             "model": self.model_name,
@@ -44,17 +46,21 @@ class OpenAIProvider(LLMProvider):
         # Model-specific parameter handling
         if "gpt-5" in self.model_name:
             # gpt-5 specific parameters
-            api_params.update({
-                "max_completion_tokens": common_params["max_tokens"],
-                "temperature": 1,
-            })
+            api_params.update(
+                {
+                    "max_completion_tokens": common_params["max_tokens"],
+                    "temperature": 1,
+                }
+            )
         else:
             # Standard GPT models
-            api_params.update({
-                "max_tokens": common_params["max_tokens"],
-                "temperature": common_params["temperature"],
-                "top_p": common_params["top_p"]
-            })
+            api_params.update(
+                {
+                    "max_tokens": common_params["max_tokens"],
+                    "temperature": common_params["temperature"],
+                    "top_p": common_params["top_p"],
+                }
+            )
 
         # Add structured output support (from per-request or default)
         response_format = kwargs.get("response_format") or self._default_response_format
@@ -101,7 +107,9 @@ class OpenAIProvider(LLMProvider):
             api_params = self._prepare_openai_api_params(messages, **kwargs)
 
             session = await self._get_openai_session()
-            async with session.post(f"{self.base_url}/chat/completions", json=api_params) as response:
+            async with session.post(
+                f"{self.base_url}/chat/completions", json=api_params
+            ) as response:
                 if response.status != 200:
                     error_text = await response.text()
                     raise Exception(f"OpenAI API error {response.status}: {error_text}")
@@ -117,7 +125,9 @@ class OpenAIProvider(LLMProvider):
         except Exception as e:
             raise Exception(f"OpenAI API error: {str(e)}")
 
-    async def generate_stream_async(self, prompt: str, system_prompt: Optional[str] = None, **kwargs) -> AsyncGenerator[str, None]:
+    async def generate_stream_async(
+        self, prompt: str, system_prompt: Optional[str] = None, **kwargs
+    ) -> AsyncGenerator[str, None]:
         """Generate streaming response using OpenAI API with aiohttp."""
         try:
             # Use base class method to prepare messages
@@ -128,25 +138,29 @@ class OpenAIProvider(LLMProvider):
             api_params["stream"] = True
 
             session = await self._get_openai_session()
-            async with session.post(f"{self.base_url}/chat/completions", json=api_params) as response:
+            async with session.post(
+                f"{self.base_url}/chat/completions", json=api_params
+            ) as response:
                 if response.status != 200:
                     error_text = await response.text()
                     raise Exception(f"OpenAI API error {response.status}: {error_text}")
 
                 full_response = ""
                 async for line in response.content:
-                    line = line.decode('utf-8').strip()
-                    if line.startswith('data: '):
+                    line = line.decode("utf-8").strip()
+                    if line.startswith("data: "):
                         line = line[6:]  # Remove 'data: ' prefix
 
-                        if line == '[DONE]':
+                        if line == "[DONE]":
                             break
 
                         if line:
                             try:
                                 chunk_data = json.loads(line)
-                                if chunk_data.get('choices') and chunk_data['choices'][0].get('delta'):
-                                    content = chunk_data['choices'][0]['delta'].get('content')
+                                if chunk_data.get("choices") and chunk_data["choices"][0].get(
+                                    "delta"
+                                ):
+                                    content = chunk_data["choices"][0]["delta"].get("content")
                                     if content:
                                         full_response += content
                                         yield content
